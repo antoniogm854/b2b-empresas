@@ -17,13 +17,16 @@ export const metadata: Metadata = {
   description: "Sistema optimizado para gestión de catálogos, leads y transacciones industriales B2B con alta eficiencia.",
   keywords: ["b2b", "industrial", "catálogo", "proveedores", "leads", "pwa"],
   manifest: "/manifest.json",
-  themeColor: "#000000",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "B2B AGM",
   },
+};
+
+export const viewport = {
+  themeColor: "#000000",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
 };
 
 import { PWAProvider } from "@/components/pwa/PWAProvider";
