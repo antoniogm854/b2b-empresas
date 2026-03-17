@@ -18,9 +18,9 @@ export const generateExecutiveReportPDF = (stats: ReportStats, company: CompanyD
   const doc = new jsPDF() as jsPDFWithPlugin;
 
   // --- CONFIGURACIÓN DE COLORES Y ESTILOS ---
-  const primaryColor = [22, 163, 74]; // Verde AGM / Industrial
-  const accentColor = [240, 187, 64]; // Dorado B2B
-  const secondaryColor = [30, 41, 59]; // Slate 800
+  const primaryColor: [number, number, number] = [22, 163, 74]; // Verde AGM / Industrial
+  const accentColor: [number, number, number] = [240, 187, 64]; // Dorado B2B
+  const secondaryColor: [number, number, number] = [30, 41, 59]; // Slate 800
 
   // --- CABECERA ESTILO PREMIUM ---
   doc.setFillColor(...secondaryColor);
@@ -53,7 +53,7 @@ export const generateExecutiveReportPDF = (stats: ReportStats, company: CompanyD
   // --- RESUMEN DE INDICADORES (KPIs) ---
   const kpiY = 75;
   // Cuadros de KPI
-  const drawKPI = (x: number, y: number, label: string, value: string, color: number[]) => {
+  const drawKPI = (x: number, y: number, label: string, value: string, color: [number, number, number]) => {
     doc.setFillColor(245, 245, 245);
     doc.roundedRect(x, y, 60, 30, 3, 3, 'F');
     doc.setDrawColor(...color);

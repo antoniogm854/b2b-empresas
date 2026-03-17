@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { 
   ArrowLeft, 
   Save, 
@@ -12,10 +12,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function InventoryEditorPage({ params }: { params: { id: string } }) {
-  // Simulated product data (would be fetched by ID)
+export default function InventoryEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  
+  // Simulated product data (would be fetched by ID using the unwrapped id)
   const [product, setProduct] = useState({
-    id: params.id,
+    id: id,
     name: "Motor Eléctrico Trifásico 10HP",
     brand: "Siemens",
     originalPrice: "$1,200",

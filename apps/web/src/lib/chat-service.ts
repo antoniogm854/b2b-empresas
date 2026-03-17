@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { offlineService } from './offline-service';
 
 export interface ChatMessage {
   id: string;
@@ -42,7 +43,7 @@ export const chatService = {
    * Obtiene mensajes de una conversación.
    * Con soporte offline vía IndexedDB.
    */
-  async getMessages(conversationId: string): Promise<Message[]> {
+  async getMessages(conversationId: string): Promise<ChatMessage[]> {
     try {
       const { data, error } = await supabase
         .from('messages')

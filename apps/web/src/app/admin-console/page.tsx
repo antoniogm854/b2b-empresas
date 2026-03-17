@@ -31,7 +31,7 @@ interface PendingCompany {
   industry: string;
   is_verified: boolean;
   owner_id: string;
-  profiles: Profile;
+  profiles: Profile | Profile[];
 }
 
 interface PendingAd {
@@ -40,7 +40,7 @@ interface PendingAd {
   price: number;
   ad_status: string;
   company_id: string;
-  companies: { name: string };
+  companies: { name: string } | { name: string }[];
 }
 
 export default function AdminConsole() {
@@ -203,7 +203,9 @@ export default function AdminConsole() {
                             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">RUC: {c.tax_id || 'N/A'}</span>
                             <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[9px] font-black uppercase tracking-tighter">{c.industry}</span>
                           </div>
-                          <p className="text-xs text-slate-400 mt-1 italic">Propietario: {c.profiles?.full_name} ({c.profiles?.email})</p>
+                          <p className="text-xs text-slate-400 mt-1 italic">
+                            Propietario: {Array.isArray(c.profiles) ? c.profiles[0]?.full_name : c.profiles?.full_name} ({Array.isArray(c.profiles) ? c.profiles[0]?.email : c.profiles?.email})
+                          </p>
                         </div>
                       </div>
                       <div className="flex space-x-3">
@@ -248,7 +250,9 @@ export default function AdminConsole() {
                     <div key={ad.id} className="p-8 bg-slate-50 rounded-[3rem] border-2 border-transparent hover:border-accent hover:bg-white transition-all">
                       <div className="flex justify-between items-start mb-6">
                         <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">{ad.companies?.name}</p>
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">
+                            {Array.isArray(ad.companies) ? ad.companies[0]?.name : ad.companies?.name}
+                          </p>
                           <h4 className="text-xl font-black text-primary leading-tight">{ad.name}</h4>
                         </div>
                         <div className="text-right">

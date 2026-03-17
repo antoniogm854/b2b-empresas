@@ -35,8 +35,8 @@ export const generateQuotePDF = (lead: LeadData, company: CompanyData) => {
   const doc = new jsPDF() as jsPDFWithPlugin;
 
   // --- CONFIGURACIÓN DE COLORES Y ESTILOS ---
-  const primaryColor = [41, 128, 185]; // Azul Industrial
-  const secondaryColor = [44, 62, 80]; // Gris Oscuro
+  const primaryColor: [number, number, number] = [41, 128, 185]; // Azul Industrial
+  const secondaryColor: [number, number, number] = [44, 62, 80]; // Gris Oscuro
 
   // --- CABECERA ---
   // Rectángulo decorativo superior

@@ -22,6 +22,7 @@ import {
   Product, 
   GCMProduct 
 } from "@/lib/catalog-service";
+import { adService } from "@/lib/ad-service";
 import { useEffect } from "react";
 
 export default function CatalogPage() {
@@ -134,7 +135,11 @@ export default function CatalogPage() {
                       <div>
                         <div className="flex items-center space-x-2">
                           <h3 className="font-black text-lg">{p.name}</h3>
-                          {p.gcm_id && <CheckCircle2 size={16} className="text-accent" title="Vinculado al GCM" />}
+                          {p.gcm_id && (
+                            <span title="Vinculado al GCM">
+                              <CheckCircle2 size={16} className="text-accent" />
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm font-bold text-muted-foreground uppercase opacity-70">
                           Estado: <span className={p.stock_status === 'available' ? 'text-green-500' : 'text-red-500'}>

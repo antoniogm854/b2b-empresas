@@ -9,6 +9,8 @@ export interface FeaturedProduct {
   category: string;
   company_id: string;
   ad_status: 'none' | 'pending' | 'approved' | 'rejected';
+  rating?: number;
+  stock?: string;
   companies: {
     name: string;
     is_verified: boolean;
@@ -24,6 +26,7 @@ export const adService = {
       .from('products')
       .select(`
         id, name, description, price, image_url, category, company_id, ad_status,
+        rating, stock,
         companies (name, is_verified)
       `)
       .eq('is_featured', true)
@@ -34,6 +37,19 @@ export const adService = {
 
     if (error) throw error;
     return (data as any) || [];
+  },
+
+  /**
+   * Obtiene proveedores cercanos basados en la ubicación.
+   * En producción esto usaría PostGIS o un servicio de búsqueda geográfica.
+   */
+  async getNearbySuppliers(productId: string, location: string = "Lima, Peru") {
+    // Simulado para la versión 2.0
+    // En una implementación real, filtraríamos por zona geográfica.
+    return [
+      { id: 'near-1', name: 'Distribuidora Industrial Norte', distance: '2.4 km' },
+      { id: 'near-2', name: 'Suministros Metalúrgicos S.A.', distance: '5.1 km' },
+    ];
   },
 
   /**
