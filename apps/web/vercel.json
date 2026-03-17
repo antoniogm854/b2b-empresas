@@ -1,5 +1,0 @@
-{
-  "buildCommand": "cd ../.. && npm run build --filter=web",
-  "outputDirectory": ".next",
-  "framework": "nextjs"
-}
