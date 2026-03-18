@@ -83,11 +83,11 @@ export function PWAInstallPrompt() {
         
         <Link 
           href="/register"
-          className="w-full bg-[#CCFF00] text-[#052e16] py-5 rounded-[1.5rem] font-black uppercase hover:scale-105 transition-all shadow-[0_0_40px_-5px_#CCFF00] flex flex-col items-center justify-center group mb-6 text-center leading-[0.9]"
+          className="w-full bg-[#064e3b] text-accent py-5 rounded-[1.5rem] font-black uppercase hover:scale-105 transition-all shadow-[0_0_40px_-5px_#064e3b/30] flex flex-col items-center justify-center group mb-6 text-center leading-[0.9] border border-white/10"
           style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}
         >
-          <span className="text-[22px] tracking-[0.22em] mb-1 whitespace-nowrap">INSTALACION</span>
-          <span className="text-[32px] tracking-[-0.05em] whitespace-nowrap">CATALOGO DIGITAL</span>
+          <span className="text-[18px] tracking-[0.15em] mb-1">INSTALACION</span>
+          <span className="text-[26px] tracking-tight">CATALOGO DIGITAL</span>
         </Link>
         
         <div className="flex items-start gap-4">
