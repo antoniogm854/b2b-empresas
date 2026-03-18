@@ -432,21 +432,36 @@ export default function Home() {
             
             <div className="relative group perspective-2000">
               <div className="bg-accent/10 border-[12px] border-accent/20 rounded-[5rem] p-6 rotate-3 group-hover:rotate-0 transition-all duration-1000 shadow-[0_50px_100px_-20px_rgba(240,187,64,0.3)]">
-                <div className="bg-background rounded-[4rem] overflow-hidden aspect-[9/18] relative shadow-inner">
-                  <div className="absolute top-0 inset-x-0 h-20 bg-primary flex items-center justify-center pt-4">
-                    <span className="text-[10px] font-black tracking-widest text-primary-foreground uppercase italic underline decoration-accent text-center">B2B CATÁLOGO DIGITAL DEMO</span>
+                <div className="bg-slate-900 rounded-[4rem] overflow-hidden aspect-[9/18] relative shadow-inner border-[4px] border-slate-800">
+                  <div className="absolute top-0 inset-x-0 h-10 bg-slate-900 flex items-center justify-center">
+                    <div className="w-16 h-4 bg-black rounded-full" /> {/* Notch */}
                   </div>
-                  <div className="p-10 pt-24 space-y-6">
-                    <div className="h-6 w-32 bg-muted animate-pulse rounded-full" />
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="h-44 bg-muted rounded-3xl" />
-                      <div className="h-44 bg-muted rounded-3xl" />
+                  <div className="absolute top-10 inset-x-0 h-12 bg-slate-900 flex items-center justify-center border-b border-white/5">
+                    <span className="text-[8px] font-black tracking-widest text-accent uppercase italic">B2B CATALOGO DIGITAL</span>
+                  </div>
+                  <div className="p-8 pt-24 space-y-6 bg-gradient-to-b from-slate-900 to-black h-full">
+                    <div className="h-4 w-24 bg-white/10 rounded-full" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-32 bg-white/5 rounded-2xl border border-white/5 flex flex-col items-center justify-center p-4">
+                        <div className="w-full h-16 bg-white/10 rounded-lg mb-2" />
+                        <div className="w-12 h-2 bg-white/10 rounded-full" />
+                      </div>
+                      <div className="h-32 bg-white/5 rounded-2xl border border-white/5 flex flex-col items-center justify-center p-4 text-accent">
+                        <Zap size={20} className="mb-2" />
+                        <div className="w-12 h-2 bg-accent/20 rounded-full" />
+                      </div>
                     </div>
-                    <div className="h-12 bg-muted animate-pulse rounded-2xl" />
+                    <div className="space-y-3">
+                      <div className="h-10 bg-white/5 rounded-xl border border-white/5 flex items-center px-4">
+                        <div className="w-full h-1 bg-white/10 rounded-full" />
+                      </div>
+                      <div className="h-10 bg-white/5 rounded-xl border border-white/5 flex items-center px-4">
+                        <div className="w-full h-1 bg-white/10 rounded-full" />
+                      </div>
+                    </div>
                   </div>
-                  <div className="absolute bottom-10 inset-x-10 flex flex-col gap-3">
-                    <div className="h-14 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-black uppercase text-[10px]">Ver Detalles</div>
-                    <div className="h-14 bg-accent rounded-2xl flex items-center justify-center text-primary font-black uppercase text-[10px]">Solicitar RFQ</div>
+                  <div className="absolute bottom-10 inset-x-8 flex flex-col gap-3">
+                    <div className="h-12 bg-accent rounded-xl flex items-center justify-center text-primary font-black uppercase text-[9px] shadow-lg shadow-accent/20">Activar Catálogo</div>
                   </div>
                 </div>
               </div>
