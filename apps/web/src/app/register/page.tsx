@@ -43,16 +43,22 @@ export default function RegisterPage() {
         throw new Error("El nombre solo debe contener letras.");
       }
 
+      // Generate temporary name and slug based on RUC
+      const tempName = `Empresa ${formData.taxId}`;
+      const tempSlug = `ruc-${formData.taxId}-${Math.random().toString(36).substring(7)}`;
+
       await companyService.createCompany({
-        name: formData.companyName,
-        slug: formData.slug,
+        name: tempName,
+        slug: tempSlug,
         tax_id: formData.taxId,
+        // We'll update the email/name in the profile later or via metadata
       });
       
-      router.push("/dashboard");
+      // Redirect to the info entry page (Profile/Setup)
+      router.push("/dashboard/profile?new=true");
     } catch (err: any) {
       console.error("Registration error:", err);
-      setError(err.message || "No se pudo crear el catálogo. El enlace o nombre ya podrían estar en uso.");
+      setError(err.message || "No se pudo crear el catálogo. El RUC ya podría estar registrado.");
     } finally {
       setIsLoading(false);
     }
@@ -179,35 +185,6 @@ export default function RegisterPage() {
                   disabled={isLoading}
                   required
                 />
-              </div>
-
-              {/* Empresa y URL (Required for backend) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-muted">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Nombre de Empresa</label>
-                  <input
-                    type="text"
-                    placeholder="Empresa SAC"
-                    className="w-full bg-muted/50 border-none p-3 rounded-xl font-bold text-sm focus:ring-2 focus:ring-accent transition-all outline-none"
-                    value={formData.companyName}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const slug = val.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-                      setFormData({...formData, companyName: val, slug: slug});
-                    }}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">URL / Slug</label>
-                  <input
-                    type="text"
-                    className="w-full bg-muted/50 border-none p-3 rounded-xl font-bold text-sm focus:ring-2 focus:ring-accent transition-all outline-none"
-                    value={formData.slug}
-                    onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                    required
-                  />
-                </div>
               </div>
             </div>
 

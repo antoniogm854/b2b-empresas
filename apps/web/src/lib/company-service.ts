@@ -12,6 +12,8 @@ export interface Company {
   industry?: string;
   is_verified: boolean;
   tax_id?: string;
+  address?: string;
+  email_corporate?: string;
   verification_data?: any;
   created_at: string;
 }
