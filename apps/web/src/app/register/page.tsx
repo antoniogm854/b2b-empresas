@@ -107,7 +107,7 @@ export default function RegisterPage() {
               style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}
             >
               <span className="text-2xl sm:text-4xl block whitespace-nowrap">TU CATALOGO DIGITAL</span>
-              <span className="text-xl sm:text-3xl block whitespace-nowrap">REGISTRATE GRATIS</span>
+              <span className="text-xl sm:text-3xl block whitespace-nowrap">"REGISTRATE GRATIS"</span>
             </h1>
             <p className="text-muted-foreground font-semibold">Crea tu cuenta de proveedor y publica tu primer catálogo.</p>
           </div>
