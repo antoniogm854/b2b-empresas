@@ -4,12 +4,20 @@ import { use, useState } from "react";
 import { 
   ArrowLeft, 
   Save, 
-  Tag, 
+  Trash2, 
   Package, 
+  Globe, 
+  Smartphone, 
+  QrCode, 
+  AlertCircle, 
+  TrendingUp, 
+  CheckCircle2,
   Info,
+  Tag,
   AlertTriangle,
   FileText
 } from "lucide-react";
+import { formatCurrency } from "@/lib/currency-utils";
 import Link from "next/link";
 
 export default function InventoryEditorPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,12 +28,15 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
     id: id,
     name: "Motor Eléctrico Trifásico 10HP",
     brand: "Siemens",
-    originalPrice: "$1,200",
-    customPrice: "1200",
-    stock: "5",
+    originalPrice: 1200,
+    price: 1200,
+    stock: 5,
     description: "Motor de alta eficiencia para aplicaciones industriales pesadas. IP55, 1750 RPM.",
     customDescription: "",
-    status: "active"
+    status: "active",
+    isPublic: true,
+    allowWhatsappQuotes: true,
+    hasQrCode: false
   });
 
   return (
@@ -59,14 +70,17 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-2">Precio de Venta ($)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-4 font-black">$</span>
-                  <input 
-                    type="number" 
-                    value={product.customPrice}
-                    className="w-full bg-muted/30 border-2 border-transparent focus:border-accent p-4 pl-10 rounded-2xl font-black transition-all outline-none"
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-black">
+                    S/
+                  </span>
+                  <input
+                    type="number"
+                    value={product?.price}
+                    className="w-full bg-muted/50 border-none rounded-2xl py-4 pl-12 pr-4 font-black"
+                    placeholder="0.00"
                   />
                 </div>
-                <p className="text-[10px] font-bold text-muted-foreground ml-2 italic">Precio base GCM: {product.originalPrice}</p>
+                <p className="text-[10px] font-bold text-muted-foreground ml-2 italic">Precio base GCM: {formatCurrency(product.originalPrice)}</p>
               </div>
 
               <div className="space-y-2">
@@ -136,7 +150,7 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
               <h4 className="font-black uppercase text-sm">Control de Calidad</h4>
             </div>
             <p className="text-xs font-bold text-amber-800 leading-relaxed">
-              Recuerda que los cambios en el precio afectan directamente a las solicitudes de cotización generadas desde el APP_CD.
+              Recuerda que los cambios en el precio afectan directamente a las solicitudes de cotización generadas desde el CATÁLOGO DIGITAL.
             </p>
           </div>
         </div>

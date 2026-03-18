@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Briefcase
 } from "lucide-react";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -172,7 +173,7 @@ export default function ProfilePage() {
                 <div className="bg-black/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10 max-w-xs">
                   <p className="text-[10px] font-black uppercase text-accent mb-1 italic">Radio de Entrega Estimado</p>
                   <p className="text-xs text-white/80 font-medium italic">
-                    Tu posición afecta la visibilidad en el motor de proximidad del APP_CD.
+                    Tu posición afecta la visibilidad en el motor de proximidad del CATÁLOGO DIGITAL.
                   </p>
                 </div>
                 <button className="pointer-events-auto bg-white/10 hover:bg-white/20 backdrop-blur-xl p-4 rounded-xl border border-white/20 text-white transition-all active:scale-95">
@@ -203,15 +204,12 @@ export default function ProfilePage() {
           </div>
 
           <div className="bg-background p-10 rounded-[3rem] border-2 border-muted/50 space-y-6">
-            <div className="flex items-center space-x-4">
-              <Upload className="text-accent" size={24} />
-              <h3 className="font-black uppercase italic">Certificaciones</h3>
-            </div>
-            <div className="border-2 border-dashed border-muted rounded-2xl p-6 text-center space-y-4">
-              <Briefcase size={32} className="mx-auto text-muted-foreground" />
-              <p className="text-xs font-bold text-muted-foreground">Sube tu ISO 9001 o certificaciones industriales (PDF/JPG)</p>
-              <button className="text-accent font-black uppercase text-[10px] tracking-widest underline">Seleccionar Archivo</button>
-            </div>
+            <ImageUpload 
+              label="Certificaciones"
+              description="Sube tu ISO 9001 o certificaciones industriales (PDF/JPG)"
+              onUpload={(url) => {}}
+              maxSizeMB={1}
+            />
           </div>
         </div>
       </div>

@@ -48,14 +48,9 @@ export default function AdPlacements({ category, productId }: { category: string
                 <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center font-black text-lg">
                   {ad.name[0]}
                 </div>
-                <div className="flex items-center bg-accent/10 px-2 py-1 rounded-lg">
-                  <Star size={12} className="text-accent fill-accent mr-1" />
-                  <span className="text-[10px] font-black">{ad.rating}</span>
-                </div>
               </div>
               <h4 className="font-black text-sm mb-1 group-hover:text-accent transition-colors">{ad.name}</h4>
               <div className="flex items-center text-[11px] font-bold text-muted-foreground space-x-3">
-                <span className="flex items-center"><Package size={12} className="mr-1" /> Stock {ad.stock}</span>
                 <span className="flex items-center text-emerald-600"><ShieldCheck size={12} className="mr-1" /> Verificado</span>
               </div>
             </div>

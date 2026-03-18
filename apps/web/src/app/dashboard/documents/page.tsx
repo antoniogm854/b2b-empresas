@@ -159,7 +159,7 @@ export default function DocumentsPage() {
           <div className="bg-accent text-primary p-8 rounded-[3rem] shadow-xl shadow-accent/20">
             <h4 className="text-lg font-black uppercase italic mb-3">Sello Gold</h4>
             <p className="text-xs font-bold leading-relaxed mb-6 italic">
-              Al cargar tu ISO 9001/14001 obtienes el distintivo Gold automático en el APP_CD.
+              Al cargar tu ISO 9001/14001 obtienes el distintivo Gold automático en el CATÁLOGO DIGITAL.
             </p>
             <button className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:scale-[1.02] transition-all">
               Saber más

@@ -73,3 +73,24 @@ body {
 .animate-slide-in-right {
   animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-infinite-scroll {
+  animation: infinite-scroll 40s linear infinite;
+}
+
+.industrial-glow {
+  box-shadow: 0 0 40px -10px var(--accent);
+}
+
+.group:hover .industrial-glow-hover {
+  box-shadow: 0 0 60px -5px var(--accent);
+  opacity: 0.15;
+}
+
+.logo-emerald {
+  filter: invert(58%) sepia(100%) saturate(382%) hue-rotate(91deg) brightness(94%) contrast(92%);
+}

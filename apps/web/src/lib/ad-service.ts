@@ -9,8 +9,6 @@ export interface FeaturedProduct {
   category: string;
   company_id: string;
   ad_status: 'none' | 'pending' | 'approved' | 'rejected';
-  rating?: number;
-  stock?: string;
   companies: {
     name: string;
     is_verified: boolean;
@@ -26,7 +24,6 @@ export const adService = {
       .from('products')
       .select(`
         id, name, description, price, image_url, category, company_id, ad_status,
-        rating, stock,
         companies (name, is_verified)
       `)
       .eq('is_featured', true)

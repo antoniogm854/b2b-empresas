@@ -18,7 +18,7 @@ export const generateExecutiveReportPDF = (stats: ReportStats, company: CompanyD
   const doc = new jsPDF() as jsPDFWithPlugin;
 
   // --- CONFIGURACIÓN DE COLORES Y ESTILOS ---
-  const primaryColor: [number, number, number] = [22, 163, 74]; // Verde AGM / Industrial
+  const primaryColor: [number, number, number] = [22, 163, 74]; // Verde B2B Empresas / Industrial
   const accentColor: [number, number, number] = [240, 187, 64]; // Dorado B2B
   const secondaryColor: [number, number, number] = [30, 41, 59]; // Slate 800
 
@@ -40,7 +40,7 @@ export const generateExecutiveReportPDF = (stats: ReportStats, company: CompanyD
   doc.roundedRect(160, 10, 35, 20, 3, 3, 'F');
   doc.setTextColor(...secondaryColor);
   doc.setFontSize(14);
-  doc.text('AGM', 170, 23);
+  doc.text('B2B Empresas', 170, 23);
 
   // --- DATOS DE LA EMPRESA ---
   doc.setFontSize(12);
@@ -126,7 +126,7 @@ export const generateExecutiveReportPDF = (stats: ReportStats, company: CompanyD
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text('Este reporte es estrictamente confidencial y para uso interno de la gerencia.', 105, 280, { align: 'center' });
-  doc.text(`Generado el: ${new Date().toLocaleString('es-PE')} | AGM Intelligence Unit`, 105, 285, { align: 'center' });
+  doc.text(`Generado el: ${new Date().toLocaleString('es-PE')} | B2B Empresas Intelligence Unit`, 105, 285, { align: 'center' });
 
   // Guardar PDF
   doc.save(`Reporte_Ejecutivo_${company.name.replace(/\s/g, '_')}.pdf`);

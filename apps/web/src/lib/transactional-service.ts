@@ -107,8 +107,7 @@ export const transactionalService = {
         companies (
           id,
           name,
-          logo_url,
-          rating
+          logo_url
         )
       `)
       .eq('gcm_id', gcmId);

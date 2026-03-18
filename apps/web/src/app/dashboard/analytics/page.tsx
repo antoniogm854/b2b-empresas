@@ -52,11 +52,11 @@ export default function AnalyticsPage() {
     };
 
     const company: CompanyData = {
-      name: "Corporación Industrial AGM",
+      name: "Corporación Industrial B2B Empresas",
       ruc: "20601234567",
       address: "Av. Industrial 450, Lima",
       phone: "+51 987 654 321",
-      email: "contacto@agm-industrial.com"
+      email: "contacto@b2bempresas.com"
     };
 
     generateExecutiveReportPDF(reportStats, company);

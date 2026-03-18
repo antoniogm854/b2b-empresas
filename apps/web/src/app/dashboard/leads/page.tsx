@@ -51,11 +51,11 @@ export default function LeadsPage() {
   };
 
   const myCompany = {
-    name: "AGM INDUSTRIAL SOLUCIONES",
+    name: "B2B Empresas INDUSTRIAL SOLUCIONES",
     ruc: "20601234567",
     address: "Av. Industrial 450, Lima, Perú",
     phone: "+51 1 700 8000",
-    email: "ventas@agmindustrial.com"
+    email: "ventas@b2bempresas.com"
   };
 
   const handleGeneratePDF = async (lead: Lead) => {

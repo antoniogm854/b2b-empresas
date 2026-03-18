@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Eye
 } from "lucide-react";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 
 export default function DesignPage() {
   const [primaryColor, setPrimaryColor] = useState("#0f172a");
@@ -79,16 +80,12 @@ export default function DesignPage() {
           </div>
 
           <div className="bg-white p-8 rounded-[3rem] border-2 border-muted shadow-sm">
-            <h2 className="text-xl font-black mb-6 flex items-center space-x-2">
-              <Layout className="text-accent" />
-              <span>Logotipo PWA</span>
-            </h2>
-            <div className="border-4 border-dashed border-muted rounded-[2rem] p-10 flex flex-col items-center justify-center space-y-4 hover:border-accent/40 transition-colors cursor-pointer group">
-              <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Upload className="text-muted-foreground" />
-              </div>
-              <p className="text-xs font-black text-muted-foreground">Sube tu logo (512x512px recomendado)</p>
-            </div>
+            <ImageUpload 
+              label="Logotipo PWA"
+              description="Sube tu logo (512x512px recomendado)"
+              onUpload={(url: string) => {}}
+              maxSizeMB={2}
+            />
           </div>
         </div>
 

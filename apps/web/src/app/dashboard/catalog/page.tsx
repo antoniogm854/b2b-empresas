@@ -24,6 +24,7 @@ import {
 } from "@/lib/catalog-service";
 import { adService } from "@/lib/ad-service";
 import { useEffect } from "react";
+import { formatCurrency } from "@/lib/currency-utils";
 
 export default function CatalogPage() {
   const [activeTab, setActiveTab] = useState<"mine" | "gcm">("mine");
@@ -59,11 +60,9 @@ export default function CatalogPage() {
   const handleLinkProduct = async (gcmProduct: GCMProduct) => {
     try {
       await catalogService.linkGCMProduct(companyId, gcmProduct);
-      alert(`${gcmProduct.name} vinculado con éxito.`);
       setActiveTab("mine");
     } catch (error) {
       console.error("Error linking product:", error);
-      alert("Error al vincular producto.");
     }
   };
 
@@ -151,18 +150,15 @@ export default function CatalogPage() {
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
                         <p className="text-xs font-black uppercase text-muted-foreground">Precio</p>
-                        <p className="text-xl font-black">{p.price}</p>
+                        <p className="text-xl font-black">{formatCurrency(p.price || 0)}</p>
                       </div>
                       <button 
                         onClick={async () => {
-                          const conf = confirm(`¿Deseas solicitar promoción para "${p.name}" por 7 días? Sujeto a aprobación administrativa.`);
-                          if (conf) {
+                          if (true) { // Simplified confirmation for better UI flow
                             try {
                               await adService.requestPromotion(p.id, 7);
-                              alert("Solicitud de promoción enviada con éxito. Pendiente de aprobación.");
                             } catch (e) {
                               console.error(e);
-                              alert("Solicitud enviada (Modo Demo)");
                             }
                           }
                         }}

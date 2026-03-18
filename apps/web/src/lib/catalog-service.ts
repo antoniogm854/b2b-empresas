@@ -12,6 +12,7 @@ export interface Product {
   category?: string;
   is_active: boolean;
   ad_status: 'none' | 'pending' | 'approved' | 'rejected';
+  country_code?: string;
 }
 
 export interface GCMProduct {

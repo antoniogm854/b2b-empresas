@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Home,
   Package,
@@ -29,6 +30,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const menuItems = [
     { icon: Home, label: "Vista General", href: "/dashboard", active: true },
@@ -53,16 +59,38 @@ export default function DashboardLayout({
       >
         <div className="flex flex-col h-full px-4 py-6">
           <div className="flex items-center justify-between mb-10 px-2">
-            {isSidebarOpen && (
-              <span className="text-xl font-black text-primary-foreground tracking-tighter italic uppercase underline decoration-accent">
-                B2B EMPRESAS
-              </span>
-            )}
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative w-8 h-8 transition-transform group-hover:scale-110 flex-shrink-0">
+                <Image 
+                  src="/logo/logo-icon.png" 
+                  alt="Logo Icon" 
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                  priority
+                  suppressHydrationWarning
+                />
+              </div>
+              {isSidebarOpen && (
+                <div className="relative w-32 h-6 transition-all animate-in fade-in slide-in-from-left-2 duration-500">
+                  <Image 
+                    src="/logo/logo-text.png" 
+                    alt="B2B Empresas" 
+                    width={128}
+                    height={24}
+                    className="object-contain logo-emerald"
+                    priority
+                    suppressHydrationWarning
+                  />
+                </div>
+              )}
+            </Link>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 rounded-xl bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 transition-colors"
+              suppressHydrationWarning
             >
-              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {mounted && (isSidebarOpen ? <X size={20} /> : <Menu size={20} />)}
             </button>
           </div>
 
@@ -76,8 +104,9 @@ export default function DashboardLayout({
                     ? "bg-accent text-primary shadow-lg shadow-accent/20" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
+                suppressHydrationWarning
               >
-                <item.icon className="w-6 h-6 shrink-0" />
+                {mounted && <item.icon className="w-6 h-6 shrink-0" />}
                 {isSidebarOpen && (
                   <span className="font-bold truncate">{item.label}</span>
                 )}
@@ -90,8 +119,8 @@ export default function DashboardLayout({
             ))}
           </nav>
 
-          <button className="flex items-center p-3 rounded-2xl text-accent hover:bg-accent/10 transition-all font-bold mt-auto">
-            <LogOut className="w-6 h-6 shrink-0" />
+          <button className="flex items-center p-3 rounded-2xl text-accent hover:bg-accent/10 transition-all font-bold mt-auto" suppressHydrationWarning>
+            {mounted && <LogOut className="w-6 h-6 shrink-0" />}
             {isSidebarOpen && <span className="ml-4">Cerrar Sesión</span>}
           </button>
         </div>
@@ -101,8 +130,8 @@ export default function DashboardLayout({
       <main className={`transition-all duration-300 ${isSidebarOpen ? "pl-64" : "pl-20"}`}>
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 bg-background/80 backdrop-blur-md border-b">
-          <div className="flex items-center bg-muted px-4 py-2 rounded-2xl w-full max-w-md">
-            <Search className="text-muted-foreground mr-3" size={18} />
+          <div className="flex items-center bg-muted px-4 py-2 rounded-2xl w-full max-w-md" suppressHydrationWarning>
+            {mounted && <Search className="text-muted-foreground mr-3" size={18} />}
             <input 
               type="text" 
               placeholder="Buscar productos, leads..." 
@@ -111,8 +140,8 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center space-x-6">
-            <button className="relative p-2 rounded-xl hover:bg-muted transition-colors">
-              <Bell size={20} className="text-muted-foreground" />
+            <button className="relative p-2 rounded-xl hover:bg-muted transition-colors" suppressHydrationWarning>
+              {mounted && <Bell size={20} className="text-muted-foreground" />}
               <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-background" />
             </button>
             
