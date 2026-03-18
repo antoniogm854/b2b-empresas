@@ -13,7 +13,9 @@ import {
   TrendingUp,
   ChevronRight,
   Smartphone,
-  CheckCircle2
+  CheckCircle2,
+  Menu,
+  X
 } from "lucide-react";
 import { 
   adService, 
@@ -31,6 +33,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -133,7 +136,44 @@ export default function Home() {
             <Link href="/admin-console" id="btn-admin-master" className="bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg hover:bg-primary/90 transition-all flex items-center gap-2 shadow-lg shadow-primary/10" suppressHydrationWarning>
               {mounted && <ShieldCheck size={14} />} Admin Master
             </Link>
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden p-2 text-muted-foreground hover:text-accent transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
+        </div>
+
+        {/* Mobile Menu Drawer */}
+        <div 
+          className={`lg:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-xl transition-all duration-500 ease-in-out ${
+            isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+          style={{ top: mounted && scrolled ? "80px" : "112px" }}
+        >
+          <nav className="flex flex-col items-center justify-center h-full gap-8 p-12 text-2xl font-black uppercase tracking-widest text-primary italic">
+            {["CORPORATIVO", "SOPORTE OPERATIVO", "EMPRESAS", "IDENTIDAD"].map((item) => (
+              <a 
+                key={item} 
+                href={`#${item.toLowerCase().replace(/ /g, '-')}`} 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="hover:text-accent transition-colors border-b-2 border-transparent hover:border-accent pb-2"
+              >
+                {item}
+              </a>
+            ))}
+            <Link 
+              href="/dashboard" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="mt-8 text-sm font-black uppercase tracking-widest px-10 py-5 rounded-2xl bg-primary text-primary-foreground shadow-2xl"
+            >
+              Login Portal
+            </Link>
+          </nav>
         </div>
       </header>
 
@@ -160,9 +200,9 @@ export default function Home() {
                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest italic text-accent/80">GESTION - DESARROLLO - SOLUCIONES EMPRESARIALES</span>
               </div>
               
-               <h1 className="text-4xl sm:text-6xl md:text-[7.5rem] font-black text-primary-foreground leading-[0.9] sm:leading-[0.85] tracking-tightest uppercase italic animate-fade-in-up">
+               <h1 className="text-4xl sm:text-6xl md:text-[7.5rem] font-black text-primary-foreground leading-[0.9] sm:leading-[0.85] tracking-tightest uppercase italic animate-fade-in-up [animation-delay:400ms]">
                 La Red <br className="hidden sm:block" />
-                <span className="text-accent underline decoration-4 sm:decoration-8 decoration-accent/30 underline-offset-[-5px] sm:underline-offset-[-10px]">Maestra</span> <br />
+                <span className="text-accent underline decoration-4 sm:decoration-8 decoration-accent/30 underline-offset-[-5px] sm:underline-offset-[-10px] animate-pulse">Maestra</span> <br />
                 <span className="whitespace-normal sm:whitespace-nowrap">Para su Empresa.</span>
               </h1>
 
@@ -170,22 +210,22 @@ export default function Home() {
                 <p className="text-xl md:text-2xl text-primary-foreground/70 font-bold max-w-xl leading-relaxed">
                   Conectamos proveedores líderes con compradores corporativos a través de un ecosistema inteligente de catálogos y aplicaciones de alto rendimiento.
                 </p>
-                <div className="flex flex-wrap gap-6 pt-4">
+                <div className="flex flex-wrap gap-4 sm:gap-6 pt-4">
                   <Link 
                     href="/register" 
-                    className="group bg-accent text-[#064e3b] px-8 sm:px-10 py-4 sm:py-5 rounded-full hover:scale-105 transition-transform flex flex-col items-center justify-center text-center shadow-2xl shadow-accent/20 leading-[0.9]" 
+                    className="group bg-accent text-[#064e3b] px-6 sm:px-10 py-4 sm:py-5 rounded-2xl sm:rounded-full hover:scale-105 transition-all flex flex-col items-center justify-center text-center shadow-2xl shadow-accent/20 leading-[0.9] border-2 border-accent/50" 
                     style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}
                     suppressHydrationWarning
                   >
-                    <span className="text-[16px] sm:text-[20px] tracking-tight mb-1 whitespace-nowrap">SOPORTE OPERATIVO</span>
-                    <span className="text-[24px] sm:text-[32px] tracking-tighter whitespace-nowrap">CATALOGO DIGITAL</span>
+                    <span className="text-[14px] sm:text-[20px] tracking-tight mb-1 whitespace-nowrap">SOPORTE OPERATIVO</span>
+                    <span className="text-[20px] sm:text-[32px] tracking-tighter whitespace-nowrap">CATALOGO DIGITAL</span>
                   </Link>
                   <button 
-                    className="bg-[#064e3b] text-primary-foreground border-2 border-white/20 px-8 py-4 rounded-2xl hover:bg-[#064e3b]/90 transition-all backdrop-blur-md flex flex-col items-center justify-center text-center leading-none"
+                    className="bg-[#064e3b]/80 backdrop-blur-md text-primary-foreground border-2 border-white/20 px-6 sm:px-8 py-4 rounded-2xl hover:bg-[#064e3b] transition-all flex flex-col items-center justify-center text-center leading-none group"
                     style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}
                   >
-                    <span className="text-xl uppercase tracking-[0.65em] mb-1">SOMOS TU</span>
-                    <span className="text-3xl uppercase tracking-tighter">SOCIO ESTRATEGICO</span>
+                    <span className="text-base sm:text-xl uppercase tracking-[0.4em] sm:tracking-[0.65em] mb-1 group-hover:tracking-[0.8em] transition-all">SOMOS TU</span>
+                    <span className="text-2xl sm:text-3xl uppercase tracking-tighter">SOCIO ESTRATEGICO</span>
                   </button>
                 </div>
               </div>
@@ -264,7 +304,7 @@ export default function Home() {
                 featured.map((product: FeaturedProduct) => (
                   <div key={product.id} className="group bg-card rounded-[3.5rem] border-2 border-muted/50 overflow-hidden hover:border-accent transition-all duration-700 hover:shadow-4xl hover:shadow-accent/5 relative">
                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-accent/0 group-hover:bg-accent/5 transition-all duration-700 blur-3xl industrial-glow-hover opacity-0" />
-                    <div className="aspect-[4/5] relative overflow-hidden">
+                    <div className="aspect-[4/5] relative overflow-hidden group-hover:rounded-b-[2rem] transition-all duration-700">
                       {mounted && (
                         <Image 
                           src={product.image_url || "/hero.webp"} 
@@ -274,36 +314,35 @@ export default function Home() {
                           suppressHydrationWarning
                         />
                       )}
-                      <div className="absolute top-8 left-8 flex flex-col gap-3">
-                         <span className="bg-primary text-primary-foreground text-[10px] font-black px-5 py-2.5 rounded-xl uppercase tracking-widest shadow-2xl flex items-center gap-2 backdrop-blur-md" suppressHydrationWarning>
-                           {mounted && <ShieldCheck size={14} className="text-accent" />} Empresa Verificada
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                      <div className="absolute top-6 left-6 flex flex-col gap-2">
+                         <span className="bg-primary/80 backdrop-blur-md text-primary-foreground text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest shadow-xl flex items-center gap-2 border border-white/10" suppressHydrationWarning>
+                           {mounted && <ShieldCheck size={14} className="text-accent" />} Verificado
                          </span>
-                         <span className="bg-accent text-primary text-[10px] font-black px-5 py-2.5 rounded-xl uppercase tracking-widest shadow-2xl w-fit">
-                           En Stock
+                         <span className="bg-accent text-primary text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest shadow-xl w-fit border border-white/20">
+                           Stock
                          </span>
                       </div>
                     </div>
-                    <div className="p-10 bg-gradient-to-b from-card to-muted/10">
-                      <div className="flex justify-between items-start mb-8">
-                        <div className="max-w-[70%]">
-                          <p className="text-[10px] font-black uppercase text-muted-foreground/60 mb-1">Precio Unitario</p>
-                          <p className="text-2xl font-black text-primary group-hover:text-accent transition-colors">
-                            {formatCurrency(product.price)}
-                          </p>
-                          <h3 className="text-2xl md:text-3xl font-black tracking-tightest leading-tight group-hover:text-primary transition-colors">
-                            {product.name}
-                          </h3>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black text-muted-foreground uppercase mb-1">Inversión</span>
-                            <span className="font-black text-4xl text-primary italic leading-none">${product.price}</span>
-                            <span className="text-[10px] font-bold text-muted-foreground/50 mt-1 uppercase tracking-tighter">Sin I.G.V</span>
+                    <div className="p-8 bg-card group-hover:bg-accent/5 transition-colors duration-700">
+                      <div className="flex flex-col gap-4 mb-6">
+                        <div className="flex justify-between items-end">
+                          <div className="space-y-1">
+                            <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-tighter">Inversión Corporativa</p>
+                            <p className="text-3xl font-black text-primary group-hover:text-accent transition-colors leading-none tracking-tight">
+                              {formatCurrency(product.price)}
+                            </p>
+                          </div>
+                          <div className="px-3 py-1 bg-muted rounded-md border border-border">
+                            <span className="text-[9px] font-black text-muted-foreground uppercase">+ I.G.V</span>
                           </div>
                         </div>
+                        <h3 className="text-2xl font-black tracking-tightest leading-[0.9] group-hover:text-primary transition-colors uppercase italic">
+                          {product.name}
+                        </h3>
                       </div>
-                      <button className="w-full bg-secondary py-6 rounded-[1.8rem] font-black uppercase text-sm tracking-widest hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center gap-3 shadow-xl group/btn" suppressHydrationWarning>
-                         Solicitar Cotización Técnica {mounted && <ArrowRight size={20} className="group-hover/btn:translate-x-2 transition-transform" />}
+                      <button className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl group/btn" suppressHydrationWarning>
+                         Cotizar Ahora {mounted && <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />}
                       </button>
                     </div>
                   </div>
@@ -335,31 +374,31 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
                   title: "Catálogo Maestro (GCM)",
                   desc: "Estandarización absoluta de productos industriales con fichas técnicas inteligentes.",
-                  icon: <Globe size={32} />
+                  icon: <Globe size={28} />
                 },
                 {
                   title: "SaaS Multi-tenant",
                   desc: "Cada proveedor obtiene una versión personalizada y optimizada de su catálogo en segundos.",
-                  icon: <Package size={32} />
+                  icon: <Package size={28} />
                 },
                 {
                   title: "Cloud Interconnect",
-                  desc: "Sincronización total vía Supabase y Firebase para procesos de cotización en tiempo real.",
-                  icon: <Zap size={32} />
+                  desc: "Sincronización total vía Supabase para procesos de cotización vinculados en tiempo real.",
+                  icon: <Zap size={28} />
                 }
               ].map((feature, i) => (
-                <div key={i} className="group p-10 rounded-[3rem] bg-card border border-border hover:border-accent hover:shadow-3xl hover:shadow-accent/5 transition-all duration-500 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700" />
-                  <div className="w-16 h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center mb-10 group-hover:rotate-6 transition-transform" suppressHydrationWarning>
+                <div key={i} className="group p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-md border border-white/10 hover:border-accent/40 hover:bg-white/10 transition-all duration-500 relative overflow-hidden flex flex-col items-center text-center">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-16 h-16 bg-accent/20 text-accent rounded-2xl flex items-center justify-center mb-8 group-hover:bg-accent group-hover:text-primary transition-all duration-500" suppressHydrationWarning>
                     {mounted && feature.icon}
                   </div>
-                  <h3 className="text-2xl font-black mb-4 group-hover:text-primary transition-colors">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed font-medium">{feature.desc}</p>
+                  <h3 className="text-xl font-black mb-4 tracking-tighter uppercase italic">{feature.title}</h3>
+                  <p className="text-muted-foreground/80 leading-relaxed font-bold text-sm">{feature.desc}</p>
                 </div>
               ))}
             </div>
