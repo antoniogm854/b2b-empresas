@@ -103,11 +103,11 @@ export default function RegisterPage() {
         <div className="w-full max-w-md space-y-12 mt-12 md:mt-0">
           <div className="space-y-4 text-center">
             <h1 
-              className="text-3xl sm:text-5xl font-black tracking-tightest uppercase italic text-[#064e3b] leading-none"
+              className="font-black tracking-tightest uppercase italic text-[#064e3b] leading-tight"
               style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}
             >
-              TU CATALOGO DIGITAL <br />
-              <span className="text-2xl sm:text-4xl">REGISTRATE GRATIS</span>
+              <span className="text-2xl sm:text-4xl block whitespace-nowrap">TU CATALOGO DIGITAL</span>
+              <span className="text-xl sm:text-3xl block whitespace-nowrap">REGISTRATE GRATIS</span>
             </h1>
             <p className="text-muted-foreground font-semibold">Crea tu cuenta de proveedor y publica tu primer catálogo.</p>
           </div>
