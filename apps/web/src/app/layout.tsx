@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     images: ["/hero.webp"],
   },
   verification: {
-    google: "V_SEARCH_CONSOLE_CODE_PLACEHOLDER",
+    google: "FAYhqOoL1Nl-i4G10Ws9yYkB8rVXY_BnvtOTZMQ3854",
   },
   appleWebApp: {
     capable: true,
