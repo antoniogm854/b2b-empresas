@@ -109,7 +109,11 @@ export default function RegisterPage() {
               <span className="text-2xl sm:text-4xl block whitespace-nowrap">TU CATALOGO DIGITAL</span>
               <span className="text-xl sm:text-3xl block whitespace-nowrap">"REGISTRATE GRATIS"</span>
             </h1>
-            <p className="text-muted-foreground font-semibold">Crea tu cuenta de proveedor y publica tu primer catálogo.</p>
+            <div className="space-y-1 text-center text-muted-foreground font-bold text-xs sm:text-sm leading-tight tracking-tight">
+              <p>Tenemos la Mejor Herramienta de Gestión Comercial Industrial</p>
+              <p>Exclusivamente Clientes B2B - Compras y Ventas Corporativas</p>
+              <p>“Su Catalogo Digital en 1 minutos y Sin Costo”</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8 group">
