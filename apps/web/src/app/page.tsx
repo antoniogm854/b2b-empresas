@@ -567,22 +567,6 @@ export default function Home() {
         </div>
       </a>
 
-      {/* Floating Support Technical Registration */}
-      <Link 
-        href="/register"
-        className="fixed bottom-6 sm:bottom-10 left-6 sm:left-10 z-[100] group"
-      >
-        <div className="absolute -inset-4 bg-accent/10 rounded-full blur-xl group-hover:bg-accent/20 transition-all animate-pulse" />
-        <div className="relative bg-[#020617] text-accent p-3 sm:p-6 rounded-[1.2rem] sm:rounded-[2.5rem] shadow-2xl border-2 border-accent/30 hover:scale-110 active:scale-95 transition-all flex items-center gap-2 sm:gap-5 backdrop-blur-md">
-          <div className="flex flex-col items-center text-center leading-[0.9]" style={{ fontFamily: "'Bodoni MT Black', 'Bodoni MT', serif" }}>
-            <span className="text-[8px] sm:text-[18px] tracking-[0.05em] sm:tracking-[0.1em] mb-1 whitespace-nowrap">SOPORTE TECNICO</span>
-            <span className="text-[12px] sm:text-[30px] tracking-tighter whitespace-nowrap">CATALOGO DIGITAL</span>
-          </div>
-          <div className="w-6 h-6 sm:w-12 sm:h-12 bg-accent/20 rounded-lg sm:rounded-2xl flex items-center justify-center">
-            <ShieldCheck size={mounted ? (window?.innerWidth < 640 ? 18 : 28) : 28} className="text-accent" />
-          </div>
-        </div>
-      </Link>
     </div>
   );
 }
