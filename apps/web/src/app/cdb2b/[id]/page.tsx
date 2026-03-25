@@ -10,10 +10,25 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   
   return {
     title: `${tenant.company_name} | Catálogo Digital B2B`,
-    description: `Consulta el catálogo industrial de ${tenant.company_name}. Productos de alta calidad y fichas técnicas.`,
+    description: `Catálogo Oficial de ${tenant.trade_name || tenant.company_name}. Sector: ${tenant.sector || 'Industrial'}. Consulte productos técnicos, fichas y disponibilidad en nuestra vitrina digital certificada.`,
     openGraph: {
-      title: tenant.company_name,
-      description: "Catálogo Digital B2B - Vitrina de Productos Industriales",
+      title: `Catálogo Industrial: ${tenant.company_name}`,
+      description: `Especialistas en ${tenant.sector || 'Suministros B2B'}. Ver catálogo oficial.`,
+      images: [
+        {
+          url: tenant.logo_url || "/logo/logo-icon.png",
+          width: 800,
+          height: 600,
+          alt: `Logo ${tenant.company_name}`,
+        },
+      ],
+      type: 'website',
+      siteName: 'B2B Empresas',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${tenant.company_name} | Catálogo B2B`,
+      description: `Vitrina digital de suministros industriales.`,
       images: [tenant.logo_url || "/logo/logo-icon.png"],
     },
   };

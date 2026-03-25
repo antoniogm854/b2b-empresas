@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LayoutClassic from "./LayoutClassic";
 import LayoutModern from "./LayoutModern";
 import LayoutTechSpec from "./LayoutTechSpec";
+import { analyticsService } from "@/lib/analytics-service";
 
 interface CatalogViewProps {
   tenant: any;
@@ -27,6 +28,12 @@ export default function CatalogView({ tenant, products }: CatalogViewProps) {
       whatsapp_button: true
     }
   };
+
+  useEffect(() => {
+    if (tenant.id) {
+      analyticsService.trackCatalogView(tenant.id);
+    }
+  }, [tenant.id]);
 
   const template = settings.template_id || "classic";
   
