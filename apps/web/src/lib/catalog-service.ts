@@ -29,6 +29,8 @@ export interface CatalogMasterProduct {
   model?: string;
   image_url_1?: string;
   sku_cuim?: string;
+  category_id?: string;
+  description?: string;
 }
 
 export const catalogService = {

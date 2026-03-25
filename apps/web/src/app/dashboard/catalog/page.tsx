@@ -254,12 +254,10 @@ export default function CatalogPage() {
 
       // 2. Link with optimized data
       await catalogService.linkMasterProduct(tenantId, masterProduct, {
-        name: aiResult.optimizedName,
-        description: `OPTIMIZADO POR IA: ${aiResult.optimizedName}. \nEste producto es ideal para el sector de ${aiResult.suggestedCategory}. Certificado para uso industrial.`,
-        category_id: aiResult.suggestedCategory, // Asumiendo que esto se mapea a un ID en un sistema real
-        price: 0,
-        stock: 0,
-        status: 'active'
+        custom_name: aiResult.optimizedName,
+        custom_description: `OPTIMIZADO POR IA: ${aiResult.optimizedName}. \nEste producto es ideal para el sector de ${aiResult.suggestedCategory}. Certificado para uso industrial.`,
+        unit_price: 0,
+        stock_available: true
       });
 
       setActiveTab("mine");

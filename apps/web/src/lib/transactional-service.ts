@@ -130,7 +130,7 @@ export const transactionalService = {
       ...leadBaseData,
       tenant_id: s.tenant_id,
       status: 'pending',
-      quote_items: [{ master_id: masterId, suggested_price: s.price }]
+      quote_items: [{ master_id: masterId, suggested_price: s.unit_price }]
     }));
 
     const { data, error } = await supabase

@@ -66,7 +66,7 @@ export default function MarketplaceClient() {
       await transactionalService.createMultiSupplierRFQ({
         customer_name: user?.user_metadata?.full_name || "Comprador Marketplace",
         customer_email: user?.email || "comprador@b2bempresas.com",
-        message: `Solicitud de cotización masiva para ${selectedProduct.name}.`
+        message: `Solicitud de cotización masiva para ${selectedProduct.product_name}.`
       }, selectedProduct.id);
       setRfqSent(true);
       setTimeout(() => setRfqSent(false), 3000);
@@ -130,7 +130,7 @@ export default function MarketplaceClient() {
                       : 'border-white bg-white hover:border-blue-200'
                     }`}
                   >
-                    <p className="font-bold text-slate-900">{product.name}</p>
+                    <p className="font-bold text-slate-900">{product.product_name}</p>
                     <p className="text-sm text-slate-500">{product.brand} - {product.model}</p>
                   </button>
                 ))}
@@ -146,7 +146,7 @@ export default function MarketplaceClient() {
                       <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                         {selectedProduct.category_id || 'Industrial'}
                       </span>
-                      <h2 className="text-3xl font-bold text-slate-900">{selectedProduct.name}</h2>
+                      <h2 className="text-3xl font-bold text-slate-900">{selectedProduct.product_name}</h2>
                       <p className="text-slate-500">{selectedProduct.brand} | {selectedProduct.model}</p>
                     </div>
                     
@@ -181,15 +181,15 @@ export default function MarketplaceClient() {
                         <div key={offer.company_id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden">
-                              {offer.companies.logo_url ? (
-                                <img src={offer.companies.logo_url} alt={offer.companies.name} className="w-full h-full object-cover" />
+                              {offer.tenants?.logo_url ? (
+                                <img src={offer.tenants.logo_url} alt={offer.tenants.company_name} className="w-full h-full object-cover" />
                               ) : (
                                 <Building2 className="w-6 h-6 text-slate-400" />
                               )}
                             </div>
                             <div>
-                               <p className="font-bold text-slate-900">{offer.companies.name}</p>
-                               <p className="text-sm text-blue-600 font-medium">{offer.price ? `USD ${offer.price}` : t('price_on_request')}</p>
+                               <p className="font-bold text-slate-900">{offer.tenants?.company_name}</p>
+                               <p className="text-sm text-blue-600 font-medium">{offer.unit_price ? `USD ${offer.unit_price}` : t('price_on_request')}</p>
                             </div>
                           </div>
                           <div className="text-right">

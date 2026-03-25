@@ -102,7 +102,13 @@ export const adminService = {
       .eq('is_active', true); // Temporal: v1.01 no tiene ad_status
 
     if (error) throw error;
-    return data;
+    
+    return (data || []).map(item => ({
+      ...item,
+      name: item.custom_name,
+      price: item.unit_price,
+      companies: item.tenants // Map tenants to companies for component compatibility
+    }));
   },
 
   /**
