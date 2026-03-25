@@ -205,7 +205,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">
-              © {new Date().getFullYear()} {settings?.company_name || "B2B EMPRESAS"} — LATAM INDUSTRIAL PLATFORM
+              © {new Date().getFullYear()} {settings?.company_name || "B2B EMPRESAS"} — LATAM INDUSTRIAL PLATFORM — v1.01.2026-Premium
             </p>
             <div className="flex items-center gap-4">
               <CountryLanguageSelector />
