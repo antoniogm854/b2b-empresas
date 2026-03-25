@@ -91,6 +91,7 @@ export default function Home() {
                 <span className="block drop-shadow-2xl text-[0.85em] mt-2">
                   {t('title').split(' ').slice(3).join(' ')}
                 </span>
+                <span className="absolute top-0 right-0 text-[10px] opacity-10 font-bold tracking-widest hidden lg:block">v1.01.2026-PREMIUM-DEVOPS-SYNC</span>
               </h1>
 
               <div className="flex flex-col items-center md:items-start gap-8 animate-fade-in-up delay-300">
