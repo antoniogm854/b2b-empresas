@@ -1,18 +1,22 @@
 import { supabase } from './supabase';
 import { offlineService } from './offline-service';
 
-export type LeadStatus = 'pending' | 'contacted' | 'completed' | 'cancelled';
+export type LeadStatus = 'pending' | 'contacted' | 'completed' | 'cancelled' | 'new' | 'read' | 'responded';
 
 export interface Lead {
   id: string;
   tenant_id: string;
-  buyer_name: string;
-  buyer_email: string;
+  buyer_name?: string;
+  buyer_email?: string;
+  customer_name?: string;
+  customer_email?: string;
   buyer_phone?: string;
+  customer_phone?: string;
   buyer_company?: string;
   message: string;
-  products_interested: string[];
-  status: 'new' | 'read' | 'responded';
+  products_interested?: string[];
+  quote_items?: any[];
+  status: LeadStatus;
   created_at: string;
 }
 
@@ -48,7 +52,7 @@ export const transactionalService = {
   /**
    * Actualiza el estado de una cotización/lead.
    */
-  async updateLeadStatus(leadId: string, status: 'read' | 'responded') {
+  async updateLeadStatus(leadId: string, status: LeadStatus) {
     const { error } = await supabase
       .from('buyer_contacts')
       .update({ status })

@@ -16,22 +16,22 @@ import { generateQuotePDF } from "@/lib/pdf/quote-generator";
 import { transactionalService, Lead, LeadStatus } from "@/lib/transactional-service";
 
 import { authService } from "@/lib/auth-service";
-import { companyService, Company } from "@/lib/company-service";
+import { companyService, Tenant } from "@/lib/company-service";
 
 export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [company, setCompany] = useState<Company | null>(null);
+  const [company, setCompany] = useState<Tenant | null>(null);
 
   useEffect(() => {
     async function initData() {
       setLoading(true);
       try {
         const user = await authService.getCurrentUser();
-        if (user) {
-          const comp = await companyService.getCompanyByOwner(user.id);
+        if (user && user.email) {
+          const comp = await companyService.getTenantByUserEmail(user.email);
           if (comp) {
             setCompany(comp);
             const data = await transactionalService.getLeads(comp.id);
@@ -60,22 +60,22 @@ export default function LeadsPage() {
   };
 
   const myCompany = {
-    name: company?.name || "Empresa B2B",
-    ruc: company?.tax_id || "N/A",
+    name: company?.company_name || "Empresa B2B",
+    ruc: company?.ruc_rut_nit || "N/A",
     address: company?.address || "N/A",
-    phone: company?.phone_whatsapp || "N/A",
-    email: company?.email_corporate || "N/A"
+    phone: company?.phone || "N/A",
+    email: company?.email || "N/A"
   };
 
   const handleGeneratePDF = async (lead: Lead) => {
     setIsGenerating(true);
     try {
       const mappedLead = {
-        customerName: lead.customer_name,
-        customerEmail: lead.customer_email,
+        customerName: lead.customer_name || lead.buyer_name || "Cliente",
+        customerEmail: lead.customer_email || lead.buyer_email || "cliente@b2b.com",
         customerCompany: "Empresa Cliente", // Podría venir en metadata
         createdAt: new Date(lead.created_at).toLocaleDateString(),
-        items: lead.quote_items.map((item: any, index: number) => ({
+        items: (lead.quote_items || []).map((item: any, index: number) => ({
           id: `item-${index}`,
           name: item.name,
           description: item.specs || item.description,
@@ -150,8 +150,8 @@ export default function LeadsPage() {
                     {new Date(lead.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="font-black text-sm">{lead.customer_name}</h3>
-                <p className="text-xs font-bold text-muted-foreground truncate">{lead.customer_email}</p>
+                <h3 className="font-black text-sm">{lead.customer_name || lead.buyer_name}</h3>
+                <p className="text-xs font-bold text-muted-foreground truncate">{lead.customer_email || lead.buyer_email}</p>
               </div>
             ))
           ) : (
@@ -167,10 +167,10 @@ export default function LeadsPage() {
             <div className="p-8 border-b flex justify-between items-center bg-background/50 backdrop-blur-xl sticky top-0 z-10">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center font-black text-primary-foreground text-xl">
-                  {selectedLead.customer_name[0]}
+                  {(selectedLead.customer_name || selectedLead.buyer_name || "?")[0]}
                 </div>
                 <div>
-                  <h2 className="text-xl font-black">{selectedLead.customer_name}</h2>
+                  <h2 className="text-xl font-black">{selectedLead.customer_name || selectedLead.buyer_name}</h2>
                   <div className="flex items-center gap-2">
                     <select 
                       value={selectedLead.status}
@@ -208,8 +208,8 @@ export default function LeadsPage() {
                 </div>
                 <div className="bg-muted/30 p-6 rounded-2xl border border-muted">
                   <Phone className="text-accent mb-2" size={20} />
-                  <p className="text-[10px] font-black uppercase text-muted-foreground">Teléfono</p>
-                  <p className="font-bold text-sm">{selectedLead.customer_phone || "No provisto"}</p>
+                  <p className="font-black text-[10px] uppercase text-muted-foreground">Teléfono</p>
+                  <p className="font-bold text-sm">{selectedLead.customer_phone || selectedLead.buyer_phone || "No provisto"}</p>
                 </div>
                 <div className="bg-muted/30 p-6 rounded-2xl border border-muted">
                   <MessageSquare className="text-accent mb-2" size={20} />
