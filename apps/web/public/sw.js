@@ -1,4 +1,4 @@
-const CACHE_NAME = 'b2b-agm-cache-v1';
+const CACHE_NAME = 'b2b-agm-cache-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -32,23 +32,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event - network first, fallback to cache (Disabled caching for dev stability)
 self.addEventListener('fetch', (event) => {
   // Only cache GET requests
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        // Cache successful responses
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
       .catch(() => {
         return caches.match(event.request);
       })

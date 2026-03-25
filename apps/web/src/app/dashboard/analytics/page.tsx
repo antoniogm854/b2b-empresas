@@ -17,24 +17,34 @@ import {
 import { analyticsService } from "@/lib/analytics-service";
 import { generateExecutiveReportPDF, ReportStats } from "@/lib/pdf/report-service";
 import { CompanyData } from "@/lib/pdf/quote-generator";
+import { authService } from "@/lib/auth-service";
+import { companyService, Company } from "@/lib/company-service";
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<any>(null);
+  const [company, setCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    async function loadMetrics() {
+    async function loadData() {
       try {
-        // ID de empresa simulado para demostración
-        const data = await analyticsService.getCompanyMetrics("CURRENT_COMPANY_ID");
-        setMetrics(data);
+        setLoading(true);
+        const user = await authService.getCurrentUser();
+        if (user) {
+          const compData = await companyService.getCompanyByOwner(user.id);
+          if (compData) {
+            setCompany(compData);
+            const stats = await analyticsService.getCompanyMetrics(compData.id);
+            setMetrics(stats);
+          }
+        }
       } catch (error) {
-        console.error("Error loading metrics:", error);
+        console.error("Error loading analytics data:", error);
       } finally {
         setLoading(false);
       }
     }
-    loadMetrics();
+    loadData();
   }, []);
 
   const handleDownloadReport = () => {
@@ -51,15 +61,15 @@ export default function AnalyticsPage() {
       period: new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })
     };
 
-    const company: CompanyData = {
-      name: "Corporación Industrial B2B Empresas",
-      ruc: "20601234567",
-      address: "Av. Industrial 450, Lima",
-      phone: "+51 987 654 321",
-      email: "contacto@b2bempresas.com"
+    const companyData: CompanyData = {
+      name: company?.name || "Empresa Industrial B2B",
+      ruc: company?.tax_id || "N/A",
+      address: company?.address || "N/A",
+      phone: company?.phone_whatsapp || "N/A",
+      email: company?.email_corporate || "N/A"
     };
 
-    generateExecutiveReportPDF(reportStats, company);
+    generateExecutiveReportPDF(reportStats, companyData);
   };
 
   const stats = [

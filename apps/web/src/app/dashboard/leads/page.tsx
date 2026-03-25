@@ -15,28 +15,37 @@ import {
 import { generateQuotePDF } from "@/lib/pdf/quote-generator";
 import { transactionalService, Lead, LeadStatus } from "@/lib/transactional-service";
 
+import { authService } from "@/lib/auth-service";
+import { companyService, Company } from "@/lib/company-service";
+
 export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-
-  // ID de empresa demo
-  const companyId = "CURRENT_COMPANY_ID";
+  const [company, setCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    async function fetchLeads() {
+    async function initData() {
+      setLoading(true);
       try {
-        const data = await transactionalService.getLeads(companyId);
-        setLeads(data);
+        const user = await authService.getCurrentUser();
+        if (user) {
+          const comp = await companyService.getCompanyByOwner(user.id);
+          if (comp) {
+            setCompany(comp);
+            const data = await transactionalService.getLeads(comp.id);
+            setLeads(data);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching leads:", error);
+        console.error("Error initializing leads page:", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchLeads();
-  }, [companyId]);
+    initData();
+  }, []);
 
   const handleStatusUpdate = async (leadId: string, newStatus: LeadStatus) => {
     try {
@@ -51,11 +60,11 @@ export default function LeadsPage() {
   };
 
   const myCompany = {
-    name: "B2B Empresas INDUSTRIAL SOLUCIONES",
-    ruc: "20601234567",
-    address: "Av. Industrial 450, Lima, Perú",
-    phone: "+51 1 700 8000",
-    email: "ventas@b2bempresas.com"
+    name: company?.name || "Empresa B2B",
+    ruc: company?.tax_id || "N/A",
+    address: company?.address || "N/A",
+    phone: company?.phone_whatsapp || "N/A",
+    email: company?.email_corporate || "N/A"
   };
 
   const handleGeneratePDF = async (lead: Lead) => {

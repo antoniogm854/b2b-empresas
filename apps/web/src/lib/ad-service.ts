@@ -6,34 +6,47 @@ export interface FeaturedProduct {
   description: string;
   price: number;
   image_url: string;
-  category: string;
-  company_id: string;
-  ad_status: 'none' | 'pending' | 'approved' | 'rejected';
-  companies: {
-    name: string;
-    is_verified: boolean;
-  };
+  tenant_id: string;
+  tenant_name: string;
 }
 
 export const adService = {
   /**
-   * Obtiene los productos destacados aprobados y activos.
+   * Obtiene los productos destacados.
+   * Se adapta al esquema v1.01 (tenant_catalog + catalog_master).
    */
   async getFeaturedProducts(limit: number = 6): Promise<FeaturedProduct[]> {
+    // Nota: El esquema v1.01 simplificado no tiene is_featured o ad_status en tenant_catalog.
+    // Usaremos is_active por ahora y limitaremos los resultados.
     const { data, error } = await supabase
-      .from('products')
+      .from('tenant_catalog')
       .select(`
-        id, name, description, price, image_url, category, company_id, ad_status,
-        companies (name, is_verified)
+        id, 
+        custom_name, 
+        custom_description, 
+        unit_price, 
+        tenant_id,
+        catalog_master (image_url_1),
+        tenants!tenant_id (company_name)
       `)
-      .eq('is_featured', true)
-      .eq('ad_status', 'approved')
-      .gt('ad_expires_at', new Date().toISOString())
-      .order('priority_score', { ascending: false })
+      .eq('is_active', true)
       .limit(limit);
 
-    if (error) throw error;
-    return (data as any) || [];
+    if (error) {
+      console.error("Supabase error in getFeaturedProducts:", error);
+      throw error;
+    }
+    
+    // Mapear los datos de la base de datos a la interfaz que espera el componente
+    return (data as any[] || []).map(item => ({
+      id: item.id,
+      name: item.custom_name || 'Producto sin nombre',
+      description: item.custom_description || '',
+      price: item.unit_price || 0,
+      image_url: item.catalog_master?.image_url_1 || '/hero.webp',
+      tenant_id: item.tenant_id,
+      tenant_name: item.tenants?.company_name || 'Proveedor'
+    }));
   },
 
   /**
@@ -48,42 +61,4 @@ export const adService = {
       { id: 'near-2', name: 'Suministros Metalúrgicos S.A.', distance: '5.1 km' },
     ];
   },
-
-  /**
-   * Solicita la promoción de un producto (Queda pendiente de aprobación).
-   */
-  async requestPromotion(productId: string, days: number = 7) {
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + days);
-
-    const { data, error } = await supabase
-      .from('products')
-      .update({
-        is_featured: true,
-        ad_expires_at: expirationDate.toISOString(),
-        ad_status: 'pending',
-        priority_score: 1.0
-      })
-      .eq('id', productId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Aprueba o rechaza una promoción (Solo para Administradores).
-   */
-  async updateAdStatus(productId: string, status: 'approved' | 'rejected') {
-    const { data, error } = await supabase
-      .from('products')
-      .update({ ad_status: status })
-      .eq('id', productId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
 };

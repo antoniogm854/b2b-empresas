@@ -41,13 +41,19 @@ export function ImageUpload({ label, description, onUpload, maxSizeMB = 2 }: Ima
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
 
-    // 4. Upload Simulation (Connect to Supabase in Production)
+    // 4. File processing
     setLoading(true);
     setTimeout(() => {
-      setLoading(false);
-      // In a real scenario, we would upload to Supabase storage and get a URL
-      onUpload("https://via.placeholder.com/512"); 
-    }, 1500);
+      setLoading(true);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setLoading(false);
+        if (event.target?.result) {
+          onUpload(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }, 1000);
   };
 
   const clearFile = () => {

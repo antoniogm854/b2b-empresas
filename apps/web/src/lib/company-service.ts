@@ -1,81 +1,163 @@
 import { supabase } from './supabase';
 
-export interface Company {
+export interface Tenant {
   id: string;
-  owner_id: string;
-  name: string;
-  slug: string;
+  owner_id?: string; // v1.01 no usa owner_id directamente en tenants sino en tenant_users? 
+  // Nota: v1_01_schema.sql no tiene owner_id en tenants. Tiene tenant_users vinculado.
+  company_name: string;
+  trade_name?: string;
+  ruc_rut_nit?: string;
+  sector?: string;
+  country: string;
+  city?: string;
+  address?: string;
+  fiscal_address?: string;
+  activity_main?: string;
+  activity_sec1?: string;
+  activity_sec2?: string;
+  fecha_inicio?: string;
+  representantes?: any[];
+  website?: string;
+  email: string;
+  phone: string;
+  phone_commercial?: string;
+  contact_name: string;
+  status: 'pending' | 'active' | 'suspended' | 'cancelled';
+  plan: 'free' | 'pro' | 'enterprise';
+  compliance_score?: number;
+  compliance_stars?: number;
+  cuup?: string;
   description?: string;
   logo_url?: string;
-  website?: string;
-  phone_whatsapp?: string;
-  industry?: string;
-  is_verified: boolean;
-  tax_id?: string;
-  address?: string;
-  email_corporate?: string;
-  verification_data?: any;
+  slug?: string;
+  // Campos Industrial Premium v1.30
+  estado_sunat?: string;
+  condicion_sunat?: string;
+  linkedin_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  youtube_url?: string;
+  tiktok_url?: string;
+  allow_scraping?: boolean;
+  catalog_settings?: any;
   created_at: string;
 }
 
 export const companyService = {
-  // Crear una nueva empresa (Registro de proveedor)
-  async createCompany(companyData: Partial<Company>) {
-    // Nota: owner_id debería venir de la sesión de Auth en una app real
-    // Para esta fase, simulamos el owner_id si no se proporciona
+  // Crear un nuevo tenant (Registro de proveedor)
+  async createTenant(tenantData: Partial<Tenant>) {
     const { data, error } = await supabase
-      .from('companies')
+      .from('tenants')
       .insert([
         {
-          name: companyData.name,
-          slug: companyData.slug,
-          owner_id: companyData.owner_id || '00000000-0000-0000-0000-000000000000', // Placeholder UUID
-          industry: companyData.industry || 'Industrial',
-          is_verified: false,
-          ...companyData
+          company_name: tenantData.company_name,
+          ruc_rut_nit: tenantData.ruc_rut_nit,
+          sector: tenantData.sector || 'Industrial',
+          country: tenantData.country || 'Peru',
+          email: tenantData.email,
+          phone: tenantData.phone,
+          contact_name: tenantData.contact_name,
+          status: 'pending',
+          ...tenantData
         }
       ])
       .select()
       .single();
 
     if (error) throw error;
-    return data as Company;
+    return data as Tenant;
   },
 
-  // Obtener empresa por ID de propietario
-  async getCompanyByOwner(ownerId: string) {
+  // Obtener tenant por ID
+  async getTenantById(id: string) {
     const { data, error } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('owner_id', ownerId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
-    return data as Company | null;
-  },
-
-  // Obtener empresa por Slug
-  async getCompanyBySlug(slug: string) {
-    const { data, error } = await supabase
-      .from('companies')
-      .select('*, company_designs(*)')
-      .eq('slug', slug)
-      .single();
+      .from('tenants')
+      .select('*, tenant_themes(*)')
+      .eq('id', id)
+      .maybeSingle();
 
     if (error) throw error;
     return data;
   },
 
-  // Actualizar metadatos de la empresa
-  async updateCompany(id: string, updates: Partial<Company>) {
+  // Obtener tenant por Email del usuario (vía tenant_users)
+  async getTenantByUserEmail(email: string) {
     const { data, error } = await supabase
-      .from('companies')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+      .from('tenant_users')
+      .select('*, tenants(*, tenant_themes(*))')
+      .eq('email', email)
+      .maybeSingle();
 
     if (error) throw error;
-    return data as Company;
+    return data?.tenants as any || null;
+  },
+
+  // Obtener tenant por Slug
+  async getTenantBySlug(slug: string) {
+    // Nota: v1.01 usa URLs basadas en ID o slugs en catalog_links.
+    // Buscaremos por company_name aproximado o ID si es necesario.
+    const { data, error } = await supabase
+      .from('tenants')
+      .select('*, tenant_themes(*)') 
+      .or(`company_name.ilike.%${slug}%,trade_name.ilike.%${slug}%`)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Actualizar metadatos del tenant
+  // SEGURIDAD: Solo se permiten campos que existen físicamente en la tabla 'tenants' (v1.01)
+  // NOTA: Si falla por falta de columnas, realizamos un segundo intento con solo campos básicos.
+  async updateTenant(id: string, updates: Partial<Tenant>) {
+    // 🛡️ Lista Blanca de campos reales en la DB (v1.01 estándar)
+    const dbFieldsV101 = [
+      'company_name', 'trade_name', 'ruc_rut_nit', 'sector', 
+      'country', 'city', 'address', 'website', 'email', 
+      'phone', 'phone_commercial', 'contact_name', 'plan', 'status',
+      'catalog_settings'
+    ];
+
+    try {
+      // Intento 1: Todo el objeto (Asumiendo que el usuario ya corrió la migración v1.30)
+      const { data, error } = await supabase
+        .from('tenants')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        // Si el error es por columnas faltantes, vamos al catch para el Intento 2
+        if (error.message.includes('column') || error.code === '42703') {
+          throw error; 
+        }
+        throw error;
+      }
+      return data as Tenant;
+
+    } catch (err: any) {
+      console.warn('[DB_SYNC] Error en actualización completa. Reintentando con campos básicos v1.01...', err.message);
+      
+      const basicUpdates: any = {};
+      Object.keys(updates).forEach(key => {
+        if (dbFieldsV101.includes(key)) {
+          basicUpdates[key] = (updates as any)[key];
+        }
+      });
+
+      const { data, error } = await supabase
+        .from('tenants')
+        .update(basicUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Lanzamos una advertencia controlada para que la UI sepa que fue parcial
+      (data as any)._partial_sync = true;
+      return data as Tenant;
+    }
   }
 };

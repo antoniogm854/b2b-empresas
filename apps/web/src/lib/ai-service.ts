@@ -1,6 +1,6 @@
 /**
- * ai-service.ts (Simulador V2.0)
- * Este servicio simula la integración con un LLM para optimizar el catálogo industrial.
+ * ai-service.ts (Motor de Optimización V2.1)
+ * Este servicio utiliza una capa de simulación de IA para optimizar el catálogo industrial.
  */
 
 export interface AIAnalysisResult {

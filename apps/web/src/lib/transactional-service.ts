@@ -5,27 +5,28 @@ export type LeadStatus = 'pending' | 'contacted' | 'completed' | 'cancelled';
 
 export interface Lead {
   id: string;
-  company_id: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone?: string;
+  tenant_id: string;
+  buyer_name: string;
+  buyer_email: string;
+  buyer_phone?: string;
+  buyer_company?: string;
   message: string;
-  quote_items: any[];
-  status: LeadStatus;
+  products_interested: string[];
+  status: 'new' | 'read' | 'responded';
   created_at: string;
 }
 
 export const transactionalService = {
   /**
-   * Obtiene todos los leads para una empresa específica.
+   * Obtiene todos los leads para un tenant específico.
    * Intenta sincronizar con caché local para soporte offline.
    */
-  async getLeads(companyId: string): Promise<Lead[]> {
+  async getLeads(tenantId: string): Promise<Lead[]> {
     try {
       const { data, error } = await supabase
-        .from('leads')
+        .from('buyer_contacts')
         .select('*')
-        .eq('company_id', companyId)
+        .eq('tenant_id', tenantId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -40,16 +41,16 @@ export const transactionalService = {
       console.error("Network error fetching leads, trying offline cache:", error);
       // Fallback a caché local si falla la red
       const cachedLeads = await offlineService.getLeads();
-      return cachedLeads.filter((l: any) => l.company_id === companyId);
+      return cachedLeads.filter((l: any) => l.tenant_id === tenantId);
     }
   },
 
   /**
    * Actualiza el estado de una cotización/lead.
    */
-  async updateLeadStatus(leadId: string, status: LeadStatus) {
+  async updateLeadStatus(leadId: string, status: 'read' | 'responded') {
     const { error } = await supabase
-      .from('leads')
+      .from('buyer_contacts')
       .update({ status })
       .eq('id', leadId);
 
@@ -61,13 +62,13 @@ export const transactionalService = {
    */
   async compareProducts(productIds: string[]) {
     const { data, error } = await supabase
-      .from('products')
+      .from('tenant_catalog')
       .select(`
         id,
-        name,
-        price,
-        global_catalog_master (
-          technical_specs,
+        custom_name,
+        unit_price,
+        catalog_master (
+          observations,
           brand,
           model
         )
@@ -83,10 +84,10 @@ export const transactionalService = {
    */
   async createLead(leadData: Omit<Lead, 'id' | 'created_at' | 'status'>) {
     const { data, error } = await supabase
-      .from('leads')
+      .from('buyer_contacts')
       .insert([{
         ...leadData,
-        status: 'pending'
+        status: 'new'
       }])
       .select()
       .single();
@@ -98,29 +99,28 @@ export const transactionalService = {
   /**
    * Obtiene todos los proveedores que ofrecen un producto específico del Catálogo Maestro.
    */
-  async getSuppliersByProduct(gcmId: string) {
+  async getSuppliersByProduct(masterId: string) {
     const { data, error } = await supabase
-      .from('products')
+      .from('tenant_catalog')
       .select(`
-        company_id,
-        price,
-        companies (
+        tenant_id,
+        unit_price,
+        tenants (
           id,
-          name,
-          logo_url
+          company_name
         )
       `)
-      .eq('gcm_id', gcmId);
+      .eq('master_product_id', masterId);
 
     if (error) throw error;
     return data;
   },
 
   /**
-   * Crea solicitudes de cotización masivas a múltiples proveedores para un producto GCM.
+   * Crea solicitudes de cotización masivas a múltiples proveedores para un producto del Catálogo Maestro.
    */
-  async createMultiSupplierRFQ(leadBaseData: any, gcmId: string) {
-    const suppliers = await this.getSuppliersByProduct(gcmId);
+  async createMultiSupplierRFQ(leadBaseData: any, masterId: string) {
+    const suppliers = await this.getSuppliersByProduct(masterId);
     
     if (!suppliers || suppliers.length === 0) {
       throw new Error("No hay proveedores disponibles para este producto.");
@@ -128,9 +128,9 @@ export const transactionalService = {
 
     const leadsToCreate = suppliers.map((s: any) => ({
       ...leadBaseData,
-      company_id: s.company_id,
+      tenant_id: s.tenant_id,
       status: 'pending',
-      quote_items: [{ gcm_id: gcmId, suggested_price: s.price }]
+      quote_items: [{ master_id: masterId, suggested_price: s.price }]
     }));
 
     const { data, error } = await supabase

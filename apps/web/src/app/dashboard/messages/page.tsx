@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { chatService, ChatMessage, Conversation } from "@/lib/chat-service";
 import { supabase } from "@/lib/supabase";
+import { authService } from "@/lib/auth-service";
 
 export default function MessagesPage() {
   const [chats, setChats] = useState<Conversation[]>([]);
@@ -19,10 +20,16 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newMessage, setNewMessage] = useState("");
+  const [user, setUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadConversations();
+    async function init() {
+      const u = await authService.getCurrentUser();
+      setUser(u);
+      loadConversations();
+    }
+    init();
   }, []);
 
   useEffect(() => {
@@ -47,6 +54,7 @@ export default function MessagesPage() {
 
   const loadConversations = async () => {
     try {
+      setIsLoading(true);
       const data = await chatService.getConversations();
       setChats(data);
     } catch (error) {
@@ -141,7 +149,7 @@ export default function MessagesPage() {
 
             <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-muted/5">
               {messages.map((msg) => {
-                const isMe = msg.sender_id === activeChat.buyer_id; // Simulación simple para la demo
+                const isMe = msg.sender_id === user?.id; 
                 return (
                   <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[70%] p-4 rounded-2xl ${
