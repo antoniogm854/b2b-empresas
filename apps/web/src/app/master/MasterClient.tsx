@@ -211,7 +211,7 @@ export default function MasterClient() {
               <p className="text-white/40 font-black uppercase tracking-[0.3em] text-[10px] pt-8">{t('strategy')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Link href="/dashboard" className="group">
+              <Link href="/login?mode=welcome&next=/dashboard" className="group">
                 <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--primary)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--primary)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
                   <div className="relative z-10 flex flex-col h-full">
@@ -226,7 +226,7 @@ export default function MasterClient() {
                   </div>
                 </div>
               </Link>
-              <Link href="/admin-console" className="group">
+              <Link href="/login?mode=welcome&next=/admin-console" className="group">
                 <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--accent)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--accent)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
                   <div className="relative z-10 flex flex-col h-full">

@@ -40,6 +40,8 @@ Para un despliegue exitoso del monorepo, usa la siguiente configuración en el D
 
 ---
 
+---
+
 ## 4. Estética Industrial Premium
 El sistema aplica un lenguaje visual de alto contraste:
 1.  **Glassmorphism:** Capas traslúcidas de baja opacidad.
@@ -48,8 +50,15 @@ El sistema aplica un lenguaje visual de alto contraste:
 
 ---
 
+## 5. Protocolos de Seguridad y Validación (v1.01.2)
+1.  **Doble Capa de Seguridad (Master-Login):** Todo acceso corporativo vía "Clave Maestra" fuerza el cierre de sesiones previas (`mode=welcome`) y exige la validación de credenciales individuales (User/Pass).
+2.  **Validación de Canales Digitales:** Los campos de redes sociales cuentan con mapeo estricto de dominios (ej: LinkedIn, TikTok) e impiden el guardado de datos cruzados o inválidos mediante alertas visuales en rojo.
+3.  **Compliance Score:** Auditoría automatizada de perfil (vía `Step2Profile.tsx`) que asigna puntaje basado en la veracidad técnica de los datos.
+
+---
+
 ## 5. Historial de Versiones
-*   **v1.01.2026-Premium (25-Mar-2026):** **Lanzamiento Oficial**. Implementación de Dashboard de Analíticas, SEO dinámico con OpenGraph, Rediseño de Landing Page v1.01 y migración final a arquitectura Monorepo Optimizada.
+*   **v1.01.2026-Premium (25-Mar-2026):** **Lanzamiento Oficial**. Implementación de Dashboard de Analíticas, SEO dinámico con OpenGraph, Rediseño de Landing Page v1.01, Estabilización de Arquitectura Monorepo y **Refuerzo de Seguridad Corporativa Dual**.
 
 ---
 *Manual actualizado por Antigravity - Versión final v1.01.2026*

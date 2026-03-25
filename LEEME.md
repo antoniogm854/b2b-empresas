@@ -45,7 +45,9 @@ Este archivo es la fuente de verdad del proyecto. Registra cada decisión técni
 | 25-Mar-2026 | v1.01 | **SEO Avanzado**: Integración de OpenGraph dinámico para catálogos. | ✅ |
 | 25-Mar-2026 | v1.01 | **Rediseño Home**: Hero v1.01 con estética industrial y flujo de conversión mejorado. | ✅ |
 | 25-Mar-2026 | DevOps | Sincronización de Monorepo en Vercel (Root=`.`, Build=Turbo). | ✅ |
-| 25-Mar-2026 | Audit | Auditoría v1.01: Limpieza de código muerto y actualización integral de Manuales. | ✅ |
+| 25-Mar-2026 | Secure | **Doble Capa de Seguridad**: Validación forzada de credenciales en Acceso Corporativo. | ✅ |
+| 25-Mar-2026 | Audit | **Canales Digitales**: Validación estricta de dominios para redes sociales (Master-Pattern). | ✅ |
+| 25-Mar-2026 | Final | Auditoría v1.01: Limpieza de código muerto y actualización integral de Manuales. | ✅ |
 
 ---
 

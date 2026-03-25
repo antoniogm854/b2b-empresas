@@ -20,13 +20,16 @@ export default function LoginClient() {
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [nextUrl, setNextUrl] = useState<string>("/dashboard");
 
   useEffect(() => {
     setMounted(true);
     
-    // Check if we need to force re-validation (from PWA icon)
+    // Check if we need to force re-validation (from Master or PWA)
     const params = new URLSearchParams(window.location.search);
     const forceWelcome = params.get('mode') === 'welcome';
+    const next = params.get('next');
+    if (next) setNextUrl(next);
 
     if (forceWelcome) {
       authService.signOut().then(() => {
@@ -40,7 +43,7 @@ export default function LoginClient() {
   }, []);
 
   const handleContinue = () => {
-    router.push("/dashboard");
+    router.push(nextUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,7 +58,7 @@ export default function LoginClient() {
       );
 
       if (user) {
-        router.push("/dashboard");
+        router.push(nextUrl);
       }
     } catch (err: any) {
       console.error("Login error:", err);
