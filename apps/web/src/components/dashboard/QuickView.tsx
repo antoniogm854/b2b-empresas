@@ -53,9 +53,11 @@ export default function ProductQuickView({ product, onClose, onAction, actionLab
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-4xl font-black italic tracking-tightest uppercase">{product.name}</h2>
+            <h2 className="text-4xl font-black italic tracking-tightest uppercase">
+              {product.custom_name || product.product_name || product.name || "Item Industrial"}
+            </h2>
             <p className="text-lg font-medium text-muted-foreground leading-relaxed">
-              {product.specs || "Especificaciones técnicas completas para aplicaciones industriales de alta exigencia."}
+              {product.custom_description || product.description || product.specs || "Especificaciones técnicas completas para aplicaciones industriales de alta exigencia."}
             </p>
           </div>
 

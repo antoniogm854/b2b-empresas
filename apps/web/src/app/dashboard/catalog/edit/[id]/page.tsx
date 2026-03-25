@@ -70,10 +70,10 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
     if (!product) return;
     try {
       setIsOptimizing(true);
-      const result = await aiService.analyzeProduct(product.name, product.description || "");
+      const result = await aiService.analyzeProduct(product.custom_name, product.custom_description || "");
       setProduct({
         ...product,
-        description: result.optimizedName || product.description
+        custom_description: result.optimizedName || product.custom_description
       });
       setSaveMessage({ text: "Descripción optimizada por IA", type: "success" });
     } catch (err) {
@@ -163,8 +163,8 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
                   <div className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-[var(--muted-foreground)]">S/</div>
                   <input 
                     type="number" 
-                    value={product.price}
-                    onChange={(e) => setProduct({...product, price: parseFloat(e.target.value)})}
+                    value={product.unit_price}
+                    onChange={(e) => setProduct({...product, unit_price: parseFloat(e.target.value)})}
                     className="w-full bg-[var(--muted)]/50 border border-[var(--border)] focus:border-[var(--primary)] p-5 pl-12 rounded-2xl font-bold transition-all outline-none text-sm shadow-inner"
                   />
                 </div>
@@ -173,8 +173,8 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
               <div className="space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--muted-foreground)] ml-1">Estado de Stock</label>
                 <select 
-                  value={product.stock_status}
-                  onChange={(e) => setProduct({...product, stock_status: e.target.value as any})}
+                  value={product.stock_available ? "available" : "not_available"}
+                  onChange={(e) => setProduct({...product, stock_available: e.target.value === "available"})}
                   className="w-full bg-[var(--muted)]/50 border border-[var(--border)] focus:border-[var(--primary)] p-5 rounded-2xl font-bold transition-all outline-none text-sm shadow-inner appearance-none"
                 >
                   <option value="available">Disponible en Almacén</option>
@@ -197,8 +197,8 @@ export default function InventoryEditorPage({ params }: { params: Promise<{ id: 
                 </div>
                 <textarea 
                   rows={6}
-                  value={product.description || ""}
-                  onChange={(e) => setProduct({...product, description: e.target.value})}
+                  value={product.custom_description || ""}
+                  onChange={(e) => setProduct({...product, custom_description: e.target.value})}
                   className="w-full bg-[var(--muted)]/50 border border-[var(--border)] focus:border-[var(--primary)] p-6 rounded-[2rem] font-bold transition-all outline-none resize-none text-sm shadow-inner leading-relaxed"
                   placeholder="Describa las capacidades industriales del item..."
                 />
