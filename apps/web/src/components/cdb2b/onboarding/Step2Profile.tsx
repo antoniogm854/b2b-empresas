@@ -94,20 +94,41 @@ export default function Step2Profile({ onNext, onPrev, initialData }: Step2Props
     }
     
     const lowerUrl = url.toLowerCase();
-    let isValid = false;
+    let isValidHost = false;
+    let errorMessage = "";
 
-    // Verificar si contiene el dominio correspondiente a la red social
+    // 🛡️ Validación Estricta por Dominio
     switch (network) {
-      case 'linkedin': isValid = lowerUrl.includes('linkedin.com') || lowerUrl.includes('lnkd.in'); break;
-      case 'facebook': isValid = lowerUrl.includes('facebook.com') || lowerUrl.includes('fb.com') || lowerUrl.includes('fb.watch'); break;
-      case 'instagram': isValid = lowerUrl.includes('instagram.com') || lowerUrl.includes('ig.me'); break;
-      case 'youtube': isValid = lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be'); break;
-      case 'tiktok': isValid = lowerUrl.includes('tiktok.com'); break;
+      case 'linkedin': 
+        isValidHost = lowerUrl.includes('linkedin.com') || lowerUrl.includes('lnkd.in'); 
+        errorMessage = "El enlace no es de LinkedIn.";
+        break;
+      case 'facebook': 
+        isValidHost = lowerUrl.includes('facebook.com') || lowerUrl.includes('fb.com') || lowerUrl.includes('fb.watch'); 
+        errorMessage = "El enlace no corresponde a Facebook.";
+        break;
+      case 'instagram': 
+        isValidHost = lowerUrl.includes('instagram.com') || lowerUrl.includes('ig.me'); 
+        errorMessage = "El enlace no es de Instagram.";
+        break;
+      case 'youtube': 
+        isValidHost = lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be'); 
+        errorMessage = "El enlace no es de YouTube.";
+        break;
+      case 'tiktok': 
+        isValidHost = lowerUrl.includes('tiktok.com'); 
+        errorMessage = "El enlace no pertenece a TikTok.";
+        break;
     }
 
-    // Asegurarse de que al menos empiece con un formato de URL básico
-    if (!isValid || (!lowerUrl.startsWith('http://') && !lowerUrl.startsWith('https://') && !lowerUrl.includes('www.'))) {
-      setSocialErrors(prev => ({ ...prev, [network]: `El enlace es inválido o no pertenece a ${network}.` }));
+    // Validación de protocolo básico
+    const hasBasicFormat = lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://') || lowerUrl.startsWith('www.');
+
+    if (!isValidHost) {
+      setSocialErrors(prev => ({ ...prev, [network]: errorMessage }));
+      return false;
+    } else if (!hasBasicFormat) {
+      setSocialErrors(prev => ({ ...prev, [network]: "Usa un formato válido (https://...)" }));
       return false;
     } else {
       setSocialErrors(prev => ({ ...prev, [network]: "" }));

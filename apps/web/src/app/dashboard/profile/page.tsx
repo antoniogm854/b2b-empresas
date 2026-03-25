@@ -51,6 +51,7 @@ function ProfileContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState({ text: "", type: "" });
+  const [socialErrors, setSocialErrors] = useState<{ [key: string]: string }>({});
   const [step, setStep] = useState(1);
   
   const searchParams = useSearchParams();
@@ -144,7 +145,54 @@ function ProfileContent() {
 
   const { score, stars } = calculateCompliance();
 
+  const validateSocialLink = (fieldId: string, url: string) => {
+    if (!url || url.trim() === "") {
+      setSocialErrors(prev => ({ ...prev, [fieldId]: "" }));
+      return true;
+    }
+
+    const lowerUrl = url.toLowerCase();
+    let isValidHost = false;
+    let errorMessage = "";
+    let networkName = "";
+
+    if (fieldId.includes('linkedin')) { networkName = "LinkedIn"; isValidHost = lowerUrl.includes('linkedin.com') || lowerUrl.includes('lnkd.in'); }
+    else if (fieldId.includes('facebook')) { networkName = "Facebook"; isValidHost = lowerUrl.includes('facebook.com') || lowerUrl.includes('fb.com') || lowerUrl.includes('fb.watch'); }
+    else if (fieldId.includes('instagram')) { networkName = "Instagram"; isValidHost = lowerUrl.includes('instagram.com') || lowerUrl.includes('ig.me'); }
+    else if (fieldId.includes('youtube')) { networkName = "YouTube"; isValidHost = lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be'); }
+    else if (fieldId.includes('tiktok')) { networkName = "TikTok"; isValidHost = lowerUrl.includes('tiktok.com'); }
+
+    const hasBasicFormat = lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://') || lowerUrl.startsWith('www.');
+
+    if (!isValidHost) {
+      errorMessage = `El enlace no corresponde a ${networkName}.`;
+      setSocialErrors(prev => ({ ...prev, [fieldId]: errorMessage }));
+      return false;
+    } else if (!hasBasicFormat) {
+      setSocialErrors(prev => ({ ...prev, [fieldId]: "Usa un formato válido (https://...)" }));
+      return false;
+    } else {
+      setSocialErrors(prev => ({ ...prev, [fieldId]: "" }));
+      return true;
+    }
+  };
+
   const handleSave = async (isFinal = false) => {
+    // Validar redes sociales antes de intentar guardar
+    const socialFields = ['linkedin_url', 'facebook_url', 'instagram_url', 'youtube_url', 'tiktok_url'];
+    let hasErrors = false;
+    socialFields.forEach(field => {
+      if (!validateSocialLink(field, (formData as any)[field])) {
+        hasErrors = true;
+      }
+    });
+
+    if (hasErrors) {
+      setSaveMessage({ text: "Corrige los errores en las redes sociales antes de guardar.", type: "error" });
+      setTimeout(() => setSaveMessage({ text: "", type: "" }), 5000);
+      return;
+    }
+
     try {
       setIsSaving(true);
       setSaveMessage({ text: "Guardando...", type: "info" });
@@ -573,11 +621,20 @@ function ProfileContent() {
                           <input 
                             type="text" 
                             value={(formData as any)[social.id]} 
-                            onChange={(e) => setFormData({...formData, [social.id]: e.target.value})}
+                            onChange={(e) => {
+                              setFormData({...formData, [social.id]: e.target.value});
+                              validateSocialLink(social.id, e.target.value);
+                            }}
+                            onBlur={(e) => validateSocialLink(social.id, e.target.value)}
                             placeholder={social.placeholder}
                             className="bg-transparent border-none outline-none text-xs font-bold w-full px-5 py-3"
                           />
                        </div>
+                       {socialErrors[social.id] && (
+                         <span className="text-red-500 text-[9px] font-black uppercase tracking-widest pl-4 mt-1 animate-reveal block">
+                           {socialErrors[social.id]}
+                         </span>
+                       )}
                     </div>
                    ))}
                 </div>
