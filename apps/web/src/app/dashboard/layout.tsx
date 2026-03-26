@@ -53,15 +53,15 @@ export default function DashboardLayout({
     }
 
     const loadData = async () => {
-      const user = await authService.getCurrentUser();
-      if (!user) {
-        router.push("/login");
-        return;
-      }
-      setUser(user);
-      
-      // Cargar datos del Tenant para el Header dinámico
       try {
+        const user = await authService.getCurrentUser();
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+        setUser(user);
+        
+        // Cargar datos del Tenant para el Header dinámico
         // 1. Verificación de Rol Maestro (Superadmin)
         const internalRole = await authService.getInternalRole(user.email!);
         const isMaster = internalRole === 'superadmin';
@@ -90,10 +90,10 @@ export default function DashboardLayout({
           }
         }
       } catch (err) {
-        console.error("Error cargando tenant en layout:", err);
+        console.error("Error cargando datos en layout:", err);
+      } finally {
+        setCheckingAuth(false);
       }
-      
-      setCheckingAuth(false);
     };
 
     loadData();

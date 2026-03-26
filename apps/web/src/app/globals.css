@@ -234,10 +234,7 @@ body::before {
 
 @layer components {
   .btn-premium-neon {
-    @apply relative bg-[#4B6319] text-white p-5 rounded-2xl font-black uppercase tracking-widest italic 
-           transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]
-           shadow-[0_0_15px_rgba(162,195,103,0.3)] hover:shadow-[0_0_25px_rgba(162,195,103,0.5)]
-           border-2 border-[#A2C367]/20 hover:border-[#A2C367]/40 overflow-hidden;
+    @apply relative bg-[#4B6319] text-white p-5 rounded-2xl font-black uppercase tracking-widest italic transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(162,195,103,0.3)] hover:shadow-[0_0_25px_rgba(162,195,103,0.5)] border-2 border-[#A2C367]/20 hover:border-[#A2C367]/40 overflow-hidden;
     background-image: linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent);
   }
 }
