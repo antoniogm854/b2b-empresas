@@ -1,6 +1,4 @@
-"use client";
-
-import { MessageCircle, Sparkles, Package, MapPin, Phone, Mail, Globe } from "lucide-react";
+import { MessageCircle, Sparkles, Package, MapPin, Phone, Mail, Globe, QrCode, ArrowRight } from "lucide-react";
 
 interface LayoutProps {
   tenant: any;
@@ -9,251 +7,217 @@ interface LayoutProps {
 }
 
 export default function LayoutClassic({ tenant, products, settings }: LayoutProps) {
-  const primaryColor = settings.theme?.primary || "#111827";
-  const secondaryColor = settings.theme?.secondary || "#10b981";
+  const primaryColor = settings.theme?.primary || "#4B6319";
+  const secondaryColor = settings.theme?.secondary || "#A2C367";
+  const fontFamily = settings.theme?.font_family || 'Inter';
   
-  const promoProducts = products.filter(p => p.is_most_requested);
-  const regularProducts = products.filter(p => !p.is_most_requested);
+  const featuredProduct = products.find(p => p.is_most_requested) || products[0];
+  const otherProducts = products.filter(p => p.id !== featuredProduct?.id);
 
   return (
-    <div className="bg-white text-zinc-900 min-h-screen relative" style={{ fontFamily: settings.theme?.font_family || 'Inter' }}>
-      {/* Navigation */}
-      <nav className="bg-white border-b border-zinc-100 py-6 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-4 text-center">
-           <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-2 shadow-md border border-zinc-100 overflow-hidden">
-                 {tenant.logo_url ? (
-                   <img src={tenant.logo_url} alt="Logo" className="w-full h-full object-contain" />
-                 ) : (
-                   <div className="w-full h-full bg-zinc-900 flex items-center justify-center font-black text-white text-[10px] italic">B2B</div>
-                 )}
-              </div>
-           </div>
-           <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-              <a href="#promociones" className="hover:text-zinc-900 transition-colors">Promociones</a>
-              <a href="#catalogo" className="hover:text-zinc-900 transition-colors">Productos</a>
-              <a href="#contacto" className="hover:text-zinc-900 transition-colors">Soporte</a>
-           </div>
+    <div className="bg-white text-zinc-900 min-h-screen relative overflow-hidden" style={{ fontFamily }}>
+      {/* Visual background elements like the flyer */}
+      <div className="absolute top-0 right-0 w-[60%] h-[40%] bg-zinc-50 -skew-x-12 translate-x-1/4 -z-10" />
+      <div className="absolute bottom-0 left-0 w-[40%] h-[30%] bg-zinc-50 skew-x-12 -translate-x-1/4 -z-10" />
+
+      {/* Header / Logo bar */}
+      <nav className="max-w-7xl mx-auto px-10 py-10 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-2 shadow-xl border border-zinc-100 overflow-hidden">
+            {tenant.logo_url ? (
+              <img src={tenant.logo_url} alt="Logo" className="w-full h-full object-contain" />
+            ) : (
+              <div className="w-full h-full bg-zinc-900 flex items-center justify-center font-black text-white text-[10px] italic">B2B</div>
+            )}
+          </div>
+          <div>
+            <h2 className="font-black uppercase text-sm tracking-tighter leading-none">{tenant.company_name}</h2>
+            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-1">Suministro Sostenible</p>
+          </div>
+        </div>
+        <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+          <a href="#catalogo" className="hover:text-zinc-900 transition-colors">Productos</a>
+          <a href="#especificaciones" className="hover:text-zinc-900 transition-colors">Especificaciones</a>
+          <a href="#contacto" className="underline decoration-2 underline-offset-8 text-zinc-900">Contacto Directo</a>
         </div>
       </nav>
 
-      {/* Hero Header - Centered Classic */}
-      <header className="py-28 border-b border-zinc-100 bg-zinc-50/30">
-        <div className="max-w-7xl mx-auto px-6 text-center space-y-10">
-          <div 
-            className="inline-block px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.3em] shadow-sm border border-zinc-200/50"
-            style={{ backgroundColor: 'white', color: primaryColor }}
-          >
-            Suministro Industrial Verificado
+      {/* Hero Section - Inspired by the Main Laptop Image */}
+      <header className="max-w-7xl mx-auto px-10 py-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="space-y-8 animate-fade-in-up">
+          <div className="space-y-4">
+            <p className="text-red-600 font-black text-xl italic tracking-tighter uppercase">{tenant.trade_name || 'INDUSTRIAL PREMIUM'}</p>
+            <h1 className="text-6xl md:text-8xl font-black text-zinc-950 uppercase tracking-tightest leading-[0.85]">
+              {settings.content?.slogan || "CATÁLOGO DE <br/> PRODUCTOS"}
+            </h1>
+            <p className="text-zinc-500 font-bold text-lg md:text-xl uppercase tracking-widest max-w-xl">
+              {settings.content?.featured_info || "Suministro Técnico Certificado para Operaciones Críticas"}
+            </p>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-zinc-950 uppercase tracking-tighter leading-[0.9] max-w-5xl mx-auto">
-            {settings.content?.slogan || "SOLUCIONES INTEGRALES"}
-          </h1>
-          <p className="text-zinc-500 font-bold text-xl md:text-2xl max-w-3xl mx-auto uppercase tracking-widest opacity-60">
-            {settings.content?.featured_info || tenant.activity_main || "Catálogo Oficial de Proveedor"}
-          </p>
-          <div className="pt-8">
-             <a href="#catalogo" className="bg-zinc-950 text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-2xl">
-                Explorar Catálogo
-             </a>
+
+          {featuredProduct && (
+            <div className="bg-zinc-50/50 backdrop-blur-sm border border-zinc-100 p-8 rounded-[2rem] space-y-6 max-w-lg">
+               <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2">Item Destacado</p>
+                    <h3 className="text-2xl font-black uppercase tracking-tighter">{featuredProduct.custom_name}</h3>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-black text-zinc-300 line-through uppercase">USD {(parseFloat(featuredProduct.unit_price) * 1.2).toFixed(2)}</p>
+                    <p className="text-3xl font-black italic tracking-tightest" style={{ color: primaryColor }}>USD {featuredProduct.unit_price}</p>
+                  </div>
+               </div>
+               <p className="text-[11px] text-zinc-500 font-medium leading-relaxed uppercase">
+                 {featuredProduct.description || "Componente de alta precisión diseñado para entornos industriales exigentes. Disponible para despacho inmediato."}
+               </p>
+               <div className="pt-2">
+                 <a href={`#prod-${featuredProduct.id}`} className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-widest group">
+                   Ver Ficha Técnica <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                 </a>
+               </div>
+            </div>
+          )}
+        </div>
+
+        <div className="relative group perspective-1000">
+          <div className="aspect-[4/3] bg-white rounded-[3rem] shadow-2xl border border-zinc-100 p-12 flex items-center justify-center transition-transform duration-700 group-hover:rotate-y-12 overflow-hidden shadow-zinc-400/20">
+             {featuredProduct?.images?.[0] || featuredProduct?.image_url ? (
+                <img 
+                  src={featuredProduct.images?.[0] || featuredProduct.image_url} 
+                  alt={featuredProduct.custom_name} 
+                  className="w-full h-full object-contain filter drop-shadow-2xl" 
+                />
+             ) : (
+                <Package size={120} className="text-zinc-100" />
+             )}
+          </div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-zinc-950 rounded-[2.5rem] flex items-center justify-center text-white rotate-12 shadow-2xl border-b-8 border-emerald-600">
+             <div className="text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">Ahorro</p>
+                <p className="text-4xl font-black italic tracking-tighter">20%</p>
+             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-20 space-y-32">
-        
-        {/* PROMO SECTION */}
-        {settings.content?.show_promo_section && promoProducts.length > 0 && (
-          <section id="promociones" className="space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3">
-                   <Sparkles className="text-yellow-500" />
-                   PRODUCTOS EN <span className="text-emerald-600">PROMOCIÓN</span>
-                </h2>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Oportunidades de Suministro por Tiempo Limitado</p>
+      {/* Product Grid - Exactly 3 columns like the flyer */}
+      <main className="max-w-7xl mx-auto px-10 py-32 space-y-24" id="catalogo">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {otherProducts.map((p) => (
+            <div key={p.id} id={`prod-${p.id}`} className="group space-y-6 flex flex-col h-full bg-white rounded-[2.5rem] p-6 transition-all border border-zinc-50 shadow-sm hover:shadow-2xl hover:shadow-zinc-200/50 hover:border-zinc-200">
+              <div className="aspect-square bg-white rounded-[2rem] overflow-hidden relative border border-zinc-100 p-8 flex items-center justify-center group-hover:bg-zinc-50 transition-colors">
+                {p.images?.[0] || p.image_url ? (
+                  <img src={p.images?.[0] || p.image_url} alt={p.custom_name} className="object-contain w-full h-full transition-transform duration-700 group-hover:scale-110" />
+                ) : (
+                  <Package size={64} className="text-zinc-50" />
+                )}
               </div>
-              <div className="h-px flex-1 bg-zinc-100 mx-8 hidden md:block" />
+              
+              <div className="space-y-4 px-2">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-zinc-300 line-through uppercase tracking-tighter">USD {(parseFloat(p.unit_price) * 1.15).toFixed(2)}</p>
+                    <p className="text-2xl font-black italic tracking-tightest" style={{ color: primaryColor }}>USD {p.unit_price}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <h3 className="font-black uppercase text-sm leading-tight tracking-tightest group-hover:text-emerald-600 transition-colors">{p.custom_name}</h3>
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{p.brand || 'CERTIFIED B2B'}</p>
+                </div>
+
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase line-clamp-2 italic">
+                  {p.description || "Garantía de rendimiento y durabilidad industrial."}
+                </p>
+
+                <div className="pt-4 mt-auto">
+                   <a 
+                    href={`https://wa.me/${tenant.phone_commercial || tenant.phone}?text=Consulta sobre el producto: ${p.custom_name}`} 
+                    target="_blank"
+                    className="w-full bg-zinc-950 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-black/10"
+                   >
+                     Solicitar Info <MessageCircle size={16} />
+                   </a>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-              {promoProducts.map((p) => (
-                <ProductCard key={p.id} product={p} tenant={tenant} settings={settings} featured />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* MAIN CATALOG */}
-        <section id="catalogo" className="space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3">
-                   <Package className="text-zinc-400" />
-                   CATÁLOGO <span className="text-zinc-600">MAESTRO</span>
-                </h2>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Explora nuestra gama completa de soluciones</p>
-              </div>
-              <div className="h-px flex-1 bg-zinc-100 mx-8 hidden md:block" />
-            </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {regularProducts.map((p) => (
-              <ProductCard key={p.id} product={p} tenant={tenant} settings={settings} />
-            ))}
-          </div>
-        </section>
-
-        {/* INFO BASICA */}
-        <section className="bg-zinc-950 rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full -mr-48 -mt-48 blur-3xl opacity-50" />
-           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8">
-                 <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter leading-none">
-                   Respaldados por <br/> <span className="text-emerald-500">Excelencia Industrial</span>
-                 </h2>
-                 <p className="text-zinc-400 font-medium text-lg leading-relaxed">
-                   Estamos comprometidos con el suministro ininterrumpido a gran escala, garantizando calidad certificada en cada SKU de nuestro catálogo digital.
-                 </p>
-                 <div className="flex flex-wrap gap-4">
-                    <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-2xl">
-                       <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Empresa</p>
-                       <p className="font-bold text-sm">{tenant.company_name}</p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-2xl">
-                       <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">RUC</p>
-                       <p className="font-bold text-sm">{tenant.ruc_rut_nit || 'N/A'}</p>
-                    </div>
-                 </div>
-              </div>
-              <div className="bg-white/5 border border-white/10 p-10 rounded-[2.5rem] space-y-6">
-                 <h3 className="font-black uppercase text-xs tracking-widest text-emerald-500">Credenciales</h3>
-                 <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                       <span className="text-[10px] font-black text-zinc-500 uppercase">Cumplimiento (Score)</span>
-                       <span className="font-black text-xl italic">{tenant.compliance_score || '9.2'}<span className="text-xs opacity-30">/10</span></span>
-                    </div>
-                    <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                       <span className="text-[10px] font-black text-zinc-500 uppercase">Confianza B2B</span>
-                       <div className="flex text-yellow-500">{'★'.repeat(tenant.compliance_stars || 5)}</div>
-                    </div>
-                    {tenant.representantes && tenant.representantes.length > 0 && (
-                      <div className="pt-4">
-                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Equipo Directivo</p>
-                         <div className="space-y-2">
-                            {tenant.representantes.map((r: any, idx: number) => (
-                              <p key={idx} className="text-[11px] font-bold text-white uppercase tracking-tight">
-                                {r.nombre || r.name} <span className="text-zinc-500 font-medium ml-1">/ {r.cargo || r.role || 'Representante'}</span>
-                              </p>
-                            ))}
-                         </div>
-                      </div>
-                    )}
-                 </div>
-              </div>
+        {/* Technical Section */}
+        <section id="especificaciones" className="bg-zinc-900 rounded-[4rem] p-16 text-white relative overflow-hidden text-center space-y-10">
+           <div className="absolute inset-0 opacity-10 bg-[url('/b2b_profile_bg.png')] bg-cover bg-center" />
+           <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+              <h2 className="text-4xl font-black uppercase italic tracking-tightest">Infraestructura <span className="text-emerald-500">Transparente</span></h2>
+              <p className="text-zinc-400 font-medium text-sm leading-relaxed uppercase tracking-widest">
+                Este catálogo no es una tienda directa, es una herramienta de visualización técnica para el suministro industrial masivo. Todas las cotizaciones se formalizan vía canales corporativos oficiales.
+              </p>
            </div>
         </section>
       </main>
 
-      {/* Standardized Footer */}
-      <footer className="bg-zinc-50 py-24 border-t border-zinc-200" id="contacto">
-         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-16">
-            <div className="space-y-6">
-               <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center font-black text-white text-[10px] italic">B2B</div>
-                 <h4 className="font-black uppercase text-sm tracking-tighter">{tenant.company_name}</h4>
-               </div>
-               <p className="text-zinc-500 text-xs font-medium leading-relaxed uppercase tracking-wider">
-                 Proveedores estratégicos para la industria latinoamericana. Suministro masivo y logística certificada.
+      {/* Footer structured like the flyer bottom area */}
+      <footer className="bg-white py-24 border-t-8 border-zinc-950" id="contacto">
+        <div className="max-w-7xl mx-auto px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 items-start">
+          
+          {/* Location Col */}
+          <div className="flex items-start gap-5">
+            <div className="w-12 h-12 bg-red-600/10 rounded-full flex items-center justify-center shrink-0">
+               <MapPin className="text-red-600" size={24} />
+            </div>
+            <div className="space-y-1">
+               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-950">Ubícanos</h4>
+               <p className="text-[11px] font-bold text-zinc-500 uppercase leading-snug">
+                 {tenant.fiscal_address || tenant.address || "Lima, Perú"} <br/> CP. 15047
                </p>
             </div>
-            
-            <div className="space-y-6">
-               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-400">Canales de Contacto</h4>
-               <ul className="space-y-4 font-bold text-xs text-zinc-600 uppercase tracking-wide">
-                  <li className="flex items-center gap-3"><Phone size={14} className="text-emerald-500" /> {tenant.phone}</li>
-                  <li className="flex items-center gap-3"><Mail size={14} className="text-emerald-500" /> {tenant.email}</li>
-               </ul>
-            </div>
-
-            <div className="space-y-6">
-               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-400">Sede Fiscal</h4>
-               <ul className="space-y-4 font-bold text-xs text-zinc-600 uppercase tracking-wide">
-                  <li className="flex items-start gap-3"><MapPin size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {tenant.fiscal_address || tenant.address || 'Lima, Perú'}</li>
-                  {tenant.website && (
-                    <li className="flex items-center gap-3"><Globe size={14} className="text-emerald-500" /> {tenant.website}</li>
-                  )}
-               </ul>
-            </div>
-
-            <div className="space-y-6">
-               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-400">Infraestructura Web</h4>
-               <p className="text-zinc-400 text-[10px] font-bold uppercase leading-relaxed">
-                 Este catálogo es una Vitrina Certificada by B2B Empresas. El intercambio de datos está protegido por protocolos de seguridad industrial.
-               </p>
-            </div>
-         </div>
-      </footer>
-
-      {/* Floating WhatsApp Button */}
-      {settings.content?.whatsapp_button && (
-        <a 
-          href={`https://wa.me/${tenant.phone_commercial || tenant.phone}?text=Consulta sobre el catálogo digital de ${tenant.company_name}`}
-          target="_blank"
-          className="fixed bottom-10 right-10 w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center shadow-2xl shadow-green-500/40 hover:scale-110 active:scale-95 transition-all z-[100] group"
-        >
-          <MessageCircle size={32} />
-          <span className="absolute right-20 bg-zinc-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0">
-             Contactar al Proveedor
-          </span>
-        </a>
-      )}
-    </div>
-  );
-}
-
-function ProductCard({ product, tenant, settings, featured = false }: any) {
-  const primaryColor = settings.theme?.primary || "#111827";
-  const secondaryColor = settings.theme?.secondary || "#10b981";
-  const whatsappUrl = `https://wa.me/${tenant.phone_commercial || tenant.phone}?text=Me interesa el producto: ${product.custom_name} del catálogo de ${tenant.company_name}`;
-
-  return (
-    <div className={`group space-y-5 flex flex-col h-full bg-white rounded-[2rem] p-4 transition-all hover:bg-zinc-50 border ${featured ? 'border-emerald-100 shadow-xl shadow-emerald-500/5' : 'border-zinc-100 hover:border-zinc-200'}`}>
-      <div className="aspect-square bg-white rounded-2xl overflow-hidden relative border border-zinc-100 shadow-inner p-4 flex items-center justify-center">
-        {product.images?.[0] || product.image_url ? (
-          <img 
-            src={product.images?.[0] || product.image_url} 
-            alt={product.custom_name} 
-            className="object-contain w-full h-full transition-transform duration-700 group-hover:scale-110" 
-          />
-        ) : (
-          <Package size={48} className="text-zinc-100 group-hover:text-zinc-200 transition-colors" />
-        )}
-        {featured && (
-           <div className="absolute top-4 left-4 bg-emerald-600 text-white px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-             OFERTA
-           </div>
-        )}
-      </div>
-      <div className="flex-1 flex flex-col space-y-3 px-2">
-        <h3 className="font-black uppercase text-[13px] group-hover:text-emerald-600 transition-colors leading-tight line-clamp-2">{product.custom_name}</h3>
-        <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest leading-none">{product.brand || 'B2B STANDARD'}</p>
-        
-        <div className="pt-4 flex items-end justify-between mt-auto">
-          <div>
-            <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">Precio Unitario</p>
-            <span className="text-zinc-950 font-black text-xl italic tracking-tighter">USD {product.unit_price || '0.00'}</span>
           </div>
-          <a 
-            href={whatsappUrl}
-            target="_blank"
-            className="p-3 bg-zinc-900 text-white rounded-xl hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
-            style={{ backgroundColor: primaryColor }}
-          >
-            <MessageCircle size={18} />
-          </a>
+
+          {/* Contact Col */}
+          <div className="flex items-start gap-5">
+            <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center shrink-0">
+               <Phone className="text-zinc-950" size={24} />
+            </div>
+            <div className="space-y-1">
+               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-950">Línea Directa</h4>
+               <p className="text-[11px] font-bold text-zinc-500 uppercase leading-snug">
+                 {tenant.phone} <br/> {tenant.phone_commercial || tenant.phone}
+               </p>
+            </div>
+          </div>
+
+          {/* Website Col */}
+          <div className="flex items-start gap-5">
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center shrink-0">
+               <Globe className="text-emerald-600" size={24} />
+            </div>
+            <div className="space-y-1">
+               <h4 className="font-black uppercase text-[10px] tracking-widest text-zinc-950">Plataforma</h4>
+               <p className="text-[11px] font-bold text-zinc-500 uppercase leading-snug truncate">
+                 {tenant.website?.replace('https://', '') || "b2bempresas.com"}
+               </p>
+            </div>
+          </div>
+
+          {/* QR / Sync Col */}
+          <div className="flex items-start gap-5 bg-zinc-50 p-6 rounded-3xl border border-zinc-100">
+            <div className="space-y-3">
+               <h4 className="font-black uppercase text-[8px] tracking-[0.2em] text-zinc-400">Sincronización Digital</h4>
+               <div className="flex items-center gap-2">
+                 <QrCode className="text-zinc-950" size={32} />
+                 <p className="text-[9px] font-black uppercase leading-tight italic">Escanéa para <br/> Versión Mobile</p>
+               </div>
+            </div>
+          </div>
+
         </div>
-      </div>
+
+        <div className="max-w-7xl mx-auto px-10 mt-20 pt-10 border-t border-zinc-100">
+           <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest text-center leading-relaxed">
+             {settings.content?.footer_text || "Términos y Condiciones: Precios sujetos a stock y variación de mercado. Catálogo para fines ilustrativos y visualización B2B."}
+           </p>
+        </div>
+      </footer>
     </div>
   );
 }

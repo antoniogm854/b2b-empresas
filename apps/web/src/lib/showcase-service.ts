@@ -10,9 +10,9 @@ export interface FeaturedProduct {
   tenant_name: string;
 }
 
-export const adService = {
+export const showcaseService = {
   /**
-   * Obtiene los productos destacados.
+   * Obtiene los productos destacados (Showcase).
    * Se adapta al esquema v1.01 (tenant_catalog + catalog_master).
    */
   async getFeaturedProducts(limit: number = 6): Promise<FeaturedProduct[]> {

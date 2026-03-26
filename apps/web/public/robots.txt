@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /cdb2b/
+Disallow: /dashboard/
+Disallow: /admin-console/
+Disallow: /api/
+
+Sitemap: https://www.b2bempresas.com/sitemap.xml

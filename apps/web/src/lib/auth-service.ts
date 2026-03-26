@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { DEFAULT_CATALOG_SETTINGS } from './constants';
 
 export interface UserProfile {
   id: string;
@@ -130,7 +131,8 @@ export const authService = {
             email: email,
             contact_name: fullName,
             status: 'pending',
-            cuup: cuup
+            cuup: cuup,
+            catalog_settings: DEFAULT_CATALOG_SETTINGS
           }
         ])
         .select()

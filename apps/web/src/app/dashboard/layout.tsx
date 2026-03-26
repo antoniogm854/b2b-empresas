@@ -225,18 +225,18 @@ export default function DashboardLayout({
                     href={item.href}
                     className={`flex items-center gap-4 p-4 rounded-2xl transition-all group border-2 ${
                       isActive 
-                        ? "bg-[#A2C367]/10 border-[#A2C367] shadow-[0_0_20px_rgba(162,195,103,0.15)]" 
-                        : "border-[#1A1A1A] bg-black/40 hover:bg-[#1A1A1A] hover:border-[#333333]"
+                        ? "bg-[#A2C367]/20 border-[#A2C367] shadow-[0_0_20px_rgba(162,195,103,0.15)]" 
+                        : "border-[var(--panel-border)] bg-[var(--panel-bg)] hover:bg-[var(--muted)] hover:border-[var(--border)]"
                     }`}
                   >
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg transition-all ${
-                      isActive ? "bg-[#A2C367] text-black" : "bg-[#1A1A1A] text-[#A2C367] group-hover:bg-[#A2C367] group-hover:text-black"
+                      isActive ? "bg-[#A2C367] text-black" : "bg-[var(--panel-bg)] text-[#A2C367] group-hover:bg-[#A2C367] group-hover:text-black"
                     }`}>
                       {mounted && <item.icon size={22} />}
                     </div>
                     <div className="text-left">
                       <p className={`font-black uppercase text-[9px] tracking-widest leading-none mb-1 ${isActive ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}>Catálogo Digital</p>
-                      <p className={`font-black uppercase text-xs tracking-tighter italic ${isActive ? "text-[var(--strong-text)]" : "text-[var(--primary)]"}`}>Gestión Maestro</p>
+                      <p className={`font-black uppercase text-xs tracking-tighter italic ${isActive ? "text-[var(--strong-text)]" : "text-[var(--primary)]"}`}>Gestión de Productos</p>
                     </div>
                   </Link>
                 );

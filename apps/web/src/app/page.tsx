@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, ArrowRight, CheckCircle2, Factory, TrendingUp, Search, Layers, Briefcase, BarChart, Cpu, Target, Users, Zap, ChevronRight } from "lucide-react";
 import { 
-  adService, 
+  showcaseService, 
   FeaturedProduct 
-} from "@/lib/ad-service";
+} from "@/lib/showcase-service";
 import MainLayout from "@/components/layout/MainLayout";
 import { formatCurrency } from "@/lib/currency-utils";
 import { useTranslations } from "next-intl";
@@ -25,7 +25,7 @@ export default function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const productsData = await adService.getFeaturedProducts(6); 
+        const productsData = await showcaseService.getFeaturedProducts(6); 
         setFeatured(productsData);
       } catch (e) {
         console.error("Error fetching data:", e);

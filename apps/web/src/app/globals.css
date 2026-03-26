@@ -28,6 +28,12 @@
   --deep-section-foreground: #ffffff;
   --strong-text: #000000;
 
+  /* Industrial Panel Tokens - Adaptive High Contrast */
+  --panel-bg: rgba(0, 0, 0, 0.04);
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --panel-text: #1A1A1A;
+  --panel-subtext: #64748B;
+
   /* Glassmorphism Tokens Light */
   --glass-bg: rgba(255, 255, 255, 0.70);
   --glass-border: rgba(75, 99, 25, 0.15);
@@ -52,6 +58,13 @@
   --deep-section: #050505;
   --deep-section-foreground: #ffffff;
   --strong-text: #ffffff;
+
+  /* Industrial Panel Tokens - Adaptive High Contrast (Dark) */
+  --panel-bg: rgba(20, 20, 20, 0.6);
+  --panel-border: rgba(162, 195, 103, 0.15);
+  --panel-text: #F5F5F5;
+  --panel-subtext: #888888;
+
   --glass-bg: rgba(10, 10, 10, 0.6);
   --glass-border: rgba(162, 195, 103, 0.15);
   --bg-image: url("/b2b_industrial_bg_1774324220155.png");

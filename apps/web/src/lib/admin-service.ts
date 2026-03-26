@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export interface AdminStats {
   totalCompanies: number;
   pendingVerifications: number;
-  activeAds: number;
+  activeShowcase: number;
   totalMarketplaceLeads: number;
 }
 
@@ -22,7 +22,7 @@ export const adminService = {
     return {
       totalCompanies: tenants.count || 0,
       pendingVerifications: pending.count || 0,
-      activeAds: ads.count || 0,
+      activeShowcase: ads.count || 0,
       totalMarketplaceLeads: leads.count || 0
     };
   },
@@ -87,9 +87,9 @@ export const adminService = {
   },
 
   /**
-   * Obtiene productos con anuncios pendientes de aprobación.
+   * Obtiene productos con vitrina pendiente de aprobación.
    */
-  async getPendingAds() {
+  async getPendingShowcase() {
     const { data, error } = await supabase
       .from('tenant_catalog')
       .select(`
@@ -112,9 +112,9 @@ export const adminService = {
   },
 
   /**
-   * Gestiona el estado de un anuncio (Aprobar/Rechazar).
+   * Gestiona el estado de una vitrina (Aprobar/Rechazar).
    */
-  async updateAdStatus(productId: string, status: 'approved' | 'rejected', priority: number = 0) {
+  async updateShowcaseStatus(productId: string, status: 'approved' | 'rejected', priority: number = 0) {
     const { error } = await supabase
       .from('tenant_catalog')
       .update({ 

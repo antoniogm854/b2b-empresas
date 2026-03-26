@@ -1,6 +1,6 @@
-# PROYECTO: b2bempresas.com — Bitácora de Desarrollo
+# PROYECTO: b2bempresas.com — Bitácora Industrial (v1.01.4)
 
-Este archivo es la fuente de verdad del proyecto. Registra cada decisión técnica, cambio de arquitectura y progreso realizado por **Antigravity** para asegurar que el proyecto sea comprensible y escalable, independientemente de quién lo lea en el futuro.
+Este archivo es la fuente de verdad del proyecto b2bempresas.com. Registra cada decisión técnica, cambio de arquitectura y progreso realizado bajo el **Estándar Industrial v6.0**.
 
 ## 🏗️ 1. Resumen Técnico del Proyecto (v1.01.2026 - Premium)
 *   **Objetivo:** Plataforma B2B SaaS Multitenant para conectar proveedores industriales con compradores mediante un modelo de **Activación de Catálogo Digital**.
@@ -47,7 +47,8 @@ Este archivo es la fuente de verdad del proyecto. Registra cada decisión técni
 | 25-Mar-2026 | DevOps | Sincronización de Monorepo en Vercel (Root=`.`, Build=Turbo). | ✅ |
 | 25-Mar-2026 | Secure | **Doble Capa de Seguridad**: Validación forzada de credenciales en Acceso Corporativo. | ✅ |
 | 25-Mar-2026 | Audit | **Canales Digitales**: Validación estricta de dominios para redes sociales (Master-Pattern). | ✅ |
-| 25-Mar-2026 | Final | Auditoría v1.01: Limpieza de código muerto y actualización integral de Manuales. | ✅ |
+| 25-Mar-2026 | v1.01.3 | **Classic Industrial**: Flyer Corporativo, 3 columnas y auto-grabado. | ✅ |
+| 25-Mar-2026 | v1.01.4 | **Audit & Cleanup**: Purga de Ads -> Vitrina B2B, SEO y Bitácora Maestra. | ✅ |
 
 ---
 

@@ -162,7 +162,7 @@ interface PendingCompany {
   profiles: Profile | Profile[];
 }
 
-interface PendingAd {
+interface PendingShowcase {
   id: string;
   name: string;
   price: number;
@@ -174,10 +174,10 @@ interface PendingAd {
 export default function AdminConsole() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [pendingCompanies, setPendingCompanies] = useState<PendingCompany[]>([]);
-  const [pendingAds, setPendingAds] = useState<PendingAd[]>([]);
+  const [pendingShowcase, setPendingShowcase] = useState<PendingShowcase[]>([]);
   const [auditResults, setAuditResults] = useState<any | null>(null);
   const [allCompanies, setAllCompanies] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'verifications' | 'companies' | 'ads' | 'diagnostics' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'verifications' | 'companies' | 'showcase' | 'diagnostics' | 'settings'>('overview');
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -206,18 +206,18 @@ export default function AdminConsole() {
   const loadAdminData = async () => {
     setIsLoading(true);
     try {
-      const [s, companies, all, ads, audit, settings] = await Promise.all([
+      const [s, companies, all, showcase, audit, settings] = await Promise.all([
         adminService.getGlobalStats(),
         adminService.getPendingCompanies() as Promise<any[]>,
         adminService.getAllCompanies(),
-        adminService.getPendingAds() as Promise<any[]>,
+        adminService.getPendingShowcase() as Promise<any[]>,
         adminService.runSystemAudit(),
         settingsService.getSettings()
       ]);
       setStats(s);
       setPendingCompanies(companies as any[]);
       setAllCompanies(all);
-      setPendingAds(ads as any[]);
+      setPendingShowcase(showcase as any[]);
       setAuditResults(audit);
       setSiteSettings(settings);
     } catch (error) {
@@ -287,9 +287,9 @@ export default function AdminConsole() {
     }
   };
 
-  const handleAdAction = async (id: string, action: 'approved' | 'rejected') => {
+  const handleShowcaseAction = async (id: string, action: 'approved' | 'rejected') => {
     try {
-      await adminService.updateAdStatus(id, action, action === 'approved' ? 10 : 0);
+      await adminService.updateShowcaseStatus(id, action, action === 'approved' ? 10 : 0);
       await loadAdminData();
     } catch (error) {
       // Quiet fail in production
@@ -478,7 +478,7 @@ export default function AdminConsole() {
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
               <div className="flex space-x-2 bg-white p-2 rounded-[2rem] border-2 border-primary/5 shadow-xl scrollbar-hide overflow-x-auto">
-                {(['overview', 'verifications', 'companies', 'ads', 'diagnostics', 'settings'] as const).map((tab) => (
+                {(['overview', 'verifications', 'companies', 'showcase', 'diagnostics', 'settings'] as const).map((tab) => (
                   <button
                     key={tab}
                     id={`tab-${tab}`}
@@ -489,7 +489,7 @@ export default function AdminConsole() {
                         : "text-muted-foreground hover:bg-slate-50"
                     }`}
                   >
-                    {tab === 'overview' ? 'Resumen' : tab === 'verifications' ? 'Verificaciones' : tab === 'companies' ? 'Directorio' : tab === 'ads' ? 'Anuncios' : tab === 'diagnostics' ? 'Diagnósticos' : 'Empresa'}
+                    {tab === 'overview' ? 'Resumen' : tab === 'verifications' ? 'Verificaciones' : tab === 'companies' ? 'Directorio' : tab === 'showcase' ? 'Vitrina B2B' : tab === 'diagnostics' ? 'Diagnósticos' : 'Empresa'}
                   </button>
                 ))}
               </div>
@@ -510,7 +510,7 @@ export default function AdminConsole() {
               {[
                 { id: 'stat-companies', label: 'Empresas Totales', val: stats.totalCompanies, icon: Users, color: 'bg-blue-500' },
                 { id: 'stat-verifications', label: 'Pendientes RUC', val: stats.pendingVerifications, icon: AlertCircle, color: 'bg-orange-500' },
-                { id: 'stat-ads', label: 'Anuncios Activos', val: stats.activeAds, icon: Zap, color: 'bg-accent' },
+                { id: 'stat-showcase', label: 'Vitrina Activa', val: stats.activeShowcase, icon: Zap, color: 'bg-accent' },
                 { id: 'stat-leads', label: 'Leads Marketplace', val: stats.totalMarketplaceLeads, icon: TrendingUp, color: 'bg-green-500' },
               ].map((s, i) => (
                 <div key={i} id={s.id} className="bg-white p-8 rounded-[3rem] border-2 border-primary/5 shadow-xl hover:translate-y-[-5px] transition-all group">
@@ -637,18 +637,18 @@ export default function AdminConsole() {
               </div>
             )}
 
-            {/* Tab: Ads */}
-            {activeTab === 'ads' && (
+            {/* Tab: Showcase */}
+            {activeTab === 'showcase' && (
               <div className="p-10">
                 <div className="flex justify-between items-center mb-8">
                   <h3 className="text-2xl font-black text-primary flex items-center">
                     <Zap className="mr-3 text-accent" />
-                    Monetización: Anuncios Pendientes
+                    Gestión de Vitrina: Productos Destacados
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {pendingAds.length > 0 ? pendingAds.map((ad: any) => (
+                  {pendingShowcase.length > 0 ? pendingShowcase.map((ad: any) => (
                     <div key={ad.id} className="p-8 bg-slate-50 rounded-[3rem] border-2 border-transparent hover:border-accent hover:bg-white transition-all">
                       <div className="flex justify-between items-start mb-6">
                         <div>
@@ -663,13 +663,13 @@ export default function AdminConsole() {
                       </div>
                       <div className="flex space-x-4">
                         <button 
-                          onClick={() => handleAdAction(ad.id, 'approved')}
+                          onClick={() => handleShowcaseAction(ad.id, 'approved')}
                           className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-colors shadow-xl"
                         >
-                          Autorizar Anuncio
+                          Autorizar en Vitrina
                         </button>
                         <button 
-                          onClick={() => handleAdAction(ad.id, 'rejected')}
+                          onClick={() => handleShowcaseAction(ad.id, 'rejected')}
                           className="px-6 border-2 border-red-200 text-red-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-colors"
                         >
                           Rechazar
@@ -679,7 +679,7 @@ export default function AdminConsole() {
                   )) : (
                     <div className="col-span-2 flex flex-col items-center justify-center py-20 text-muted-foreground italic">
                       <Zap size={48} className="mb-4 text-slate-200" />
-                      <p>No hay solicitudes de anuncios pendientes</p>
+                      <p>No hay solicitudes de productos destacados pendientes</p>
                     </div>
                   )}
                 </div>

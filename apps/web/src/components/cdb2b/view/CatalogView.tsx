@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import LayoutClassic from "./LayoutClassic";
 import LayoutModern from "./LayoutModern";
 import LayoutTechSpec from "./LayoutTechSpec";
+import { DEFAULT_CATALOG_SETTINGS } from "@/lib/constants";
 import { analyticsService } from "@/lib/analytics-service";
 
 interface CatalogViewProps {
@@ -13,21 +14,7 @@ interface CatalogViewProps {
 
 export default function CatalogView({ tenant, products }: CatalogViewProps) {
   // Extract catalog settings or use defaults
-  const settings = tenant.catalog_settings || {
-    template_id: "classic",
-    theme: {
-      primary: "#4B6319",
-      secondary: "#A2C367",
-      font_family: "Inter",
-      font_size: "medium"
-    },
-    content: {
-      slogan: tenant.description || "Soluciones Industriales de Alto Impacto",
-      featured_info: tenant.sector || "Suministro Global B2B",
-      show_promo_section: true,
-      whatsapp_button: true
-    }
-  };
+  const settings = tenant.catalog_settings || DEFAULT_CATALOG_SETTINGS;
 
   useEffect(() => {
     if (tenant.id) {

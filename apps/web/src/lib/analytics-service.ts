@@ -20,31 +20,40 @@ export const analyticsService = {
           metadata: metadata // Usamos el campo jsonb para datos extra si es necesario
         }]);
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error tracking catalog view:', error);
+      if (error) {
+        // Log as warning to avoid blocking developer overlays in Next.js
+        console.warn('Analytics (Catalog View) non-critical failure:', error.message || error);
+      }
+    } catch (error: any) {
+      console.warn('Analytics tracking caught non-critical error:', error?.message || error);
     }
   },
 
-  /**
-   * Obtiene métricas agregadas para una empresa con alta fidelidad (v1.01).
-   */
   async getCompanyMetrics(companyId: string) {
-    // 1. Obtener vistas totales desde catalog_views
-    const { count: viewsCount, error: viewsError } = await supabase
-      .from('catalog_views')
-      .select('*', { count: 'exact', head: true })
-      .eq('tenant_id', companyId);
+    let viewsCount = 0;
+    let leadCount = 0;
 
-    if (viewsError) throw viewsError;
+    try {
+      // 1. Obtener vistas totales desde catalog_views
+      const { count, error: viewsError } = await supabase
+        .from('catalog_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('tenant_id', companyId);
 
-    // 2. Obtener leads reales desde buyer_contacts
-    const { count: leadCount, error: leadError } = await supabase
-      .from('buyer_contacts')
-      .select('*', { count: 'exact', head: true })
-      .eq('tenant_id', companyId);
+      if (viewsError) console.warn("Analytics Views Table missing or error:", viewsError.message);
+      else viewsCount = count || 0;
 
-    if (leadError) throw leadError;
+      // 2. Obtener leads reales desde buyer_contacts
+      const { count: lCount, error: leadError } = await supabase
+        .from('buyer_contacts')
+        .select('*', { count: 'exact', head: true })
+        .eq('tenant_id', companyId);
+
+      if (leadError) console.warn("Leads Table missing or error:", leadError.message);
+      else leadCount = lCount || 0;
+    } catch (err) {
+      console.warn("Métricas no disponibles temporalmente:", err);
+    }
 
     // 3. Obtener productos más vistos (simulado por ahora hasta tener tracking por producto)
     // En el futuro leeríamos de una tabla intermedia o meteríamos el ID en metadata de catalog_views

@@ -10,7 +10,7 @@ import {
   TrendingUp,
   Info
 } from "lucide-react";
-import { adService } from "@/lib/ad-service";
+import { showcaseService } from "@/lib/showcase-service";
 
 export default function AdPlacements({ category, productId }: { category: string, productId?: string }) {
   const [premiumAds, setPremiumAds] = useState<any[]>([]);
@@ -18,11 +18,11 @@ export default function AdPlacements({ category, productId }: { category: string
 
   useEffect(() => {
     const loadAds = async () => {
-      const ads = await adService.getFeaturedProducts(4);
+      const ads = await showcaseService.getFeaturedProducts(4);
       setPremiumAds(ads);
       
       if (productId) {
-        const nearby = await adService.getNearbySuppliers(productId, "Lima, Peru");
+        const nearby = await showcaseService.getNearbySuppliers(productId, "Lima, Peru");
         setNearbySuppliers(nearby);
       }
     };
@@ -43,7 +43,7 @@ export default function AdPlacements({ category, productId }: { category: string
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {premiumAds.map((ad) => (
-            <div key={ad.id} className="bg-white border-2 border-accent/20 p-5 rounded-[2rem] hover:border-accent transition-all hover:shadow-xl hover:shadow-accent/5 group cursor-pointer">
+            <div key={ad.id} className="bg-[var(--card)] border border-[var(--panel-border)] p-5 rounded-[2rem] hover:border-[#A2C367] transition-all hover:shadow-xl hover:shadow-[#A2C367]/5 group cursor-pointer shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center font-black text-lg">
                   {ad.name[0]}
@@ -70,7 +70,7 @@ export default function AdPlacements({ category, productId }: { category: string
           </h3>
           <div className="space-y-4 relative z-10">
             {nearbySuppliers.map((s) => (
-              <div key={s.id} className="flex items-center justify-between bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-all cursor-pointer">
+              <div key={s.id} className="flex items-center justify-between bg-black/20 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-black/40 transition-all cursor-pointer">
                 <div>
                   <p className="text-sm font-black">{s.name}</p>
                   <p className="text-[10px] font-bold text-accent italic">A solo {s.distance} de tu ubicación</p>
@@ -85,8 +85,8 @@ export default function AdPlacements({ category, productId }: { category: string
       )}
 
       {/* External Ad Widget Placeholder */}
-      <section className="border-4 border-dashed border-muted rounded-[3rem] p-10 flex flex-col items-center justify-center text-center space-y-4">
-        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+      <section className="border-4 border-dashed border-[var(--panel-border)] rounded-[3rem] p-10 flex flex-col items-center justify-center text-center space-y-4">
+        <div className="w-12 h-12 bg-[var(--panel-bg)] rounded-full flex items-center justify-center">
           <Info size={20} className="text-muted-foreground" />
         </div>
         <div className="max-w-xs">

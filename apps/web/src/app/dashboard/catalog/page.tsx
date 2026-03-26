@@ -275,8 +275,8 @@ export default function CatalogPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-2 h-10 bg-[#A2C367] rounded-full shadow-[0_0_15px_#A2C367]" />
-            <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic text-white leading-none">
-              MI CA<span className="brand-t-detail text-[#A2C367]">T</span>ÁLOGO <br/><span className="text-[#A2C367]">MAESTRO</span> B2B
+            <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic text-[var(--strong-text)] leading-none">
+              GESTIÓN <span className="brand-t-detail text-[#A2C367]">DE</span> <br/><span className="text-[#A2C367]">PRODUCTOS</span> B2B
             </h1>
           </div>
           <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px] pl-5 border-l border-zinc-800 ml-1">
@@ -307,16 +307,16 @@ export default function CatalogPage() {
       </div>
 
       {/* Search and Action Bar */}
-      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 bg-black/20 p-6 rounded-[2.5rem] border border-zinc-900 backdrop-blur-sm relative overflow-hidden group">
+      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 bg-[var(--panel-bg)] p-6 rounded-[2.5rem] border border-[var(--panel-border)] backdrop-blur-sm relative overflow-hidden group">
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#A2C367]/20 to-transparent" />
         
         <div className="flex-1 flex items-center space-x-6 w-full">
-          <div className="flex-1 flex items-center bg-black/60 px-8 py-5 rounded-2xl border border-zinc-800 focus-within:border-[#A2C367] focus-within:shadow-[0_0_25px_rgba(162,195,103,0.1)] transition-all group/search">
-            <Search className="text-zinc-600 mr-5 group-focus-within:text-[#A2C367] transition-colors" size={22} />
+          <div className="flex-1 flex items-center bg-[var(--background)] px-8 py-5 rounded-2xl border border-[var(--panel-border)] focus-within:border-[#A2C367] focus-within:shadow-[0_0_25px_rgba(162,195,103,0.1)] transition-all group/search shadow-inner">
+            <Search className="text-[var(--panel-subtext)] mr-5 group-focus-within:text-[#A2C367] transition-colors" size={22} />
             <input 
               type="text" 
               placeholder={activeTab === "mine" ? "Escanear SKU, Nombre o Categoría..." : "Búsqueda Profunda en el Catálogo Maestro Global..."}
-              className="bg-transparent border-none outline-none font-bold text-sm w-full placeholder:text-zinc-700 text-white uppercase tracking-widest"
+              className="bg-transparent border-none outline-none font-bold text-sm w-full placeholder:text-[var(--panel-subtext)]/50 text-[var(--panel-text)] uppercase tracking-widest"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -417,16 +417,16 @@ export default function CatalogPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-32 bg-black/20 rounded-[4rem] border-2 border-dashed border-zinc-900 flex flex-col items-center relative overflow-hidden group">
+                <div className="text-center py-32 bg-[var(--panel-bg)] rounded-[4rem] border-2 border-dashed border-[var(--panel-border)] flex flex-col items-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-[#A2C367]/2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-800 mb-8 border border-zinc-800 group-hover:border-[#A2C367]/30 transition-all">
+                  <div className="w-24 h-24 bg-[var(--background)] rounded-full flex items-center justify-center text-[var(--panel-subtext)] mb-8 border border-[var(--panel-border)] group-hover:border-[#A2C367]/30 transition-all shadow-xl">
                     <Package size={48} className="opacity-20 group-hover:text-[#A2C367] transition-all" />
                   </div>
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Bóveda de Productos Vacía</h3>
-                  <p className="text-zinc-600 font-bold uppercase text-[9px] tracking-[0.3em] mt-3 max-w-xs leading-relaxed">
+                  <h3 className="text-3xl font-black text-[var(--panel-text)] uppercase tracking-tighter italic">Bóveda de Productos Vacía</h3>
+                  <p className="text-[var(--panel-subtext)] font-bold uppercase text-[9px] tracking-[0.3em] mt-3 max-w-xs leading-relaxed">
                     Aún no haz inicializado tu inventario en el CMb2b.
                   </p>
-                  <button onClick={() => setActiveTab("gcm")} className="mt-10 bg-white text-black px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-2xl relative z-10">IMPORTAR DEL MAESTRO GLOBAL</button>
+                  <button onClick={() => setActiveTab("gcm")} className="mt-10 bg-[var(--primary)] text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-2xl relative z-10 border border-white/20">IMPORTAR DEL MAESTRO GLOBAL</button>
                 </div>
               )}
             </div>
@@ -480,11 +480,11 @@ export default function CatalogPage() {
 
         {/* Sidebar / Ads */}
         <div className="lg:col-span-4 space-y-12 h-fit md:sticky md:top-32">
-          <div className="bg-black/60 p-12 rounded-[3.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group">
+          <div className="bg-[var(--panel-bg)] p-12 rounded-[3.5rem] border border-[var(--panel-border)] shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#A2C367]/5 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 blur-2xl rounded-full" />
             
-            <h2 className="text-2xl font-black mb-10 flex items-center gap-4 uppercase italic tracking-tighter text-white relative z-10">
+            <h2 className="text-2xl font-black mb-10 flex items-center gap-4 uppercase italic tracking-tighter text-[var(--panel-text)] relative z-10">
               <Sparkles className="text-[#A2C367] animate-pulse" />
               <span>Sugerencias IA</span>
             </h2>
