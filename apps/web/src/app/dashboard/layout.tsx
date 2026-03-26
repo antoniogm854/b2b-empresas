@@ -236,7 +236,7 @@ export default function DashboardLayout({
                     </div>
                     <div className="text-left">
                       <p className={`font-black uppercase text-[9px] tracking-widest leading-none mb-1 ${isActive ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}>Catálogo Digital</p>
-                      <p className={`font-black uppercase text-xs tracking-tighter italic ${isActive ? "text-[var(--strong-text)]" : "text-[var(--primary)]"}`}>Gestión de Productos</p>
+                      <p className={`font-black uppercase text-xs tracking-tighter italic ${isActive ? "text-[var(--strong-text)]" : "text-[var(--primary)]"}`}>Gestión Productos</p>
                     </div>
                   </Link>
                 );

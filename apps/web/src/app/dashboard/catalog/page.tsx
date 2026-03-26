@@ -276,7 +276,7 @@ export default function CatalogPage() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-10 bg-[#A2C367] rounded-full shadow-[0_0_15px_#A2C367]" />
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter uppercase italic text-[var(--strong-text)] leading-none">
-              GESTIÓN <span className="brand-t-detail text-[#A2C367]">DE</span> <br/><span className="text-[#A2C367]">PRODUCTOS</span> B2B
+              GESTIÓN <span className="brand-t-detail text-[#A2C367]">DE</span> <br/><span className="text-[#A2C367]">PRODUCTOS</span>
             </h1>
           </div>
           <p className="text-[var(--panel-subtext)] font-black uppercase tracking-[0.3em] text-[10px] pl-5 border-l border-[var(--panel-border)] ml-1">
