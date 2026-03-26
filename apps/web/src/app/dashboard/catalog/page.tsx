@@ -279,8 +279,8 @@ export default function CatalogPage() {
               GESTIÓN <span className="brand-t-detail text-[#A2C367]">DE</span> <br/><span className="text-[#A2C367]">PRODUCTOS</span> B2B
             </h1>
           </div>
-          <p className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px] pl-5 border-l border-zinc-800 ml-1">
-             INTELIGENCIA INDUSTRIAL <span className="text-[#A2C367] mx-2">/</span> GESTIÓN DE SKU GLOBAL
+          <p className="text-[var(--panel-subtext)] font-black uppercase tracking-[0.3em] text-[10px] pl-5 border-l border-[var(--panel-border)] ml-1">
+             PRODUCTOS INDUSTRIALES <span className="text-[#A2C367] mx-2">/</span> GESTION DE CATALOGO MAESTRO
           </p>
         </div>
         
