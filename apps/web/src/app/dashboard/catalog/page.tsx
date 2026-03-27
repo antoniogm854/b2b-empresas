@@ -27,7 +27,7 @@ import {
 import { companyService } from "@/lib/company-service";
 import { aiService } from "@/lib/ai-service";
 import Link from "next/link";
-import AdPlacements from "@/components/catalog/AdPlacements";
+import ShowcasePlacements from "@/components/catalog/ShowcasePlacements";
 import ProductQuickView from "@/components/dashboard/QuickView";
 import { 
   catalogService, 
@@ -722,7 +722,7 @@ export default function CatalogPage() {
               <span>Sugerencias IA</span>
             </h2>
             <div className="relative z-10 grayscale hover:grayscale-0 transition-all duration-700">
-               <AdPlacements category="Industrial" />
+               <ShowcasePlacements category="Industrial" />
             </div>
           </div>
           

@@ -56,6 +56,9 @@ Este archivo es la fuente de verdad del proyecto b2bempresas.com. Registra cada 
 | 26-Mar-2026 | v1.01.10 | **Seguridad Consolidada**: Remoción total del formulario de login en Admin Master (Imagen 2). Acceso directo post-validación de Clave Maestra. | ✅ |
 | 26-Mar-2026 | v1.01.11 | **Middleware Locale-Aware**: Corrección del bypass para soportar prefijos de idioma (ej. `/es/admin-console`). Eliminación definitiva de redirección a Imagen 1. | ✅ |
 | 26-Mar-2026 | Audit Final | Sincronización de enlaces, limpieza de código y optimización de carga. | ✅ |
+| 27-Mar-2026 | v1.01.12 | **PWA Stabilization**: Implementación de "Recuperar Icono" y botón flotante "INSTALACION CATALOGO DIGITAL". | ✅ |
+| 27-Mar-2026 | v1.01.13 | **System Audit**: Purga de terminología "Anuncios" -> "Vitrina B2B", actualización de manuales y limpieza de scripts. | ✅ |
+| 27-Mar-2026 | DevOps | **Production Cloud**: Migración completa a Vercel con CI/CD automatizado desde GitHub. | ✅ |
 
 ---
 

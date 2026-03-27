@@ -80,6 +80,7 @@ Para garantizar una imagen corporativa coherente desde la primera instalación, 
 *   **v1.01.6 (26-Mar-2026):** **Gestión Profesional de Catálogos**. Implementación de lógica de fusión (`mergeProductData`), detección de duplicados en tiempo real y soporte para carga de catálogos en PDF con validación técnica.
 *   **v1.01.7 (26-Mar-2026):** **Consolidación Maestra**. Unificación del Archivo Central de Productos en el Admin Master y optimización de flujos de acceso para una gestión industrial fluida.
 *   **v1.01.11 (26-Mar-2026):** **Seguridad Consolidada v2.0**. Implementación de acceso directo desde Gate Maestro, remoción de formularios de login redundantes (Imagen 1 e Imagen 2) y bypass de middleware locale-aware para una operación centralizada y ágil.
+*   **v1.01.13 (27-Mar-2026):** **Estabilización PWA y Auditoría del Sistema**. Implementación de "Recuperar Icono" y botón flotante "INSTALACION CATALOGO DIGITAL". Purga de terminología "Anuncios" -> "Vitrina B2B" en todo el sistema. Sincronización completa con infraestructura Vercel.
 
 ---
 
@@ -98,5 +99,5 @@ Para garantizar la integridad operativa de `b2bempresas.com` y que ninguna acci�
 - Las configuraciones se almacenan en `tenants.catalog_settings`. Se recomienda auditoría manual periódica comparando con la Bitácora.
 
 ---
-*Manual actualizado v1.01.11 - Enfoque Industrial Premium*
+*Manual actualizado v1.01.13 - Enfoque Industrial Premium*
 

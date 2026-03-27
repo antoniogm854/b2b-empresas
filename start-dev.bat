@@ -6,9 +6,10 @@ echo ==========================================
 echo   INICIANDO SERVIDOR DE DESARROLLO...
 echo ==========================================
 
-:: Abrir el aplicativo automáticamente (con un pequeño retraso de 15 segundos)
-start /min cmd /c "timeout /t 15 > nul && start \"\" \"C:\Program Files\Google\Chrome\Application\chrome_proxy.exe\" --profile-directory=\"Profile 8\" --app-id=ljlegbjchnncmcmdeidanohnblglbjil"
+:: Abrir el navegador automáticamente a localhost:3000
+start "" "https://www.b2bempresas.com"
+start "" "http://localhost:3000"
 
-:: Usar npm.cmd explícitamente para evitar problemas de ejecución de scripts de PowerShell
+:: Ejecutar servidor de desarrollo
 npm.cmd run dev
 pause
