@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { X, Smartphone, Zap, Monitor } from "lucide-react";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export function PWAInstallPrompt() {
   const pathname = usePathname();
@@ -30,35 +31,29 @@ export function PWAInstallPrompt() {
           <X size={16} />
         </button>
         
-        <button 
-          onClick={installApp}
-          className="relative w-full bg-[#4B6319] text-white p-5 rounded-[2rem] shadow-[0_0_20px_rgba(162,195,103,0.3)] flex flex-col items-center gap-3 hover:bg-[#3d5114] transition-all hover:scale-[1.05] group/btn border-2 border-[#A2C367]/30 overflow-hidden mb-6 ring-2 ring-[#A2C367]/20 ring-offset-2 ring-offset-slate-900"
-          style={{ 
-            boxShadow: '0 0 15px rgba(162, 195, 103, 0.4), inset 0 0 10px rgba(162, 195, 103, 0.2)',
-          }}
-        >
-          <div className="absolute inset-0 bg-white/5 group-hover/btn:bg-white/10 transition-colors" />
+        <div className="flex flex-col gap-4">
+          <Link 
+            href="/register"
+            onClick={(e: React.MouseEvent) => {
+              // Also try to install when clicking, but don't block navigation
+              installApp();
+            }}
+            className="w-full bg-[#CCFF00] text-[#052e16] py-6 rounded-[2rem] font-black uppercase hover:scale-[1.02] transition-all shadow-[0_0_30px_-5px_#CCFF00] flex flex-col items-center justify-center group text-center leading-[0.9] border-2 border-white/20"
+          >
+            <span className="text-[18px] tracking-[0.2em] mb-1 opacity-80">INSTALACION</span>
+            <span className="text-[26px] sm:text-[28px] tracking-[-0.02em] whitespace-nowrap">CATALOGO DIGITAL</span>
+          </Link>
           
-          <div className="bg-[#A2C367] text-[#2E3D10] p-2.5 rounded-xl relative z-10 shadow-[0_0_10px_#A2C367]">
-            <Monitor size={24} className="animate-pulse" />
-          </div>
-          
-          <div className="flex flex-col items-center text-center relative z-10">
-            <p className="font-black text-[10px] uppercase tracking-[0.2em] leading-tight opacity-70 mb-0.5">FUNCIÓN OPERATIVA</p>
-            <p className="font-black text-xl lg:text-2xl uppercase tracking-tighter leading-[0.9] text-[#A2C367] drop-shadow-[0_0_8px_rgba(162,195,103,0.8)]">
-              INSTALACIÓN <br/> CATÁLOGO DIGITAL
-            </p>
-          </div>
-        </button>
-        
-        <div className="flex items-start gap-4 px-2">
-          <div className="bg-white/10 p-2.5 rounded-xl hidden sm:block">
-            <Smartphone size={20} className="text-[#A2C367]" />
-          </div>
-          <div className="space-y-1 text-left">
-            <p className="text-[10px] font-bold text-white/60 leading-tight italic uppercase tracking-wider">
-              Acceso profesional 24/7. Instala el catálogo en tu escritorio para una gestión industrial de alta precisión.
-            </p>
+          <div className="flex items-center gap-4 px-2">
+            <div className="bg-white/10 p-2.5 rounded-xl">
+              <Zap size={20} className="text-[#CCFF00] animate-pulse" />
+            </div>
+            <div className="space-y-0.5 text-left">
+              <p className="text-[10px] font-black text-white uppercase tracking-widest">Activación Profesional</p>
+              <p className="text-[9px] font-bold text-white/50 leading-tight uppercase tracking-wider">
+                Inicia tu registro y activa tu entorno digital.
+              </p>
+            </div>
           </div>
         </div>
 
