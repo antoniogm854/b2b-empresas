@@ -3,17 +3,22 @@
 import { usePathname } from "next/navigation";
 import { X, Smartphone, Zap, Monitor } from "lucide-react";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function PWAInstallPrompt() {
   const pathname = usePathname();
   const { isInstallable, isStandalone, installApp } = usePWAInstall();
   const [isDismissed, setIsDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Show on homepage and login/register
   const shouldShow = pathname === "/" || pathname === "/login" || pathname === "/register";
 
-  if (isStandalone || isDismissed || !shouldShow || !isInstallable) return null;
+  if (!mounted || isStandalone || isDismissed || !shouldShow) return null;
 
   return (
     <div className="fixed top-24 sm:top-24 right-4 sm:right-6 z-[90] animate-fade-in-right max-w-[calc(100vw-2rem)] sm:max-w-xs transition-all duration-500">
