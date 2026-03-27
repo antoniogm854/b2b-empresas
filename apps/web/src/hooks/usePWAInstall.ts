@@ -35,21 +35,25 @@ export function usePWAInstall() {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
       if (isIOS) {
-        alert("Para instalar en iPhone/iPad:\n\n1. Toca 'Compartir' (cuadrado con flecha).\n2. Selecciona 'Agregar a Inicio'.");
+        alert("Para instalar en iPhone/iPad:\n\n1. Toca el botón 'Compartir' (cuadrado con flecha).\n2. Selecciona 'Agregar a Inicio'.");
       } else if (isMobile) {
-        alert("Para instalar en Android:\n\n1. Menú (3 puntos) -> 'Instalar aplicación'.");
+        alert("Para instalar en Android:\n\n1. Toca los 3 puntos del navegador.\n2. Busca 'Instalar aplicación' o 'Agregar a pantalla de inicio'.");
       } else {
-        alert("Para instalar en PC:\n\n1. Pulsa el icono de 'Instalar' en la barra de direcciones.\n2. O Ve a Menú (3 puntos) > 'Guardar y compartir' > 'Instalar esta página'.");
+        alert("Para recuperar el icono en PC:\n\n1. Busca un icono de (+) o 'Instalar' en la barra de direcciones de Chrome/Edge (a la derecha).\n2. O ve a: Menú (3 puntos) > 'Guardar y compartir' > 'Instalar esta página'.");
       }
       return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-      setIsInstallable(false);
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      }
+    } catch (err) {
+      console.error("Install prompt error:", err);
     }
   };
 
