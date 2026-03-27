@@ -3,8 +3,9 @@ import { supabase } from './supabase';
 export interface AdminStats {
   totalCompanies: number;
   pendingVerifications: number;
-  activeShowcase: number;
-  totalMarketplaceLeads: number;
+  activeMarketplace: number;
+  totalLeads: number;
+  pendingMasterProducts: number;
 }
 
 export const adminService = {
@@ -12,18 +13,20 @@ export const adminService = {
    * Obtiene estadísticas globales para el panel administrativo.
    */
   async getGlobalStats(): Promise<AdminStats> {
-    const [tenants, pending, ads, leads] = await Promise.all([
+    const [tenants, pending, ads, leads, products] = await Promise.all([
       supabase.from('tenants').select('id', { count: 'exact', head: true }),
       supabase.from('tenants').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('tenant_catalog').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('leads').select('id', { count: 'exact', head: true })
+      supabase.from('leads').select('id', { count: 'exact', head: true }),
+      supabase.from('catalog_master').select('id', { count: 'exact', head: true }).eq('status', 'review')
     ]);
 
     return {
       totalCompanies: tenants.count || 0,
       pendingVerifications: pending.count || 0,
-      activeShowcase: ads.count || 0,
-      totalMarketplaceLeads: leads.count || 0
+      activeMarketplace: ads.count || 0,
+      totalLeads: leads.count || 0,
+      pendingMasterProducts: products.count || 0
     };
   },
 
@@ -87,9 +90,10 @@ export const adminService = {
   },
 
   /**
-   * Obtiene productos con vitrina pendiente de aprobación.
+   * Obtiene productos pendientes de aprobación para el Marketplace.
+   * Deprecado: En proceso de unificación con el Catálogo Maestro.
    */
-  async getPendingShowcase() {
+  async getPendingMarketplaceProducts() {
     const { data, error } = await supabase
       .from('tenant_catalog')
       .select(`
@@ -118,7 +122,6 @@ export const adminService = {
     const { error } = await supabase
       .from('tenant_catalog')
       .update({ 
-        ad_status: status,
         is_featured: status === 'approved',
         priority_score: priority
       })
@@ -136,7 +139,7 @@ export const adminService = {
     const { count: orphanedProducts } = await supabase
       .from('tenant_catalog')
       .select('id', { count: 'exact', head: true })
-      .is('master_id', null);
+      .is('master_product_id', null);
 
     // 2. Verificar trazabilidad de leads
     const { count: totalLeads } = await supabase.from('leads').select('id', { count: 'exact', head: true });
@@ -169,5 +172,45 @@ export const adminService = {
       ],
       timestamp: new Date().toISOString()
     };
+  },
+
+  /**
+   * Obtiene productos sugeridos (desde PDF/Web) pendientes de revisión.
+   */
+  async getPendingMasterProducts() {
+    const { data, error } = await supabase
+      .from('catalog_master')
+      .select(`
+        id,
+        sku_cuim,
+        product_name,
+        brand,
+        model,
+        source,
+        source_tenant_id,
+        status,
+        created_at,
+        tenants:source_tenant_id (company_name)
+      `)
+      .eq('status', 'review')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Aprueba o rechaza un producto del Catálogo Maestro.
+   */
+  async setMasterProductStatus(productId: string, status: 'active' | 'inactive') {
+    const { error } = await supabase
+      .from('catalog_master')
+      .update({ 
+        status: status,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', productId);
+
+    if (error) throw error;
   }
 };

@@ -135,6 +135,7 @@ export default function MasterClient() {
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === MASTER_KEY) {
+      sessionStorage.setItem('admin_master_auth', 'true');
       setIsUnlocked(true);
       setError("");
     } else {
@@ -199,54 +200,31 @@ export default function MasterClient() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-5xl animate-fade-in-up">
-            <div className="text-center mb-12 space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-black text-[10px] uppercase tracking-widest border border-[var(--primary)]/20">
-                <UserCheck size={14} /> {t('verified_badge')}
+          <div className="w-full max-w-lg mx-auto bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] shadow-2xl animate-fade-in">
+            {/* Redirecting message */}
+            <div className="text-center space-y-6">
+              <div className="flex flex-col items-center">
+                <ShieldCheck size={80} className="text-[var(--primary)] animate-pulse mb-6" />
+                <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Acceso Verificado</h2>
+                <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-xs mt-4">Redirigiendo a Consola de Mando...</p>
               </div>
-              <h2 className="text-4xl md:text-7xl font-black text-[var(--strong-text)] uppercase tracking-tighter italic leading-none drop-shadow-2xl">
-                <span className="block text-white mb-2">{t('red')}</span>
-                <span className="text-gold-maestra">{t('maestra').slice(0, 4)}<span className="brand-t-detail text-gold-maestra">{t('maestra').slice(4, 5)}</span>{t('maestra').slice(5)}</span>
-              </h2>
-              <p className="text-white/40 font-black uppercase tracking-[0.3em] text-[10px] pt-8">{t('strategy')}</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Link href="/login?mode=welcome&next=/dashboard" className="group">
-                <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--primary)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--primary)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-[var(--primary)]/20">
-                      <LayoutDashboard size={32} />
-                    </div>
-                    <h3 className="text-2xl font-black text-[var(--strong-text)] uppercase mb-4 tracking-tight">{t('login_title')}</h3>
-                    <p className="text-[var(--muted-foreground)] font-medium mb-8 leading-relaxed">{t('login_desc')}</p>
-                    <div className="mt-auto flex items-center text-[var(--primary)] font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
-                      {t('login_btn')} <ChevronRight size={16} />
-                    </div>
-                  </div>
+              
+              <div className="pt-8">
+                <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                  <div className="bg-[var(--primary)] h-full animate-progress-fast"></div>
                 </div>
-              </Link>
-              <Link href="/login?mode=welcome&next=/admin-console" className="group">
-                <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--accent)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--accent)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-16 h-16 bg-[var(--deep-section)] rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-black/20">
-                      <Settings size={32} />
-                    </div>
-                    <h3 className="text-2xl font-black text-[var(--strong-text)] uppercase mb-4 tracking-tight">{t('admin_title')}</h3>
-                    <p className="text-[var(--muted-foreground)] font-medium mb-8 leading-relaxed">{t('admin_desc')}</p>
-                    <div className="mt-auto flex items-center text-[var(--accent)] font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
-                      {t('admin_btn')} <ChevronRight size={16} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              </div>
             </div>
-            <div className="mt-16 text-center">
-              <button onClick={() => setIsUnlocked(false)} className="text-[10px] font-black uppercase tracking-widest text-[var(--muted-foreground)] hover:text-red-500 transition-colors">
-                {t('logout')}
-              </button>
-            </div>
+
+            {/* Hidden navigation trigger */}
+            <script dangerouslySetInnerHTML={{ __html: `
+              try {
+                sessionStorage.setItem('admin_master_auth', 'true');
+                setTimeout(() => { window.location.href = '/admin-console'; }, 1500);
+              } catch (e) {
+                window.location.href = '/admin-console';
+              }
+            `}} />
           </div>
         )}
       </div>

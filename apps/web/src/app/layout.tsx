@@ -55,7 +55,8 @@ export async function generateMetadata(): Promise<Metadata> {
       'b2b', 'industrial', 'catálogo digital', 'proveedores perú', 'proveedores latinoamérica', 
       'comercio industrial', 'b2b empresas', 'transformación digital b2b', 'leads industriales',
       'compliance industrial', 'cuup', 'servicios para empresas', 'suministros industriales',
-      'maquinaria pesada', 'minería perú', 'logística b2b', 'marketplace industrial'
+      'maquinaria pesada', 'minería perú', 'logística b2b', 'marketplace industrial',
+      'catálogo maestro b2b', 'archivo central de productos', 'sourcing industrial'
     ],
     manifest: '/manifest.json',
     openGraph: {

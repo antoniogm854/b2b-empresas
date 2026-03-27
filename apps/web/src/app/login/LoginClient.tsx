@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/auth-service";
 import { useTranslations } from "next-intl";
-import { ShieldCheck, Save, Loader2 } from "lucide-react";
+import { ShieldCheck, Save, Loader2, MonitorDown } from "lucide-react";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function LoginClient() {
   const [resetSent, setResetSent] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [nextUrl, setNextUrl] = useState<string>("/dashboard");
+  const { isInstallable, installApp } = usePWAInstall();
 
   useEffect(() => {
     setMounted(true);
@@ -286,6 +288,18 @@ export default function LoginClient() {
                  {t('register_link')}
                </Link>
              </p>
+
+             {isInstallable && (
+               <div className="mt-8 pt-8 border-t border-white/5">
+                 <button 
+                  onClick={installApp}
+                  className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#A2C367] hover:text-white transition-all bg-white/5 px-6 py-3 rounded-full border border-[#A2C367]/20 hover:border-[#A2C367]/50"
+                 >
+                   <MonitorDown size={14} />
+                   <span>¿Perdiste tu icono? Recuperar Acceso Escritorio</span>
+                 </button>
+               </div>
+             )}
           </div>
         </div>
 

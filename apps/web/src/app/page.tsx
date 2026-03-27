@@ -267,7 +267,15 @@ export default function Home() {
           <div className="container mx-auto px-6">
             
             {/* Buscador */}
-            <div className="bg-[var(--card)] p-8 md:p-12 rounded-[2rem] shadow-xl border border-[var(--border)] -mt-48 relative z-20 mb-20 max-w-5xl mx-auto text-center">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const query = formData.get('q');
+                if (query) window.location.href = `/marketplace?q=${encodeURIComponent(query.toString())}`;
+              }}
+              className="bg-[var(--card)] p-8 md:p-12 rounded-[2rem] shadow-xl border border-[var(--border)] -mt-48 relative z-20 mb-20 max-w-5xl mx-auto text-center"
+            >
               <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[var(--strong-text)] mb-4">
                 {t('catalog_title')}
               </h2>
@@ -277,16 +285,17 @@ export default function Home() {
                 <div className="relative flex-grow">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" size={24} />
                   <input 
+                    name="q"
                     type="text" 
                     placeholder={t('search_placeholder')}
                     className="w-full bg-[var(--background)] border-2 border-[var(--border)] text-lg sm:text-xl py-6 pl-16 pr-6 rounded-2xl focus:outline-none focus:border-[var(--primary)] focus:bg-[var(--card)] text-[var(--foreground)] transition-colors"
                   />
                 </div>
-                <button className="bg-[var(--primary)] text-white px-10 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[var(--deep-section)] transition-colors shadow-lg shadow-[var(--primary)]/20 whitespace-nowrap">
+                <button type="submit" className="bg-[var(--primary)] text-white px-10 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[var(--deep-section)] transition-colors shadow-lg shadow-[var(--primary)]/20 whitespace-nowrap">
                   {t('search_btn')}
                 </button>
               </div>
-            </div>
+            </form>
 
             {/* Catálogo Maestro B2B info */}
             <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">

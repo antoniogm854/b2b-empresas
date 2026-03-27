@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import LayoutClassic from "./LayoutClassic";
 import LayoutModern from "./LayoutModern";
 import LayoutTechSpec from "./LayoutTechSpec";
+import PromotionalBanner from "./PromotionalBanner";
 import { DEFAULT_CATALOG_SETTINGS } from "@/lib/constants";
 import { analyticsService } from "@/lib/analytics-service";
 
@@ -42,6 +43,7 @@ export default function CatalogView({ tenant, products }: CatalogViewProps) {
       className="min-h-screen bg-background text-foreground transition-all duration-500"
       style={{ fontFamily: settings.theme?.font_family || 'Inter' }}
     >
+      <PromotionalBanner products={products} />
       {renderLayout()}
       
       {/* Branding B2B Empresas */}

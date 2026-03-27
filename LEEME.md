@@ -1,4 +1,4 @@
-# PROYECTO: b2bempresas.com — Bitácora Industrial (v1.01.4)
+# PROYECTO: b2bempresas.com — Bitácora Industrial (v1.01.11)
 
 Este archivo es la fuente de verdad del proyecto b2bempresas.com. Registra cada decisión técnica, cambio de arquitectura y progreso realizado bajo el **Estándar Industrial v6.0**.
 
@@ -49,6 +49,13 @@ Este archivo es la fuente de verdad del proyecto b2bempresas.com. Registra cada 
 | 25-Mar-2026 | Audit | **Canales Digitales**: Validación estricta de dominios para redes sociales (Master-Pattern). | ✅ |
 | 25-Mar-2026 | v1.01.3 | **Classic Industrial**: Flyer Corporativo, 3 columnas y auto-grabado. | ✅ |
 | 25-Mar-2026 | v1.01.4 | **Audit & Cleanup**: Purga de Ads -> Vitrina B2B, SEO y Bitácora Maestra. | ✅ |
+| 26-Mar-2026 | v1.01.6 | **Catalog Ingestion**: Deduplicación semántica, fusión de datos y Extractor AI Dual (Web/PDF). | ✅ |
+| 26-Mar-2026 | v1.01.7 | **Catálogo Maestro B2B (Archivo Central)**: Unificación de la "Vitrina B2B" en un Archivo Central de Productos con control administrativo absoluto y optimización del flujo Master. | ✅ |
+| 26-Mar-2026 | v1.01.8 | **Seguridad & Layout**: Simplificación de flujo (borrado de Imagen 1) con redirección directa al Admin Master y refinamiento de layout responsive en 3 filas. | ✅ |
+| 26-Mar-2026 | v1.01.9 | **Middleware Bypass**: Exención de `/admin-console` y `/master` en el middleware para evitar redirecciones al portal general (Imagen 1). | ✅ |
+| 26-Mar-2026 | v1.01.10 | **Seguridad Consolidada**: Remoción total del formulario de login en Admin Master (Imagen 2). Acceso directo post-validación de Clave Maestra. | ✅ |
+| 26-Mar-2026 | v1.01.11 | **Middleware Locale-Aware**: Corrección del bypass para soportar prefijos de idioma (ej. `/es/admin-console`). Eliminación definitiva de redirección a Imagen 1. | ✅ |
+| 26-Mar-2026 | Audit Final | Sincronización de enlaces, limpieza de código y optimización de carga. | ✅ |
 
 ---
 

@@ -32,14 +32,31 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache (Disabled caching for dev stability)
+// Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-  // Only cache GET requests
+  // Only handle GET requests
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  
+  // 🚀 CRITICAL: Bypass cache for Next.js development chunks and hot-reloads
+  // These files change every time a developer saves a file.
+  if (
+    url.pathname.includes('/_next/static/webpack/') || 
+    url.pathname.includes('/_next/webpack-hmr') ||
+    url.pathname.includes('hot-update.json') ||
+    url.pathname.endsWith('.hot-update.js')
+  ) {
+    return event.respondWith(fetch(event.request));
+  }
 
   event.respondWith(
     fetch(event.request)
       .catch(() => {
+        // Only fallback to cache for static assets, not for dynamic build chunks
+        if (url.pathname.startsWith('/_next/static/chunks/')) {
+           return new Response('Stale Chunk Detected - Please Reload', { status: 404 });
+        }
         return caches.match(event.request);
       })
   );

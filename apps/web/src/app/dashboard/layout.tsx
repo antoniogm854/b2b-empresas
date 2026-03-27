@@ -21,7 +21,8 @@ import {
   ChevronRight,
   LayoutDashboard,
   Download,
-  Smartphone
+  Smartphone,
+  RefreshCw
 } from "lucide-react";
 import { authService, UserProfile } from "@/lib/auth-service";
 import { useRouter, usePathname } from "next/navigation";
@@ -39,18 +40,38 @@ export default function DashboardLayout({
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showEmergencyReload, setShowEmergencyReload] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  const handleForceReload = async () => {
+    try {
+      // 1. Unregister all service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      // 2. Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+      // 3. Force hard reload (bypassing browser cache)
+      window.location.reload();
+    } catch (e) {
+      window.location.href = window.location.href; // Fallback
+    }
+  };
 
   React.useEffect(() => {
     setMounted(true);
     
-    // Immediate check for PWA Welcome Mode
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'welcome') {
-      router.replace('/login?mode=welcome');
-      return;
-    }
+    // Timer para mostrar botón de emergencia tras 7 segundos de carga
+    const emergencyTimer = setTimeout(() => {
+      setShowEmergencyReload(true);
+    }, 7000);
 
     const loadData = async () => {
       try {
@@ -104,15 +125,36 @@ export default function DashboardLayout({
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      clearTimeout(emergencyTimer);
+    };
   }, []);
 
   if (!mounted || checkingAuth) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-8 max-w-sm text-center">
           <div className="w-16 h-16 border-4 border-[#A2C367] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#A2C367] font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Iniciando Centro de Control...</p>
+          <div className="space-y-4">
+            <p className="text-[#A2C367] font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Iniciando Centro de Control...</p>
+            
+            {showEmergencyReload && (
+              <div className="animate-reveal space-y-4 pt-4 border-t border-white/10">
+                <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest leading-relaxed">
+                  ¿La carga está tardando demasiado? <br/> 
+                  Esto puede ocurrir durante actualizaciones en el servidor.
+                </p>
+                <button 
+                  onClick={handleForceReload}
+                  className="bg-white/5 border border-[#A2C367]/30 text-[#A2C367] px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#A2C367] hover:text-black transition-all flex items-center gap-2 mx-auto shadow-lg shadow-[#A2C367]/10"
+                >
+                  <RefreshCw size={14} className="animate-spin-slow" />
+                  Limpiar Caché y Forzar Recarga
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

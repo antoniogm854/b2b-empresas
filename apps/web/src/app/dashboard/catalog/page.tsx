@@ -18,7 +18,11 @@ import {
   Download,
   Upload,
   FileDown,
-  BarChart3
+  BarChart3,
+  Bot,
+  FileText,
+  X,
+  UploadCloud
 } from "lucide-react";
 import { companyService } from "@/lib/company-service";
 import { aiService } from "@/lib/ai-service";
@@ -47,6 +51,10 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isSyncWizardOpen, setIsSyncWizardOpen] = useState(false);
+  const [syncUrl, setSyncUrl] = useState("");
+  const [syncMode, setSyncMode] = useState<"web" | "pdf">("web");
+  const [syncFile, setSyncFile] = useState<File | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [syncStep, setSyncStep] = useState(1);
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -306,47 +314,265 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Search and Action Bar */}
-      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 bg-[var(--panel-bg)] p-6 rounded-[2.5rem] border border-[var(--panel-border)] backdrop-blur-sm relative overflow-hidden group">
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#A2C367]/20 to-transparent" />
-        
-        <div className="flex-1 flex items-center space-x-6 w-full">
-          <div className="flex-1 flex items-center bg-[var(--background)] px-8 py-5 rounded-2xl border border-[var(--panel-border)] focus-within:border-[#A2C367] focus-within:shadow-[0_0_25px_rgba(162,195,103,0.1)] transition-all group/search shadow-inner">
-            <Search className="text-[var(--panel-subtext)] mr-5 group-focus-within:text-[#A2C367] transition-colors" size={22} />
-            <input 
-              type="text" 
-              placeholder={activeTab === "mine" ? "Escanear SKU, Nombre o Categoría..." : "Búsqueda Profunda en el Catálogo Maestro Global..."}
-              className="bg-transparent border-none outline-none font-bold text-sm w-full placeholder:text-[var(--panel-subtext)]/50 text-[var(--panel-text)] uppercase tracking-widest"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      {/* 🚀 ZONA 1: CARGA DE PRODUCTOS SKU (MANUAL) */}
+      <div className="bg-zinc-900/40 p-10 rounded-[3.5rem] border border-zinc-800 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#A2C367]/5 blur-[100px] rounded-full group-hover:bg-[#A2C367]/10 transition-all duration-700" />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+          <div className="space-y-3 max-w-xl">
+            <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white flex items-center gap-4 leading-none">
+               <span className="p-3 bg-[#A2C367]/10 text-[#A2C367] rounded-2xl"><Plus size={24} /></span>
+               1. Carga de Productos SKU
+            </h2>
+            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-relaxed">
+              Opción para el llenado manual de productos uno por uno. Ingrese datos técnicos detallados para alimentar automáticamente el <span className="text-[#A2C367]">Catálogo Maestro B2B (CMb2b)</span>.
+            </p>
           </div>
-          <button className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-zinc-500 hover:text-[#A2C367] hover:border-[#A2C367]/50 transition-all shadow-xl group/filter">
-            <Filter size={22} className="group-hover/filter:scale-110 transition-transform" />
-          </button>
+          <Link 
+            href="/dashboard/catalog/new"
+            className="w-full md:w-auto bg-[#A2C367] text-black px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(162,195,103,0.2)] border border-white/20 active:scale-95 text-center"
+          >
+            AGREGAR PRODUCTO MANUAL
+          </Link>
         </div>
+      </div>
 
-        {activeTab === "mine" && (
+      {/* 📦 ZONA 2: CARGA EN BLOQUE DE PRODUCTOS (CSV/EXCEL) */}
+      <div className="bg-zinc-900/20 p-10 rounded-[3.5rem] border border-zinc-800/50 shadow-xl relative overflow-hidden group">
+        <div className="flex flex-col xl:flex-row items-center justify-between gap-10 relative z-10">
+          <div className="space-y-3 max-w-xl">
+            <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-300 flex items-center gap-4 leading-none">
+               <span className="p-3 bg-blue-500/10 text-blue-400 rounded-2xl"><Upload size={24} /></span>
+               2. Carga en Bloque de Productos
+            </h2>
+            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest leading-relaxed">
+              Gestione su inventario de forma masiva mediante archivos CSV/Excel. Use la función de <strong>IMPORTAR</strong> para actualizar, agregar o borrar información técnica en lote.
+            </p>
+          </div>
+          
           <div className="flex items-center gap-3 shrink-0 w-full xl:w-auto overflow-x-auto pb-4 xl:pb-0 scrollbar-hide">
             <button 
               onClick={handleDownloadTemplate} 
               className="bg-black/40 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl border border-zinc-800 text-zinc-500 hover:text-blue-400 hover:border-blue-400/50 transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap shadow-xl"
             >
-              <FileDown size={18} /> Plantilla CSV
+              <FileDown size={18} /> Descargar Formato
             </button>
             <button 
               onClick={handleExportCSV} 
               className="bg-black/40 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl border border-zinc-800 text-zinc-500 hover:text-purple-400 hover:border-purple-400/50 transition-all font-black text-[10px] uppercase tracking-widest whitespace-nowrap shadow-xl"
             >
-              <Download size={18} /> Backup
+              <Download size={18} /> Exportar CSV
             </button>
-            <label className="bg-[#A2C367] hover:bg-[#b0d275] cursor-pointer text-black flex items-center justify-center gap-3 px-10 py-5 rounded-2xl shadow-[0_0_30px_rgba(162,195,103,0.2)] transition-all font-black text-xs uppercase tracking-widest whitespace-nowrap border border-white/20 active:scale-95">
+            <label className="bg-zinc-950 hover:bg-zinc-800 cursor-pointer text-[#A2C367] flex items-center justify-center gap-3 px-10 py-5 rounded-2xl border border-[#A2C367]/30 transition-all font-black text-xs uppercase tracking-widest whitespace-nowrap active:scale-95">
               {isImporting ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />} 
-              {isImporting ? 'PROCESANDO...' : 'CARGA MASIVA B2B'}
+              {isImporting ? 'IMPORTANDO...' : 'IMPORTAR PRODUCTOS'}
               <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} disabled={isImporting} />
             </label>
           </div>
+        </div>
+      </div>
+
+      {/* 🤖 ZONA 3: CARGA AUTOMÁTICA DE PRODUCTOS (IA SCRAPER) */}
+      <div className="bg-zinc-950 p-10 rounded-[3.5rem] border border-zinc-900 shadow-inner relative overflow-hidden group min-h-[400px] flex flex-col justify-center transition-all duration-700">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#A2C367]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        
+        {syncStep === 1 ? (
+          <div className="flex flex-col xl:flex-row items-start justify-between gap-12 relative z-10 animate-fade-in">
+            <div className="space-y-4 max-w-xl">
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-400 flex items-center gap-4 leading-none">
+                 <span className="p-3 bg-purple-500/10 text-purple-400 rounded-2xl"><Bot size={24} /></span>
+                 3. Carga Automática de Productos
+              </h2>
+              <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest leading-relaxed">
+                Sincronización automatizada desde su sitio web empresarial. El sistema descarga, archiva y guarda productos tanto en su catálogo local como en el <strong>Catálogo Maestro B2B</strong>.
+              </p>
+              
+              {/* Mode Selector Tabs */}
+              <div className="flex bg-zinc-900/50 p-1 rounded-2xl border border-zinc-800 w-fit">
+                <button 
+                  onClick={() => setSyncMode("web")}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all ${syncMode === "web" ? "bg-[#A2C367] text-black shadow-lg" : "text-zinc-500 hover:text-zinc-300"}`}
+                >
+                  <Globe size={14} /> Extracción Web
+                </button>
+                <button 
+                  onClick={() => setSyncMode("pdf")}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all ${syncMode === "pdf" ? "bg-[#A2C367] text-black shadow-lg" : "text-zinc-500 hover:text-zinc-300"}`}
+                >
+                  <FileText size={14} /> Catálogo PDF
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 w-full space-y-6">
+              {syncMode === "web" ? (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="flex items-center bg-zinc-900 px-8 py-5 rounded-3xl border border-zinc-800 focus-within:border-[#A2C367] transition-all shadow-2xl">
+                    <Globe size={22} className="text-zinc-700 mr-4" />
+                    <input 
+                      type="url" 
+                      placeholder="https://empresa.com/productos"
+                      className="bg-transparent border-none outline-none font-bold text-sm w-full placeholder:text-zinc-800 text-white uppercase tracking-widest"
+                      value={syncUrl}
+                      onChange={(e) => setSyncUrl(e.target.value)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="animate-fade-in">
+                  <label className="flex flex-col items-center justify-center bg-zinc-900 border-2 border-dashed border-zinc-800 p-8 rounded-[2.5rem] cursor-pointer hover:border-[#A2C367] hover:bg-[#A2C367]/5 transition-all group relative">
+                    {syncFile ? (
+                      <div className="flex items-center gap-4">
+                        <div className="p-4 bg-red-500/10 text-red-500 rounded-2xl">
+                          <FileText size={32} />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-black text-sm text-white uppercase tracking-tighter truncate max-w-[200px]">{syncFile.name}</p>
+                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{(syncFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                        <button 
+                          onClick={(e) => { e.preventDefault(); setSyncFile(null); }}
+                          className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-red-500"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <UploadCloud size={32} className="text-zinc-700 group-hover:text-[#A2C367] transition-colors mb-4" />
+                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest text-center">
+                          Arrastre el archivo o <span className="text-[#A2C367]">clic aquí</span>
+                        </p>
+                        <p className="text-[8px] font-black text-zinc-800 uppercase tracking-widest mt-2">
+                          ARCHIVO EN PDF DE 250 MB. MAX.
+                        </p>
+                        <input type="file" accept=".pdf" className="hidden" onChange={(e) => setSyncFile(e.target.files?.[0] || null)} />
+                      </>
+                    )}
+                  </label>
+                </div>
+              )}
+
+              <button 
+                onClick={async () => {
+                  setSyncError(null);
+                  setSyncStep(2);
+                  try {
+                    let response;
+                    if (syncMode === "web") {
+                      response = await fetch('/api/catalog/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                          url: syncUrl, 
+                          tenantId: tenantId || '00000000-0000-0000-0000-000000000000' 
+                        })
+                      });
+                    } else {
+                      const formData = new FormData();
+                      formData.append('file', syncFile!);
+                      formData.append('tenantId', tenantId || '00000000-0000-0000-0000-000000000000');
+                      
+                      response = await fetch('/api/catalog/sync-pdf', {
+                        method: 'POST',
+                        body: formData
+                      });
+                    }
+
+                    const data = await response.json();
+                    if (data.success) {
+                      if (tenantId) {
+                        const products = await catalogService.getTenantProducts(tenantId);
+                        setMyProducts(products);
+                      }
+                      setSyncStep(3);
+                    } else {
+                      setSyncError(data.error || "Error durante el procesamiento.");
+                      setSyncStep(1);
+                    }
+                  } catch (err) {
+                    setSyncError("Error de conexión con el motor de IA.");
+                    setSyncStep(1);
+                  }
+                }}
+                disabled={(syncMode === "web" && (!syncUrl || !syncUrl.includes('.'))) || (syncMode === "pdf" && !syncFile)}
+                className="w-full bg-[#A2C367] text-black py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-[0_0_30px_rgba(162,195,103,0.2)] disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
+              >
+                {syncMode === "web" ? "INICIAR ESCANEO INTELIGENTE" : "INICIAR EXTRACCIÓN PDF"}
+              </button>
+
+              {syncError && (
+                <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-2xl flex items-start gap-4 animate-reveal">
+                  <AlertCircle className="text-red-500 shrink-0" size={18} />
+                  <p className="text-left text-[9px] font-black text-red-500 uppercase tracking-widest leading-relaxed">
+                    {syncError}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : syncStep === 2 ? (
+          <div className="flex flex-col items-center justify-center space-y-8 py-10 relative z-10 animate-fade-in">
+            <div className="relative">
+              <Loader2 size={80} className="text-[#A2C367] animate-spin" />
+              <Bot size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-purple-400" />
+            </div>
+            <div className="text-center space-y-3">
+              <h3 className="text-3xl font-black uppercase italic tracking-tighter text-white">PROCESANDO CON IA</h3>
+              <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest animate-pulse italic">Mapeando y registrando productos corporativos...</p>
+            </div>
+            <div className="w-full max-w-md h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+              <div className="h-full bg-[#A2C367] animate-shimmer" style={{ width: '60%' }} />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-8 py-10 relative z-10 animate-fade-in text-center">
+            <div className="w-24 h-24 bg-[#A2C367] text-black rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(162,195,103,0.3)] border-4 border-white/20">
+               <CheckCircle2 size={48} />
+            </div>
+            <div className="space-y-2">
+               <h2 className="text-4xl font-black uppercase italic tracking-tighter text-white">OPERACIÓN EXITOSA</h2>
+               <p className="text-[#A2C367] font-black text-xs uppercase tracking-[0.2em]">Catalogo industrial actualizado y optimizado</p>
+            </div>
+            <div className="flex gap-6">
+              <div className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 min-w-[140px]">
+                <p className="text-2xl font-black text-[#A2C367]">12</p>
+                <p className="text-[8px] font-black uppercase text-zinc-500 tracking-widest">PRODUCTOS</p>
+              </div>
+              <div className="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 min-w-[140px]">
+                <p className="text-2xl font-black text-blue-500">85%</p>
+                <p className="text-[8px] font-black uppercase text-zinc-500 tracking-widest">MEJORA SEO</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => {
+                setSyncStep(1);
+                setActiveTab("mine");
+              }}
+              className="mt-4 text-[#A2C367] font-black text-[10px] uppercase tracking-widest hover:underline flex items-center gap-2"
+            >
+              REALIZAR OTRA EXTRACCIÓN <ArrowRight size={14} />
+            </button>
+          </div>
         )}
+      </div>
+
+      {/* Search Bar for Listing */}
+      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 bg-black/40 p-6 rounded-[2.5rem] border border-zinc-900 group">
+        <div className="flex-1 flex items-center space-x-6 w-full">
+          <div className="flex-1 flex items-center bg-zinc-950 px-8 py-5 rounded-2xl border border-zinc-900 focus-within:border-[#A2C367] transition-all group/search">
+            <Search className="text-zinc-700 mr-5 group-focus-within:text-[#A2C367] transition-colors" size={22} />
+            <input 
+              type="text" 
+              placeholder={activeTab === "mine" ? "Buscar en mi catálogo local..." : "Búsqueda Profunda en el Catálogo Maestro Global..."}
+              className="bg-transparent border-none outline-none font-bold text-sm w-full placeholder:text-zinc-800 text-white uppercase tracking-widest"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <button className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-zinc-500 hover:text-[#A2C367] transition-all">
+            <Filter size={22} />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -377,9 +603,16 @@ export default function CatalogPage() {
                               <CheckCircle2 size={12} /> VERIFICADO CMb2b
                             </span>
                           )}
+                          {p.is_most_requested && (
+                            <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-widest rounded-full border border-amber-500/20 shadow-sm animate-pulse">
+                              <Sparkles size={12} /> DESTACADO / PROMOCIÓN
+                            </span>
+                          )}
                         </div>
                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
-                          <span className="w-2 h-0.5 bg-[#A2C367]"></span> ID: {p.id.substring(0,8)} <span className="text-zinc-800 mx-1">|</span> 
+                          <span className="w-2 h-0.5 bg-[#A2C367]"></span> 
+                          CODE: <span className="text-white">{p.sku_cuie || `ID: ${p.id.substring(0,8)}`}</span> 
+                          <span className="text-zinc-800 mx-1">|</span> 
                           STATUS: <span className={p.is_active ? 'text-[#A2C367]' : 'text-red-500'}>
                             {p.is_active ? 'OPERATIVO' : 'FUERA DE LÍNEA'}
                           </span>
@@ -544,114 +777,6 @@ export default function CatalogPage() {
         </div>
       )}
 
-      {/* Sync Wizard Modal */}
-      {isSyncWizardOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-reveal">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsSyncWizardOpen(false)} />
-          <div className="relative bg-[var(--card)] w-full max-w-2xl rounded-[3rem] overflow-hidden border border-[var(--border)] shadow-2xl">
-             {/* Progress Bar */}
-             <div className="h-2 bg-[var(--muted)] w-full">
-                <div 
-                  className="h-full bg-[var(--primary)] transition-all duration-1000" 
-                  style={{ width: `${(syncStep / 3) * 100}%` }}
-                />
-             </div>
-
-             <div className="p-12 text-center space-y-8">
-                {syncStep === 1 && (
-                  <div className="space-y-6 animate-fade-in">
-                    <div className="w-20 h-20 bg-[var(--primary)]/10 text-[var(--primary)] rounded-3xl flex items-center justify-center mx-auto">
-                       <Search size={40} />
-                    </div>
-                    <div className="space-y-2">
-                      <h2 className="text-3xl font-black uppercase italic tracking-tighter text-[var(--strong-text)]">Detectando Inventario</h2>
-                      <p className="text-[var(--muted-foreground)] font-bold text-xs uppercase tracking-widest leading-relaxed">
-                        Analizando su catálogo actual para mapear con el GCM Industrial
-                      </p>
-                    </div>
-                    <div className="bg-[var(--muted)]/50 p-6 rounded-2xl border border-[var(--border)] text-left">
-                       <div className="space-y-3">
-                          {[1,2,3].map(i => (
-                            <div key={i} className="flex items-center gap-3">
-                               <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
-                               <div className="h-3 w-48 bg-gray-300/50 rounded-full" />
-                            </div>
-                          ))}
-                       </div>
-                    </div>
-                    <button 
-                      onClick={() => setSyncStep(2)}
-                      className="w-full bg-[var(--primary)] text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-[var(--primary)]/20"
-                    >
-                      INICIAR ESCANEO INTELIGENTE
-                    </button>
-                  </div>
-                )}
-
-                {syncStep === 2 && (
-                  <div className="space-y-6 animate-fade-in">
-                    <div className="relative w-20 h-20 mx-auto">
-                       <Loader2 size={80} className="text-[var(--primary)] animate-spin" />
-                       <Sparkles size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[var(--accent)]" />
-                    </div>
-                    <div className="space-y-2">
-                       <h2 className="text-3xl font-black uppercase italic tracking-tighter text-[var(--strong-text)]">Mapeo con IA</h2>
-                       <p className="text-[var(--muted-foreground)] font-bold text-xs uppercase tracking-widest leading-relaxed">
-                         Vinculando sus referencias con el Catálogo Maestro Industrial
-                       </p>
-                    </div>
-                    <div className="p-10 border-2 border-dashed border-[var(--primary)]/30 rounded-[2.5rem] bg-[var(--primary)]/5 relative overflow-hidden">
-                       <div className="absolute inset-0 bg-shimmer opacity-10" />
-                       <p className="font-black text-sm text-[var(--primary)] animate-pulse uppercase tracking-tighter italic">Optimizando Fichas Técnicas...</p>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setTimeout(() => setSyncStep(3), 2000);
-                        setSyncStep(3);
-                      }}
-                       className="w-full bg-[var(--deep-section)] text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest"
-                    >
-                       PROCESANDO DATOS...
-                    </button>
-                  </div>
-                )}
-
-                {syncStep === 3 && (
-                  <div className="space-y-6 animate-fade-in">
-                    <div className="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto shadow-xl shadow-green-500/20">
-                       <CheckCircle2 size={48} />
-                    </div>
-                    <div className="space-y-2">
-                       <h2 className="text-3xl font-black uppercase italic tracking-tighter text-[var(--strong-text)]">Sincronización Exitosa</h2>
-                       <p className="text-[var(--muted-foreground)] font-bold text-xs uppercase tracking-widest leading-relaxed">
-                         Su catálogo ha sido actualizado y optimizado para el Ecosistema B2B
-                       </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                       <div className="bg-[var(--muted)]/50 p-6 rounded-2xl border border-[var(--border)]">
-                          <p className="text-2xl font-black text-[var(--primary)]">12</p>
-                          <p className="text-[8px] font-black uppercase text-[var(--muted-foreground)] tracking-widest mt-1">PRODUCTOS VINCULADOS</p>
-                       </div>
-                       <div className="bg-[var(--muted)]/50 p-6 rounded-2xl border border-[var(--border)]">
-                          <p className="text-2xl font-black text-blue-600">85%</p>
-                          <p className="text-[8px] font-black uppercase text-[var(--muted-foreground)] tracking-widest mt-1">MEJORA EN SEO IA</p>
-                       </div>
-                    </div>
-                    <button 
-                      onClick={() => {
-                         setIsSyncWizardOpen(false);
-                         setActiveTab("mine");
-                      }}
-                       className="w-full bg-[var(--primary)] text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-[var(--primary)]/20"
-                    >
-                       VER MI CATÁLOGO ACTUALIZADO
-                    </button>
-                  </div>
-                )}
-             </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

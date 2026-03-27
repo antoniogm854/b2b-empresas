@@ -13,6 +13,6 @@ export const DEFAULT_CATALOG_SETTINGS = {
     logo_name_url: null,
     show_promo_section: true,
     whatsapp_button: true,
-    footer_text: "Este catálogo es una Vitrina Certificada by B2B Empresas. El intercambio de datos está protegido por protocolos de seguridad industrial."
+    footer_text: "Este catálogo es parte del Catálogo Maestro B2B. El intercambio de datos está protegido por protocolos de seguridad industrial."
   }
 };
