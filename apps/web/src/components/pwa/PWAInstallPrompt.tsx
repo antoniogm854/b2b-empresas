@@ -44,8 +44,10 @@ export function PWAInstallPrompt() {
           </div>
           
           <div className="flex flex-col items-center text-center relative z-10">
-            <p className="font-black text-[10px] uppercase tracking-[0.2em] leading-tight opacity-70 mb-0.5">INSTALAR APLICATIVO</p>
-            <p className="font-black text-xl lg:text-2xl uppercase tracking-tighter leading-none text-[#A2C367] drop-shadow-[0_0_8px_rgba(162,195,103,0.8)]">RECUPERAR ICONO</p>
+            <p className="font-black text-[10px] uppercase tracking-[0.2em] leading-tight opacity-70 mb-0.5">FUNCIÓN OPERATIVA</p>
+            <p className="font-black text-xl lg:text-2xl uppercase tracking-tighter leading-[0.9] text-[#A2C367] drop-shadow-[0_0_8px_rgba(162,195,103,0.8)]">
+              INSTALACIÓN <br/> CATÁLOGO DIGITAL
+            </p>
           </div>
         </button>
         
@@ -55,7 +57,7 @@ export function PWAInstallPrompt() {
           </div>
           <div className="space-y-1 text-left">
             <p className="text-[10px] font-bold text-white/60 leading-tight italic uppercase tracking-wider">
-              Recupera el acceso directo en tu escritorio para una gestión industrial de alta precisión.
+              Acceso profesional 24/7. Instala el catálogo en tu escritorio para una gestión industrial de alta precisión.
             </p>
           </div>
         </div>
