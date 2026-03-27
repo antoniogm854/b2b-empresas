@@ -289,8 +289,8 @@ export default function LoginClient() {
                </Link>
              </p>
 
-             {!isStandalone && (
-               <div className="mt-8 pt-8 border-t border-white/5 w-full text-center">
+             {mounted && !isStandalone && (
+               <div className="mt-8 pt-8 border-t border-white/5 w-full text-center animate-fade-in delay-700">
                  <button 
                   type="button"
                   onClick={installApp}
