@@ -104,21 +104,21 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
           {/* 🧭 Main Navigation (Legacy v1.0 / v6.0 Refined) */}
           <nav className="hidden lg:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest text-[var(--panel-subtext)]">
-            <Link href="/#soluciones" className="hover:text-[var(--primary)] transition-colors">{nav('solutions') || 'Soluciones'}</Link>
-            <Link href="/#recursos" className="hover:text-[var(--primary)] transition-colors">{nav('resources') || 'Recursos'}</Link>
-            <Link href="/#sectores" className="hover:text-[var(--primary)] transition-colors">{nav('sectors') || 'Sectores'}</Link>
-            <Link href="/#identidad" className="hover:text-[var(--primary)] transition-colors">{nav('identity') || 'Identidad'}</Link>
+            <Link href="/#soluciones" className="hover:text-[var(--cat-yellow)] transition-colors">{nav('solutions') || 'Soluciones'}</Link>
+            <Link href="/#recursos" className="hover:text-[var(--cat-yellow)] transition-colors">{nav('resources') || 'Recursos'}</Link>
+            <Link href="/#sectores" className="hover:text-[var(--cat-yellow)] transition-colors">{nav('sectors') || 'Sectores'}</Link>
+            <Link href="/#identidad" className="hover:text-[var(--cat-yellow)] transition-colors">{nav('identity') || 'Identidad'}</Link>
             
             <div className="h-4 w-px bg-[var(--border)] mx-2" />
             
-            <Link href="/login" className="flex items-center gap-2 hover:text-[var(--primary)] transition-colors">
+            <Link href="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-[var(--cat-yellow)] hover:text-black transition-all font-black">
               <UserCircle size={14} />
               {nav('login') || 'Iniciar Sesión'}
             </Link>
             
             <Link 
               href="/master" 
-              className="bg-zinc-900 border border-zinc-800 text-[var(--primary)] px-5 py-2.5 rounded-lg hover:bg-[var(--cat-yellow)] hover:text-black hover:border-black transition-all shadow-lg active:scale-95 flex items-center gap-2"
+              className="bg-zinc-950 border border-zinc-800 text-[var(--primary)] px-6 py-2.5 rounded-xl hover:bg-[var(--cat-yellow)] hover:text-black hover:border-black transition-all shadow-xl active:scale-95 flex items-center gap-2 font-black italic"
             >
               CONTROL MASTER
             </Link>
@@ -271,7 +271,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
           
           <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">
-              © {new Date().getFullYear()} {settings?.company_name || "B2B EMPRESAS"} — LATAM INDUSTRIAL PLATFORM — v1.01.2026-Premium
+              © {new Date().getFullYear()} {settings?.company_name || "B2B EMPRESAS"} — LATAM INDUSTRIAL PLATFORM — v6.1.8-INDUSTRIAL-PREMIUM
             </p>
             <div className="flex items-center gap-4">
               <CountryLanguageSelector />

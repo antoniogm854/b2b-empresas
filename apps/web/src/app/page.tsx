@@ -74,10 +74,10 @@ export default async function Home() {
         <section className="relative min-h-[95vh] flex items-center overflow-hidden bg-transparent pt-4 pb-32">
 
           <div className="container mx-auto px-6 relative z-10">
-            <div className="max-w-4xl space-y-10 text-left">
+            <div className="max-w-4xl space-y-6 text-left">
 
               {/* ── Badge de Gestión (Reposicionado y Compacto) ── */}
-              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm text-slate-400 animate-reveal shadow-sm mb-1">
+              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm text-slate-400 animate-reveal shadow-sm mb-0">
                 <Zap size={16} fill="currentColor" className="text-[var(--cat-yellow-dark)] animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">
                   GESTIÓN - DESARROLLO - SOLUCIONES EMPRESARIALES
@@ -85,7 +85,7 @@ export default async function Home() {
               </div>
 
               <div className="space-y-0">
-                <h1 className="text-7xl md:text-9xl lg:text-[11.5rem] font-black leading-[0.8] tracking-tightest uppercase italic animate-reveal [animation-delay:200ms] flex flex-col items-start overflow-visible -mt-1">
+                <h1 className="text-7xl md:text-9xl lg:text-[11.5rem] font-black leading-[0.8] tracking-tightest uppercase italic animate-reveal [animation-delay:200ms] flex flex-col items-start overflow-visible -mt-4">
                   <span className="text-slate-950 block">LA RED</span>
                   <span className="text-[#4B6319] block animate-neon-flicker relative pb-4">
                     MAES<span className="decorated-t">T</span>RA

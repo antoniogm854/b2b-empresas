@@ -10,8 +10,8 @@
   --secondary-foreground: #000000;
   
   /* CAT Yellow Integration */
-  --cat-yellow: #FFCD00;
-  --cat-yellow-dark: #E6B800;
+  --cat-yellow: #FFB800; /* ✅ Genuine CAT Yellow */
+  --cat-yellow-dark: #E6A600;
   --cat-black: #1A1A1A;
   
   --accent: var(--cat-yellow); 
@@ -70,7 +70,7 @@ body::before {
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
-  opacity: 0.25;
+  opacity: 0.1; /* ✅ 10% industrial opacity */
   z-index: -1;
   pointer-events: none;
   filter: grayscale(1) brightness(1.1);
