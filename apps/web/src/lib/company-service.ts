@@ -40,6 +40,7 @@ export interface Tenant {
   tiktok_url?: string;
   allow_scraping?: boolean;
   catalog_settings?: any;
+  sku_cuie?: string;
   created_at: string;
 }
 
@@ -94,28 +95,36 @@ export const companyService = {
 
   // Obtener tenant por Slug
   async getTenantBySlug(slug: string) {
-    // Nota: v1.01 usa URLs basadas en ID o slugs en catalog_links.
-    // Buscaremos por company_name aproximado o ID si es necesario.
-    const { data, error } = await supabase
+    // 1. Intentar búsqueda exacta por columna 'slug'
+    const { data: exactData, error: exactError } = await supabase
+      .from('tenants')
+      .select('*, tenant_themes(*)')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (!exactError && exactData) return exactData;
+
+    // 2. Fallback: Búsqueda aproximada en nombres (para compatibilidad v1.01)
+    const { data: fallbackData, error: fallbackError } = await supabase
       .from('tenants')
       .select('*, tenant_themes(*)') 
       .or(`company_name.ilike.%${slug}%,trade_name.ilike.%${slug}%`)
       .maybeSingle();
 
-    if (error) throw error;
-    return data;
+    if (fallbackError) throw fallbackError;
+    return fallbackData;
   },
 
   // Actualizar metadatos del tenant
   // SEGURIDAD: Solo se permiten campos que existen físicamente en la tabla 'tenants' (v1.01)
   // NOTA: Si falla por falta de columnas, realizamos un segundo intento con solo campos básicos.
   async updateTenant(id: string, updates: Partial<Tenant>) {
-    // 🛡️ Lista Blanca de campos reales en la DB (v1.01 estándar)
+    // 🛡️ Lista Blanca de campos reales en la DB (v1.01 estándar + v1.30 Industrial Premium)
     const dbFieldsV101 = [
       'company_name', 'trade_name', 'ruc_rut_nit', 'sector', 
       'country', 'city', 'address', 'website', 'email', 
       'phone', 'phone_commercial', 'contact_name', 'plan', 'status',
-      'catalog_settings'
+      'catalog_settings', 'slug', 'description', 'logo_url', 'sku_cuie'
     ];
 
     try {
@@ -159,5 +168,16 @@ export const companyService = {
       (data as any)._partial_sync = true;
       return data as Tenant;
     }
+  },
+
+  // Obtener lista de todos los tenants (v6.0)
+  async getTenants() {
+    const { data, error } = await supabase
+      .from('tenants')
+      .select('*')
+      .order('company_name', { ascending: true });
+
+    if (error) throw error;
+    return data as Tenant[];
   }
 };

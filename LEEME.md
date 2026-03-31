@@ -49,11 +49,13 @@ Este archivo es la fuente de verdad del proyecto b2bempresas.com. Registra cada 
 | 25-Mar-2026 | Audit | **Canales Digitales**: Validación estricta de dominios para redes sociales (Master-Pattern). | ✅ |
 | 25-Mar-2026 | v1.01.3 | **Classic Industrial**: Flyer Corporativo, 3 columnas y auto-grabado. | ✅ |
 | 25-Mar-2026 | v1.01.4 | **Audit & Cleanup**: Purga de Ads -> Vitrina B2B, SEO y Bitácora Maestra. | ✅ |
+| 30-Mar-2026 | v1.01.5 | **Final Gate & Security**: Refinamiento estricto de accesos, corrección de bucle de Login en Control Master y restauración del botón corporativo en Onboarding. | ✅ |
+| 30-Mar-2026 | v1.01.6 | **Master Optimization**: Limpieza masiva de componentes obsoletos, inyección estática de prioridades LCP en Hero, purga de código base, y recarga del Sitemap con rutas dinámicas Tenants. | ✅ |
 
 ---
 
 ## 🚦 Próximos Pasos (v1.02+)
-1. Integración de Pasarela de Pagos (Stripe/Culqi) para suscripciones.
-2. Expansión de Analítica Predictiva para demanda industrial.
-3. Módulo de Licitaciones Privadas dentro de la plataforma.
+1. Habilitación del módulo "NUEVO PRODUCTO" (Formulario manual) en Dashboard.
+2. Integración de Pasarela de Pagos (Stripe/Culqi) para integraciones corporativas PRO.
+3. Expansión de Analítica Predictiva para demanda industrial.
 

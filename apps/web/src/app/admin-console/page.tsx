@@ -1,207 +1,66 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { 
-  ShieldCheck, 
-  Users, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle2, 
-  XCircle, 
-  Filter,
-  BarChart3,
-  Globe,
-  Lock,
-  Zap,
-  Building2,
-  Clock,
-  KeyRound,
-  Mail,
-  Eye,
-  EyeOff,
-  X as XIcon
-} from "lucide-react";
-
-// ─── ADMIN MASTER CREDENTIALS ─────────────────────────────────────────────────
-const ADMIN_MASTER = {
-  role: 'Administrador General',
-  user: 'AGM - AG',
-  email: 'antoniogranda.m@gmail.com',
-  password: '@SolucionesLatam159',
-  phone: '990670153'
-};
-// ──────────────────────────────────────────────────────────────────────────────
-
-function AdminRecoveryModal({ onClose }: { onClose: () => void }) {
-  const [email, setEmail] = useState("");
-  const [verified, setVerified] = useState(false);
-  const [error, setError] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [countdown, setCountdown] = useState(25);
-
-  useEffect(() => {
-    if (verified) {
-      const t = setInterval(() => {
-        setCountdown(prev => { if (prev <= 1) { clearInterval(t); onClose(); return 0; } return prev - 1; });
-      }, 1000);
-      return () => clearInterval(t);
-    }
-  }, [verified, onClose]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim().toLowerCase() === ADMIN_MASTER.email.toLowerCase()) {
-      setVerified(true); setError('');
-    } else {
-      setError('El email ingresado no corresponde a la cuenta de administrador registrado.');
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-2xl w-full max-w-lg relative">
-        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors">
-          <XIcon size={24} />
-        </button>
-        <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-4">
-            <KeyRound size={32} />
-          </div>
-          <h2 className="text-2xl font-black text-primary uppercase tracking-tighter">Recuperar Credenciales</h2>
-          <p className="text-sm text-slate-500 font-medium mt-1">
-            {verified ? 'Identidad verificada. Guarda estas credenciales.' : 'Ingresa el email de administrador para verificar tu identidad.'}
-          </p>
-        </div>
-
-        {!verified && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email de administrador"
-                className="w-full border-2 border-slate-200 rounded-2xl px-5 py-4 pl-12 font-bold focus:ring-2 focus:ring-primary outline-none transition-all"
-                required autoFocus />
-            </div>
-            {error && (
-              <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-                <p className="text-red-500 text-xs font-bold">{error}</p>
-              </div>
-            )}
-            <button type="submit" className="w-full bg-primary text-white font-black py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-3">
-              Verificar Identidad <ShieldCheck size={18} />
-            </button>
-          </form>
-        )}
-
-        {verified && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 justify-center bg-green-500/10 border border-green-500/20 rounded-2xl p-3">
-              <ShieldCheck size={18} className="text-green-500" />
-              <span className="text-green-600 font-black text-sm uppercase tracking-wide">Identidad Confirmada</span>
-            </div>
-
-            <div className="bg-slate-50 border-2 border-primary/10 rounded-2xl p-5 space-y-3">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Credenciales — Admin Master</p>
-              {[
-                { label: 'Función', value: ADMIN_MASTER.role },
-                { label: 'Usuario', value: ADMIN_MASTER.user },
-                { label: 'Email', value: ADMIN_MASTER.email },
-                { label: 'Teléfono', value: ADMIN_MASTER.phone },
-              ].map(item => (
-                <div key={item.label} className="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-4 py-2">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</span>
-                  <code className="font-black text-primary text-sm">{item.value}</code>
-                </div>
-              ))}
-              {/* Password with eye toggle */}
-              <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-4 py-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contraseña</span>
-                <div className="flex items-center gap-3">
-                  <code className="font-black text-primary text-sm">
-                    {showPass ? ADMIN_MASTER.password : '•'.repeat(ADMIN_MASTER.password.length)}
-                  </code>
-                  <button onClick={() => setShowPass(v => !v)} className="text-slate-400 hover:text-primary transition-colors">
-                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
-              <AlertCircle size={16} className="text-yellow-500 shrink-0 mt-0.5" />
-              <p className="text-yellow-700 text-xs font-bold">
-                Ventana de seguridad. Se cierra en <strong>{countdown}s</strong>. No compartas estas credenciales.
-              </p>
-            </div>
-
-            <button onClick={onClose} className="w-full border-2 border-slate-200 text-slate-500 font-black py-3 rounded-2xl hover:border-red-400 hover:text-red-500 transition-all text-xs uppercase tracking-widest">
-              Cerrar Ventana de Recuperación
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { useState, useEffect } from "react";
+import { Zap } from "lucide-react";
 import { adminService, AdminStats } from "@/lib/admin-service";
 import { settingsService, SiteSettings } from "@/lib/settings-service";
-import MainLayout from "@/components/layout/MainLayout";
+import { useTranslations } from "next-intl";
 
-interface Profile {
-  full_name: string;
-  email: string;
-}
+import { AdminLoginGate } from "./_components/AdminLoginGate";
+import { AdminRecoveryModal } from "./_components/AdminRecoveryModal";
+import { AdminSidebar } from "./_components/AdminSidebar";
+import { TabOverview } from "./_components/tabs/TabOverview";
+import { TabVerifications } from "./_components/tabs/TabVerifications";
+import { TabCompanies } from "./_components/tabs/TabCompanies";
+import { TabShowcase } from "./_components/tabs/TabShowcase";
+import { TabCatalogMaster } from "./_components/tabs/TabCatalogMaster";
+import { TabDiagnostics } from "./_components/tabs/TabDiagnostics";
+import { TabSettings } from "./_components/tabs/TabSettings";
 
-interface PendingCompany {
-  id: string;
-  name: string;
-  tax_id: string;
-  industry: string;
-  is_verified: boolean;
-  owner_id: string;
-  profiles: Profile | Profile[];
-}
+const ADMIN_MASTER = {
+  role: "Administrador General",
+  user: "AGM - AG",
+  email: "antoniogranda.m@gmail.com",
+  key: "B2BMaster2024",
+};
 
-interface PendingShowcase {
-  id: string;
-  name: string;
-  price: number;
-  ad_status: string;
-  company_id: string;
-  companies: { name: string } | { name: string }[];
-}
+type TabKey = "overview" | "verifications" | "companies" | "showcase" | "catalog" | "diagnostics" | "settings";
 
 export default function AdminConsole() {
+  const t = useTranslations('AdminConsole');
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [pendingCompanies, setPendingCompanies] = useState<PendingCompany[]>([]);
-  const [pendingShowcase, setPendingShowcase] = useState<PendingShowcase[]>([]);
-  const [auditResults, setAuditResults] = useState<any | null>(null);
+  const [pendingCompanies, setPendingCompanies] = useState<any[]>([]);
+  const [pendingShowcase, setPendingShowcase] = useState<any[]>([]);
+  const [auditResults, setAuditResults] = useState<any>(null);
   const [allCompanies, setAllCompanies] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'verifications' | 'companies' | 'showcase' | 'diagnostics' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [showAdminRecovery, setShowAdminRecovery] = useState(false);
-  const [loginForm, setLoginForm] = useState({
-    role: 'Administrador General',
-    user: '',
-    email: '',
-    password: '',
-    phone: ''
-  });
-  const [loginError, setLoginError] = useState('');
+  const [loginForm, setLoginForm] = useState({ password: "" });
+  const [loginError, setLoginError] = useState("");
+  const [lastActivity, setLastActivity] = useState(Date.now());
 
   useEffect(() => {
     setMounted(true);
-    // Check session on mount
-    const authSession = sessionStorage.getItem('admin_master_auth');
-    if (authSession === 'true') {
-      setIsAuthorized(true);
-    }
+    if (sessionStorage.getItem("admin_master_auth") === "true") setIsAuthorized(true);
     loadAdminData();
   }, []);
+
+  // 3-minute inactivity logout
+  useEffect(() => {
+    if (!isAuthorized) return;
+    const reset = () => setLastActivity(Date.now());
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    events.forEach((ev) => document.addEventListener(ev, reset));
+    const check = setInterval(() => {
+      if (Date.now() - lastActivity > 3 * 60 * 1000) handleLogout();
+    }, 10000);
+    return () => { events.forEach((ev) => document.removeEventListener(ev, reset)); clearInterval(check); };
+  }, [isAuthorized, lastActivity]);
 
   const loadAdminData = async () => {
     setIsLoading(true);
@@ -212,16 +71,12 @@ export default function AdminConsole() {
         adminService.getAllCompanies(),
         adminService.getPendingShowcase() as Promise<any[]>,
         adminService.runSystemAudit(),
-        settingsService.getSettings()
+        settingsService.getSettings(),
       ]);
-      setStats(s);
-      setPendingCompanies(companies as any[]);
-      setAllCompanies(all);
-      setPendingShowcase(showcase as any[]);
-      setAuditResults(audit);
-      setSiteSettings(settings);
-    } catch (error) {
-      console.error("Error loading admin data:", error);
+      setStats(s); setPendingCompanies(companies); setAllCompanies(all);
+      setPendingShowcase(showcase); setAuditResults(audit); setSiteSettings(settings);
+    } catch (e) {
+      console.error("Error loading admin data:", e);
     } finally {
       setIsLoading(false);
     }
@@ -229,83 +84,33 @@ export default function AdminConsole() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
-
-    const masterAdmin = ADMIN_MASTER;
-
-    if (
-      loginForm.role.trim() === masterAdmin.role &&
-      loginForm.user.trim() === masterAdmin.user &&
-      loginForm.email.trim() === masterAdmin.email &&
-      loginForm.password.trim() === masterAdmin.password &&
-      loginForm.phone.trim() === masterAdmin.phone
-    ) {
-      sessionStorage.setItem('admin_master_auth', 'true');
+    if (loginForm.password === ADMIN_MASTER.key) {
+      sessionStorage.setItem("admin_master_auth", "true");
       setIsAuthorized(true);
-      resetInactivityTimer();
+      setLastActivity(Date.now());
     } else {
-      setLoginError('Credenciales maestras inválidas. Acceso denegado.');
+      setLoginError(t('login_error'));
     }
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem('admin_master_auth');
+    sessionStorage.removeItem("admin_master_auth");
     setIsAuthorized(false);
-    window.location.href = '/';
+    window.location.href = "/";
   };
-
-  // 3-Minute Inactivity Timer
-  const [lastActivity, setLastActivity] = useState(Date.now());
-  const INACTIVITY_LIMIT = 3 * 60 * 1000; // 3 minutes
-
-  const resetInactivityTimer = () => setLastActivity(Date.now());
-
-  useEffect(() => {
-    if (!isAuthorized) return;
-
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    events.forEach(event => document.addEventListener(event, resetInactivityTimer));
-
-    const checkInterval = setInterval(() => {
-      if (Date.now() - lastActivity > INACTIVITY_LIMIT) {
-        handleLogout();
-      }
-    }, 10000); // Check every 10 seconds
-
-    return () => {
-      events.forEach(event => document.removeEventListener(event, resetInactivityTimer));
-      clearInterval(checkInterval);
-    };
-  }, [isAuthorized, lastActivity]);
 
   const handleVerify = async (id: string, status: boolean) => {
-    try {
-      await adminService.setTenantStatus(id, status ? 'active' : 'suspended');
-      await loadAdminData();
-    } catch (error) {
-      // Quiet fail in production
-    }
+    try { await adminService.setTenantStatus(id, status ? "active" : "suspended"); await loadAdminData(); } catch {}
   };
 
-  const handleShowcaseAction = async (id: string, action: 'approved' | 'rejected') => {
-    try {
-      await adminService.updateShowcaseStatus(id, action, action === 'approved' ? 10 : 0);
-      await loadAdminData();
-    } catch (error) {
-      // Quiet fail in production
-    }
+  const handleShowcaseAction = async (id: string, action: "approved" | "rejected") => {
+    try { await adminService.updateShowcaseStatus(id, action, action === "approved" ? 10 : 0); await loadAdminData(); } catch {}
   };
 
   const runAudit = async () => {
     setIsLoading(true);
-    try {
-      const audit = await adminService.runSystemAudit();
-      setAuditResults(audit);
-    } catch (error) {
-      // Quiet fail in production
-    } finally {
-      setIsLoading(false);
-    }
+    try { const audit = await adminService.runSystemAudit(); setAuditResults(audit); } catch {}
+    finally { setIsLoading(false); }
   };
 
   const handleUpdateSettings = async (e: React.FormEvent) => {
@@ -314,506 +119,86 @@ export default function AdminConsole() {
     setIsSavingSettings(true);
     try {
       await settingsService.updateSettings(siteSettings);
-      alert('Configuración actualizada correctamente');
-    } catch (error) {
-      alert('Error al actualizar configuración. Asegúrese de que la tabla site_settings existe.');
+      alert(t('settings_success'));
+    } catch {
+      alert(t('settings_error'));
     } finally {
       setIsSavingSettings(false);
     }
   };
 
+  // ─── Pantalla de Login ────────────────────────────────────────────────────
   if (!isAuthorized) {
     return (
-      <MainLayout>
-        <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6 pt-24">
-          <div className="w-full max-w-md bg-white/[0.03] backdrop-blur-xl border border-white/10 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-            {/* Animated background glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/20 rounded-full blur-[80px] group-hover:bg-accent/30 transition-all duration-1000" />
-            
-            <div className="relative z-10">
-              <div className="flex flex-col items-center mb-10 text-center">
-                <div className="w-20 h-20 bg-accent rounded-3xl flex items-center justify-center shadow-2xl shadow-accent/20 mb-6 group-hover:scale-110 transition-transform duration-500" suppressHydrationWarning>
-                  {mounted && <ShieldCheck className="text-primary" size={40} />}
-                </div>
-                <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">ADMIN MASTER</h2>
-                <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Acceso Central B2B Empresas</p>
-              </div>
-
-              <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
-                <div className="grid grid-cols-1 gap-4">
-                  {/* Función/Rol */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-accent uppercase tracking-widest ml-2">Función</label>
-                    <select 
-                      value={loginForm.role}
-                      onChange={(e) => setLoginForm({...loginForm, role: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm font-black outline-none focus:border-accent transition-all appearance-none"
-                    >
-                      {['Administrador General', 'Desarrollador', 'Programador', 'Diseñador'].map(role => (
-                        <option key={role} value={role} className="bg-[#0f172a]">{role}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Usuario */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-accent uppercase tracking-widest ml-2">Usuario</label>
-                    <input 
-                      type="text"
-                      placeholder="Nombre de Usuario"
-                      value={loginForm.user}
-                      onChange={(e) => setLoginForm({...loginForm, user: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm font-black outline-none focus:border-accent placeholder:text-white/20 transition-all"
-                      required
-                      autoComplete="off"
-                    />
-                  </div>
-
-                  {/* Correo */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-accent uppercase tracking-widest ml-2">Correo Electrónico</label>
-                    <input 
-                      type="email"
-                      placeholder="admin@ejemplo.com"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm font-black outline-none focus:border-accent placeholder:text-white/20 transition-all"
-                      required
-                      autoComplete="off"
-                    />
-                  </div>
-
-                  {/* Contraseña */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-accent uppercase tracking-widest ml-2">Contraseña</label>
-                    <input 
-                      type="password"
-                      placeholder="••••••••••••"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm font-black outline-none focus:border-accent placeholder:text-white/20 transition-all"
-                      required
-                      autoComplete="new-password"
-                    />
-                  </div>
-
-                  {/* Teléfono */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-accent uppercase tracking-widest ml-2">Número Teléfono</label>
-                    <input 
-                      type="tel"
-                      placeholder="999 999 999"
-                      value={loginForm.phone}
-                      onChange={(e) => setLoginForm({...loginForm, phone: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm font-black outline-none focus:border-accent placeholder:text-white/20 transition-all"
-                      required
-                      autoComplete="off"
-                    />
-                  </div>
-                </div>
-
-                {loginError && (
-                  <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center space-x-3 mt-4" suppressHydrationWarning>
-                    {mounted && <AlertCircle className="text-red-500" size={16} />}
-                    <p className="text-red-500 text-[10px] font-black uppercase leading-tight">{loginError}</p>
-                  </div>
-                )}
-
-                <button 
-                  type="submit"
-                  className="w-full bg-accent text-primary py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-accent/20 mt-6 active:scale-95"
-                >
-                  Girar Llave de Seguridad
-                </button>
-
-                {/* ── Recovery Link ── */}
-                <div className="flex justify-center pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdminRecovery(true)}
-                    className="flex items-center gap-2 text-[10px] font-black text-white/30 hover:text-accent transition-colors uppercase tracking-widest"
-                  >
-                    <KeyRound size={12} />
-                    ¿Olvidaste tus credenciales maestras?
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-          {showAdminRecovery && <AdminRecoveryModal onClose={() => setShowAdminRecovery(false)} />}
-        </div>
-      </MainLayout>
+      <>
+        <AdminLoginGate
+          mounted={mounted}
+          loginForm={loginForm}
+          loginError={loginError}
+          onFormChange={(field, value) => setLoginForm((prev) => ({ ...prev, [field]: value }))}
+          onSubmit={handleLogin}
+          onRecovery={() => setShowAdminRecovery(true)}
+        />
+        {showAdminRecovery && <AdminRecoveryModal onClose={() => setShowAdminRecovery(false)} />}
+      </>
     );
   }
 
+  // ─── Pantalla de Carga ────────────────────────────────────────────────────
   if (isLoading && !stats) {
     return (
-      <MainLayout>
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
-          <div className="flex flex-col items-center">
-            <Zap className="animate-bounce text-accent mb-4" size={48} />
-            <p className="font-black text-primary uppercase tracking-widest text-xs">Cargando Acceso Maestro...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center">
+          <Zap className="animate-bounce text-accent mb-4" size={48} />
+          <p className="font-black text-primary uppercase tracking-widest text-xs">{t('loading_console')}</p>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
+  // ─── Consola Principal ────────────────────────────────────────────────────
   return (
-    <MainLayout>
-      <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
-            <div className="w-full lg:w-auto">
-              <div className="flex items-center space-x-2 text-accent mb-2">
-                <Lock size={16} />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Owner Access Only</span>
-              </div>
-              <h1 id="admin-title" className="text-4xl md:text-5xl font-black text-primary leading-tight">
-                ADMIN <span className="text-accent">MASTER</span>
-              </h1>
-              <p className="text-sm md:text-base text-muted-foreground font-bold italic mt-2">Gestión de monetización, auditoría y autorizaciones B2B Empresas</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-              <div className="flex space-x-2 bg-white p-2 rounded-[2rem] border-2 border-primary/5 shadow-xl scrollbar-hide overflow-x-auto">
-                {(['overview', 'verifications', 'companies', 'showcase', 'diagnostics', 'settings'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    id={`tab-${tab}`}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 md:px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${
-                      activeTab === tab 
-                        ? "bg-primary text-white shadow-lg scale-105" 
-                        : "text-muted-foreground hover:bg-slate-50"
-                    }`}
-                  >
-                    {tab === 'overview' ? 'Resumen' : tab === 'verifications' ? 'Verificaciones' : tab === 'companies' ? 'Directorio' : tab === 'showcase' ? 'Vitrina B2B' : tab === 'diagnostics' ? 'Diagnósticos' : 'Empresa'}
-                  </button>
-                ))}
-              </div>
+    <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-              <button 
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-6 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 flex items-center justify-center gap-2"
-              >
-                <XCircle size={16} />
-                Cerrar Sesión Master
-              </button>
+          <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout} />
+
+          <div className="lg:col-span-9 space-y-8">
+            <div className="bg-white rounded-[4rem] border-2 border-primary/5 shadow-2xl overflow-hidden min-h-[600px] animate-fade-in-up">
+
+              {activeTab === "overview" && <TabOverview stats={stats} />}
+
+              {activeTab === "verifications" && (
+                <TabVerifications pendingCompanies={pendingCompanies} onVerify={handleVerify} />
+              )}
+
+              {activeTab === "companies" && <TabCompanies allCompanies={allCompanies} />}
+
+              {activeTab === "showcase" && (
+                <TabShowcase pendingShowcase={pendingShowcase} onAction={handleShowcaseAction} />
+              )}
+
+              {activeTab === "catalog" && <TabCatalogMaster />}
+
+              {activeTab === "diagnostics" && (
+                <TabDiagnostics auditResults={auditResults} isLoading={isLoading} onRunAudit={runAudit} />
+              )}
+
+              {activeTab === "settings" && siteSettings && (
+                <TabSettings
+                  siteSettings={siteSettings}
+                  isSaving={isSavingSettings}
+                  onChange={setSiteSettings}
+                  onSubmit={handleUpdateSettings}
+                />
+              )}
+
             </div>
           </div>
 
-          {/* Stats Grid */}
-          {activeTab === 'overview' && stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              {[
-                { id: 'stat-companies', label: 'Empresas Totales', val: stats.totalCompanies, icon: Users, color: 'bg-blue-500' },
-                { id: 'stat-verifications', label: 'Pendientes RUC', val: stats.pendingVerifications, icon: AlertCircle, color: 'bg-orange-500' },
-                { id: 'stat-showcase', label: 'Vitrina Activa', val: stats.activeShowcase, icon: Zap, color: 'bg-accent' },
-                { id: 'stat-leads', label: 'Leads Marketplace', val: stats.totalMarketplaceLeads, icon: TrendingUp, color: 'bg-green-500' },
-              ].map((s, i) => (
-                <div key={i} id={s.id} className="bg-white p-8 rounded-[3rem] border-2 border-primary/5 shadow-xl hover:translate-y-[-5px] transition-all group">
-                  <div className={`w-12 h-12 ${s.color} rounded-2xl mb-4 flex items-center justify-center text-white shadow-lg`}>
-                    <s.icon size={24} />
-                  </div>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">{s.label}</p>
-                  <p className="text-4xl font-black text-primary group-hover:text-accent transition-colors">{s.val}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Main Content Area */}
-          <div className="bg-white rounded-[4rem] border-2 border-primary/5 shadow-2xl overflow-hidden min-h-[600px] animate-fade-in-up">
-            
-            {/* Tab: Verifications */}
-            {activeTab === 'verifications' && (
-              <div className="p-10">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-black text-primary flex items-center">
-                    <ShieldCheck className="mr-3 text-accent" />
-                    Validación de Empresas Pendientes
-                  </h3>
-                  <div className="flex items-center space-x-3 text-xs font-bold text-muted-foreground">
-                    <Filter size={14} />
-                    <span>Filtrar por Industrial</span>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {pendingCompanies.length > 0 ? (pendingCompanies as any[]).map((c: any) => (
-                    <div key={c.id} className="group p-6 bg-slate-50 hover:bg-white border-2 border-transparent hover:border-accent rounded-[2.5rem] transition-all flex items-center justify-between">
-                      <div className="flex items-center space-x-6">
-                        <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center border border-slate-200">
-                          <Building2 className="text-slate-300" size={32} />
-                        </div>
-                        <div>
-                          <p className="font-black text-lg text-primary">{c.company_name || c.name}</p>
-                          <div className="flex items-center space-x-4 mt-1">
-                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">RUC: {c.ruc_rut_nit || c.tax_id || 'N/A'}</span>
-                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[9px] font-black uppercase tracking-tighter">{c.sector || c.industry}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-3">
-                        <button 
-                          id={`verify-approve-${c.id}`}
-                          onClick={() => handleVerify(c.id, true)}
-                          className="w-12 h-12 bg-green-500 text-white rounded-2xl flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                        >
-                          <CheckCircle2 size={24} />
-                        </button>
-                        <button 
-                          id={`verify-reject-${c.id}`}
-                          onClick={() => handleVerify(c.id, false)}
-                          className="w-12 h-12 bg-red-500 text-white rounded-2xl flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                        >
-                          <XCircle size={24} />
-                        </button>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground italic">
-                      <CheckCircle2 size={48} className="mb-4 text-slate-200" />
-                      <p>No hay empresas pendientes de validación</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Tab: All Companies Directory */}
-            {activeTab === 'companies' && (
-              <div className="p-10 animate-fade-in">
-                <div className="flex justify-between items-center mb-10">
-                  <h3 className="text-3xl font-black text-primary flex items-center italic tracking-tighter">
-                    <Users className="mr-4 text-accent" size={32} />
-                    DIRECTORIO MAESTRO DE PROVEEDORES
-                  </h3>
-                  <div className="px-4 py-2 bg-slate-100 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    Total: {allCompanies.length} Empresas
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  {allCompanies.length > 0 ? allCompanies.map((c: any) => (
-                    <div key={c.id} className="group p-8 bg-slate-50 hover:bg-white border-2 border-slate-100 hover:border-accent rounded-[3rem] transition-all flex flex-col md:flex-row items-center justify-between shadow-sm hover:shadow-xl hover:-translate-y-1">
-                      <div className="flex items-center space-x-8 mb-4 md:mb-0">
-                        <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center border-2 border-slate-100 shadow-inner group-hover:border-accent/20 transition-colors">
-                          <Building2 className="text-slate-300 group-hover:text-accent transition-colors" size={36} />
-                        </div>
-                        <div>
-                          <p className="font-black text-2xl text-primary tracking-tight">{c.company_name || 'Sin Razón Social'}</p>
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            <span className="text-xs font-black text-accent uppercase tracking-[0.2em]">{c.ruc_rut_nit}</span>
-                            <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                              c.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                            }`}>
-                              {c.status}
-                            </span>
-                            <div className="h-4 w-[1px] bg-slate-200" />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CUUP: <span className="text-primary">{c.cuup || 'N/A'}</span></span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider italic">Registrado el: {new Date(c.created_at).toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => window.open(`/cdb2b/${c.id}`, '_blank')}
-                          className="bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-accent hover:text-primary transition-all shadow-lg active:scale-95"
-                        >
-                          Ver Portafolio
-                        </button>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="flex flex-col items-center justify-center py-32 text-muted-foreground bg-slate-50 rounded-[4rem] border-2 border-dashed border-slate-200">
-                      <Users size={64} className="mb-6 text-slate-200 animate-pulse" />
-                      <p className="font-black uppercase tracking-[0.3em] text-xs">El directorio se encuentra vacío</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Tab: Showcase */}
-            {activeTab === 'showcase' && (
-              <div className="p-10">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-black text-primary flex items-center">
-                    <Zap className="mr-3 text-accent" />
-                    Gestión de Vitrina: Productos Destacados
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {pendingShowcase.length > 0 ? pendingShowcase.map((ad: any) => (
-                    <div key={ad.id} className="p-8 bg-slate-50 rounded-[3rem] border-2 border-transparent hover:border-accent hover:bg-white transition-all">
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">
-                            {Array.isArray(ad.companies) ? ad.companies[0]?.name : ad.companies?.name}
-                          </p>
-                          <h4 className="text-xl font-black text-primary leading-tight">{ad.name}</h4>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-black text-accent">${ad.price}</p>
-                        </div>
-                      </div>
-                      <div className="flex space-x-4">
-                        <button 
-                          onClick={() => handleShowcaseAction(ad.id, 'approved')}
-                          className="flex-1 bg-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-colors shadow-xl"
-                        >
-                          Autorizar en Vitrina
-                        </button>
-                        <button 
-                          onClick={() => handleShowcaseAction(ad.id, 'rejected')}
-                          className="px-6 border-2 border-red-200 text-red-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-colors"
-                        >
-                          Rechazar
-                        </button>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="col-span-2 flex flex-col items-center justify-center py-20 text-muted-foreground italic">
-                      <Zap size={48} className="mb-4 text-slate-200" />
-                      <p>No hay solicitudes de productos destacados pendientes</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Tab: Diagnostics */}
-            {activeTab === 'diagnostics' && (
-              <div className="p-10">
-                <div className="flex justify-between items-center mb-12">
-                  <h3 className="text-2xl font-black text-primary flex items-center">
-                    <BarChart3 className="mr-3 text-accent" />
-                    Auditoría Técnica B2B Empresas
-                  </h3>
-                  <button onClick={runAudit} className="bg-primary text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
-                    Re-Escanear Sistema
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {auditResults?.checks.map((check: any, i: number) => (
-                    <div key={i} className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-4">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{check.name}</span>
-                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
-                            check.result === 'OK' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                          }`}>
-                            {check.result}
-                          </span>
-                        </div>
-                        <p className="text-sm font-bold text-primary">{check.details}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tab: Settings (Company Identity) */}
-            {activeTab === 'settings' && siteSettings && (
-              <div className="p-10 max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-10">
-                  <h3 className="text-2xl font-black text-primary flex items-center">
-                    <Building2 className="mr-3 text-accent" />
-                    Identidad Corporativa de B2B Empresas
-                  </h3>
-                </div>
-
-                <form onSubmit={handleUpdateSettings} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">Nombre de la Plataforma</label>
-                      <input 
-                        type="text"
-                        value={siteSettings.company_name}
-                        onChange={(e) => setSiteSettings({...siteSettings, company_name: e.target.value})}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">WhatsApp Hotline (Ej: +51 924 159 535)</label>
-                      <input 
-                        type="text"
-                        value={siteSettings.support_phone}
-                        onChange={(e) => setSiteSettings({...siteSettings, support_phone: e.target.value})}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">Email de Soporte</label>
-                      <input 
-                        type="email"
-                        value={siteSettings.support_email}
-                        onChange={(e) => setSiteSettings({...siteSettings, support_email: e.target.value})}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">Dirección Física</label>
-                      <input 
-                        type="text"
-                        value={siteSettings.address}
-                        onChange={(e) => setSiteSettings({...siteSettings, address: e.target.value})}
-                        className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">Sobre Nosotros (Pie de Página)</label>
-                    <textarea 
-                      value={siteSettings.about_us}
-                      onChange={(e) => setSiteSettings({...siteSettings, about_us: e.target.value})}
-                      rows={4}
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all resize-none"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-2">Mensaje Predeterminado WhatsApp</label>
-                    <input 
-                      type="text"
-                      value={siteSettings.whatsapp_message}
-                      onChange={(e) => setSiteSettings({...siteSettings, whatsapp_message: e.target.value})}
-                      className="w-full bg-slate-50 border-2 border-transparent focus:border-accent rounded-2xl p-4 font-bold outline-none transition-all"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    disabled={isSavingSettings}
-                    className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent transition-all shadow-xl shadow-primary/10 disabled:opacity-50"
-                  >
-                    {isSavingSettings ? 'Guardando...' : 'Guardar Configuración Maestra'}
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* Default Tab: Overview */}
-            {activeTab === 'overview' && (
-              <div className="p-10 flex flex-col items-center justify-center min-h-[500px]">
-                <BarChart3 size={48} className="text-accent mb-8 animate-pulse" />
-                <h3 className="text-3xl font-black text-primary mb-4">Ecosistema B2B Empresas Activo</h3>
-                <p className="text-muted-foreground font-bold text-center mb-8 max-w-sm">
-                  Utilice las pestañas para supervisar el crecimiento de la plataforma y autorizar nuevas operaciones comerciales.
-                </p>
-              </div>
-            )}
-            
-          </div>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }

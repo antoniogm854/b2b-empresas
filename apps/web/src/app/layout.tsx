@@ -20,11 +20,11 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
 
-  const titles: Record<string, string> = {
-    es: 'B2B EMPRESAS | Industrial Premium - Conectividad Global',
-    pt: 'B2B EMPRESAS | Industrial Premium - Conectividade Global',
-    en: 'B2B EMPRESAS | Industrial Premium - Global Connectivity',
-  };
+    const titles: Record<string, string> = {
+      es: 'B2B EMPRESAS | La Red Maestra Comercial',
+      pt: 'B2B EMPRESAS | A Rede Mestra Comercial',
+      en: 'B2B EMPRESAS | The Commercial Master Network',
+    };
   const descs: Record<string, string> = {
     es: 'Infraestructura Digital B2B de alta precisión para el Sector Industrial de Latinoamérica.',
     pt: 'Infraestrutura Digital B2B de alta precisão para o Setor Industrial da América Latina.',
@@ -52,10 +52,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t,
     description: d,
     keywords: [
-      'b2b', 'industrial', 'catálogo digital', 'proveedores perú', 'proveedores latinoamérica', 
-      'comercio industrial', 'b2b empresas', 'transformación digital b2b', 'leads industriales',
-      'compliance industrial', 'cuup', 'servicios para empresas', 'suministros industriales',
-      'maquinaria pesada', 'minería perú', 'logística b2b', 'marketplace industrial'
+      'b2b', 'industrial', 'catálogo digital', 'catálogo maestro', 'proveedores perú', 'proveedores latinoamérica', 
+      'comercio industrial', 'b2b empresas', 'transformación digital b2b', 'leads industriales', 'saas b2b',
+      'compliance industrial', 'cuup', 'cid-cuie', 'sku-cuim', 'sku-mpn', 'trazabilidad industrial', 'suministros industriales', 'minería perú',
+      'logística b2b', 'marketplace industrial', 'compras corporativas', 'abastecimiento industrial'
     ],
     manifest: '/manifest.json',
     openGraph: {
@@ -100,25 +100,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  if (!theme) theme = 'light';
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
+      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning

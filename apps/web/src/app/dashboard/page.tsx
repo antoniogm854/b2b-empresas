@@ -55,30 +55,6 @@ export default function DashboardPage() {
     }
   };
 
-  const stats = [
-    { 
-      label: "Interacciones Totales", 
-      value: "1,280", 
-      change: "+12.5%", 
-      icon: TrendingUp, 
-      color: "bg-[#4B6319] shadow-[#4B6319]/20" 
-    },
-    { 
-      label: "Catálogo Activo", 
-      value: products.length.toString(), 
-      change: `${products.filter(p => p.is_active).length} online`, 
-      icon: ShoppingBag, 
-      color: "bg-[#A2C367] text-black shadow-[#A2C367]/20" 
-    },
-    { 
-      label: "Prospectos (Leads)", 
-      value: leads.length.toString(), 
-      change: `${leads.filter(l => l.status === 'new').length} nuevos`, 
-      icon: Plus, 
-      color: "bg-zinc-800 shadow-black/20" 
-    },
-  ];
-
   if (isLoading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -111,6 +87,36 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  const stats = [
+    { 
+      label: "Interacciones Totales", 
+      value: "1,280", 
+      change: "+12.5%", 
+      icon: TrendingUp, 
+      color: "bg-[#4B6319] shadow-[#4B6319]/20" 
+    },
+    { 
+      label: "Catálogo Activo", 
+      value: (company?.plan === 'free' || !company?.plan) 
+        ? `${products.length} / 20` 
+        : products.length.toString(), 
+      change: (company?.plan === 'free' || !company?.plan) 
+        ? `${20 - products.length} slots disponibles` 
+        : `${products.filter(p => p.is_active).length} productos online`, 
+      icon: ShoppingBag, 
+      color: (company?.plan === 'free' || !company?.plan) && products.length >= 18 
+        ? "bg-red-500 text-white shadow-red-500/20 animate-pulse" 
+        : "bg-[#A2C367] text-black shadow-[#A2C367]/20" 
+    },
+    { 
+      label: "Prospectos (Leads)", 
+      value: leads.length.toString(), 
+      change: `${leads.filter(l => l.status === 'new').length} nuevos`, 
+      icon: Plus, 
+      color: "bg-zinc-800 shadow-black/20" 
+    },
+  ];
 
   return (
     <div className="space-y-12 animate-fade-in relative z-10">

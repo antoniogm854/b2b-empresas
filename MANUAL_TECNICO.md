@@ -75,8 +75,12 @@ Para garantizar una imagen corporativa coherente desde la primera instalación, 
 ---
 
 ## 7. Historial de Versiones
-*   **v1.01.2026-Premium (25-Mar-2026):** **Lanzamiento Oficial**. Implementación de Dashboard de Analíticas, SEO dinámico con OpenGraph, Rediseño de Landing Page v1.01, Estabilización de Arquitectura Monorepo y **Refuerzo de Seguridad Corporativa Dual**.
-*   **v1.01.4 (25-Mar-2026):** **Auditoría & Optimización**. Purga de terminología "Anuncios", implementación de `showcaseService`, SEO (sitemap/robots) y Bitácora Maestra.
+*   **v1.01.2026-Premium (25-Mar-2026):** Lanzamiento Oficial. Analíticas, SEO dinámico con OpenGraph, Rediseño Landing v1.01, Monorepo y **Seguridad Corporativa Dual**.
+*   **v1.01.4 (25-Mar-2026):** **Auditoría & Optimización**. Purga de terminología "Anuncios", implementación de `showcaseService` y Bitácora Maestra.
+*   **v1.01.6 (30-Mar-2026):** **Master Gate & Dashboard Freemium**.
+    *   **Master Gate**: Aislamiento del portal en `/master` (sin `MainLayout` público) y redirección directa al `/admin-console` evadiendo bucles de login.
+    *   **Dashboard Freemium**: Se establece el protocolo de ingesta de 20 productos gratuitos limitados a 1 CSV Loader masivo, posponiendo la creación 1 a 1 para usuarios pro.
+    *   **SEO Técnico**: Inyección estática LCP en Hero Section y mapeo dinámico de subdirectorios Tenant en `sitemap.ts`.
 
 ---
 
@@ -95,5 +99,6 @@ Para garantizar la integridad operativa de `b2bempresas.com` y que ninguna acci�
 - Las configuraciones se almacenan en `tenants.catalog_settings`. Se recomienda auditoría manual periódica comparando con la Bitácora.
 
 ---
-*Manual actualizado v1.01.4 - Enfoque Industrial Premium*
+---
+*Manual actualizado v1.01.6 - Enfoque Industrial Premium*
 

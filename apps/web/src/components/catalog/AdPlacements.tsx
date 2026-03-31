@@ -45,8 +45,15 @@ export default function AdPlacements({ category, productId }: { category: string
           {premiumAds.map((ad) => (
             <div key={ad.id} className="bg-[var(--card)] border border-[var(--panel-border)] p-5 rounded-[2rem] hover:border-[#A2C367] transition-all hover:shadow-xl hover:shadow-[#A2C367]/5 group cursor-pointer shadow-sm">
               <div className="flex justify-between items-start mb-3">
-                <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center font-black text-lg">
-                  {ad.name[0]}
+                <div className="w-12 h-12 bg-zinc-900 rounded-2xl flex items-center justify-center overflow-hidden border border-zinc-200/10 shadow-inner group-hover:border-[#A2C367]/30 transition-all">
+                  {ad.image_url && ad.image_url !== '/hero.webp' ? (
+                    <img src={ad.image_url} alt={ad.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center translate-y-0.5">
+                      <Package size={14} className="opacity-10 mb-0.5 text-[#A2C367]" />
+                      <span className="text-[7px] font-black text-[#A2C367]/40 uppercase tracking-tighter leading-none">IMG PEND.</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <h4 className="font-black text-sm mb-1 group-hover:text-accent transition-colors">{ad.name}</h4>

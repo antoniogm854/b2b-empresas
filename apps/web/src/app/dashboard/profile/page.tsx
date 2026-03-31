@@ -46,6 +46,7 @@ function ProfileContent() {
     youtube_url: "",
     tiktok_url: "",
     allow_scraping: false,
+    sku_cuie: "",
     representantes: [] as { nombre: string; porcentaje: string }[]
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +115,7 @@ function ProfileContent() {
             youtube_url: tenant.youtube_url || "",
             tiktok_url: tenant.tiktok_url || "",
             allow_scraping: tenant.allow_scraping || false,
+            sku_cuie: tenant.sku_cuie || `CORP-${tenant.ruc_rut_nit?.substring(0, 5) || tenant.id.substring(0, 5).toUpperCase()}`,
             representantes: Array.isArray(tenant.representantes) ? tenant.representantes : []
           });
         }
@@ -225,6 +227,7 @@ function ProfileContent() {
         youtube_url: formData.youtube_url,
         tiktok_url: formData.tiktok_url,
         allow_scraping: formData.allow_scraping,
+        sku_cuie: formData.sku_cuie,
         representantes: formData.representantes
       });
 
@@ -385,6 +388,17 @@ function ProfileContent() {
                       placeholder="900 000 000"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--muted-foreground)] ml-1">CID-CUIE (ID Empresa)</label>
+                  <input 
+                    type="text" 
+                    value={formData.sku_cuie}
+                    className="w-full bg-[var(--muted)]/20 border border-[var(--border)] p-5 rounded-2xl font-black text-sm outline-none opacity-80 cursor-not-allowed italic text-[var(--primary)] text-center animate-reveal"
+                    readOnly
+                  />
+                  <p className="text-[9px] text-[var(--muted-foreground)] font-bold uppercase tracking-widest ml-1 opacity-60">Identificador único e irrepetible del catálogo digital de tu empresa (Autogenerado).</p>
                 </div>
              </div>
 

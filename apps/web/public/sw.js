@@ -1,4 +1,4 @@
-const CACHE_NAME = 'b2b-agm-cache-v8';
+const CACHE_NAME = 'b2b-agm-cache-v10';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',

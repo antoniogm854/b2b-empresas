@@ -27,39 +27,6 @@ export function PWAInstallPrompt() {
     };
   }, [isVisible, deferredPrompt]);
 
-  const handleInstallClick = async () => {
-    // Check if already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if (isStandalone) {
-      alert("¡El CATÁLOGO DIGITAL ya está instalado y listo para usar!");
-      setIsVisible(false);
-      return;
-    }
-
-    if (!deferredPrompt) {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      if (isIOS) {
-        alert("Para instalar en iPhone/iPad:\n\n1. Toca el botón 'Compartir' (cuadrado con flecha).\n2. Selecciona 'Agregar a Inicio'.");
-      } else if (isMobile) {
-        alert("Para instalar en Android:\n\n1. Toca los 3 puntos del navegador (arriba a la derecha).\n2. Selecciona 'Instalar aplicación'.");
-      } else {
-        alert("Para instalar en PC (Chrome/Edge):\n\n1. Haz clic en el icono de 'Instalar' en la barra de direcciones (derecha).\n2. O ve a los 3 puntos (Menú) > 'Guardar y compartir' > 'Instalar esta página'.");
-      }
-      return;
-    }
-
-    // Show the install prompt
-    deferredPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-
-    // We've used the prompt, and can't use it again, throw it away
-    setDeferredPrompt(null);
-    setIsVisible(false);
-  };
 
   if (!isVisible || pathname === "/register" || !isHomePage) return null;
 

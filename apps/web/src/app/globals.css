@@ -3,75 +3,58 @@
 @tailwind utilities;
 
 :root {
-  /* Corporate B2B Palette v1.02 - Professional Light */
+  /* Industrial Light Master Palette - Caterpillar / Industrial v1.03 */
   --primary: #4B6319; 
   --primary-foreground: #ffffff;
   --secondary: #A2C367; 
   --secondary-foreground: #000000;
-  --accent: #4B6319; 
-  --accent-foreground: #ffffff;
+  
+  /* CAT Yellow Integration */
+  --cat-yellow: #FFCD00;
+  --cat-yellow-dark: #E6B800;
+  --cat-black: #1A1A1A;
+  
+  --accent: var(--cat-yellow); 
+  --accent-foreground: #000000;
 
-  --background: #FFFFFF; 
-  --foreground: #1A1A1A; 
+  --background: #FBFCFE; 
+  --foreground: #101828; 
 
-  --card: #F9F9F9;
-  --card-foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #101828;
 
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --muted: #F2F4F7;
+  --muted-foreground: #667085;
 
-  --border: #E2E8F0;
-  --input: #F1F5F9;
-  --ring: #4B6319;
+  --border: #EAECF0;
+  --input: #FFFFFF;
+  --ring: var(--cat-yellow);
 
-  --deep-section: #4B6319;
+  --deep-section: #1A1A1A;
   --deep-section-foreground: #ffffff;
   --strong-text: #000000;
 
-  /* Industrial Panel Tokens - Adaptive High Contrast */
-  --panel-bg: rgba(0, 0, 0, 0.04);
-  --panel-border: rgba(0, 0, 0, 0.08);
-  --panel-text: #1A1A1A;
-  --panel-subtext: #64748B;
+  /* Industrial Panel Tokens - High Visibility */
+  --panel-bg: #FFFFFF;
+  --panel-border: #E4E7EC;
+  --panel-text: #101828;
+  --panel-subtext: #667085;
 
-  /* Glassmorphism Tokens Light */
-  --glass-bg: rgba(255, 255, 255, 0.70);
-  --glass-border: rgba(75, 99, 25, 0.15);
+  /* Glassmorphism Tokens Light High Contrast */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --bg-image: url("/b2b_industrial_bg_1774324220155.png");
 }
 
-.dark {
-  /* Corporate B2B Palette v1.02 - Premium Industrial Dark */
-  --primary: #4B6319; 
-  --primary-foreground: #ffffff;
-  --secondary: #A2C367; 
-  --accent: #A2C367; 
-  --background: #050505;
-  --foreground: #F5F5F5; 
-  --card: #0F0F0F;
-  --card-foreground: #F5F5F5;
-  --muted: #121212;
-  --muted-foreground: #888888;
-  --border: #222222;
-  --input: #121212;
-  --ring: #A2C367;
-  --deep-section: #050505;
-  --deep-section-foreground: #ffffff;
-  --strong-text: #ffffff;
-
-  /* Industrial Panel Tokens - Adaptive High Contrast (Dark) */
-  --panel-bg: rgba(20, 20, 20, 0.6);
-  --panel-border: rgba(162, 195, 103, 0.15);
-  --panel-text: #F5F5F5;
-  --panel-subtext: #888888;
-
-  --glass-bg: rgba(10, 10, 10, 0.6);
-  --glass-border: rgba(162, 195, 103, 0.15);
-  --bg-image: url("/b2b_industrial_bg_1774324220155.png");
+/* Forzar modo claro en todo el sistema */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+  }
 }
 
 body {
-  background: var(--background);
+  background: transparent;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -87,60 +70,27 @@ body::before {
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
-  opacity: 0.01; /* Casi invisible en modo claro para máxima legibilidad */
+  opacity: 0.25;
   z-index: -1;
   pointer-events: none;
-  filter: grayscale(1) brightness(1.2);
-}
-
-.dark body::before {
-  opacity: 0.05;
-  filter: grayscale(1) brightness(0.5);
-}
-
-.watermark-logo {
-  position: fixed;
-  bottom: 50px;
-  right: 50px;
-  width: 300px;
-  height: 300px;
-  background-image: url("/logo/logo-icon.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.02;
-  z-index: -1;
-  pointer-events: none;
-  filter: grayscale(1);
-}
-
-.dark .watermark-logo {
-  opacity: 0.04;
-}
-
-.industrial-bg {
-  background-color: var(--background);
-  transition: background-color 0.3s ease;
-}
-
-.dark .industrial-bg {
-  background-image: 
-    linear-gradient(rgba(162, 195, 103, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(162, 195, 103, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.bg-mesh {
-  background-color: #050505;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(75, 99, 25, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(162, 195, 103, 0.1) 0px, transparent 50%);
+  filter: grayscale(1) brightness(1.1);
 }
 
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+}
+
+/* Premium Industrial Shadows */
+.shadow-premium {
+  box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-cat {
+  box-shadow: 0 10px 40px -10px rgba(255, 205, 0, 0.2);
 }
 
 @keyframes slide-in-right {
@@ -150,56 +100,6 @@ body::before {
 
 .animate-slide-in-right {
   animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes infinite-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.animate-infinite-scroll {
-  animation: infinite-scroll 40s linear infinite;
-}
-
-.industrial-glow {
-  box-shadow: 0 0 40px -10px var(--accent);
-}
-
-.group:hover .industrial-glow-hover {
-  box-shadow: 0 0 60px -5px var(--accent);
-  opacity: 0.15;
-}
-
-.logo-emerald {
-  filter: invert(58%) sepia(100%) saturate(382%) hue-rotate(91deg) brightness(94%) contrast(92%);
-}
-
-.brand-t-detail {
-  position: relative;
-  display: inline-block;
-}
-
-.brand-t-detail::after {
-  content: '';
-  position: absolute;
-  bottom: -0.05em;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0.7em;
-  height: 0.15em;
-  /* Dos puntos cuadrados perfectos */
-  background-image: linear-gradient(to right, currentColor 30%, transparent 30%, transparent 70%, currentColor 70%);
-  background-size: 100% 100%;
-}
-
-.text-gold-maestra {
-  color: #B6922E;
-}
-
-.text-gradient-gold {
-  background: linear-gradient(to bottom, #B6922E 20%, #8C6D1F 80%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .animate-reveal {
@@ -211,43 +111,85 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fade-in-right {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes pulse-neon {
-  0%, 100% { 
-    box-shadow: 0 0 15px rgba(162, 195, 103, 0.4), inset 0 0 10px rgba(162, 195, 103, 0.2);
-    border-color: rgba(162, 195, 103, 0.3);
-  }
-  50% { 
-    box-shadow: 0 0 30px rgba(162, 195, 103, 0.8), inset 0 0 15px rgba(162, 195, 103, 0.4);
-    border-color: rgba(162, 195, 103, 0.6);
-  }
-}
-
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-@layer components {
-  .btn-premium-neon {
-    @apply relative bg-[#4B6319] text-white p-5 rounded-2xl font-black uppercase tracking-widest italic transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(162,195,103,0.3)] hover:shadow-[0_0_25px_rgba(162,195,103,0.5)] border-2 border-[#A2C367]/20 hover:border-[#A2C367]/40 overflow-hidden;
-    background-image: linear-gradient(to bottom right, rgba(255,255,255,0.05), transparent);
-  }
-}
-
-@keyframes reverse-spin {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
 }
 
 .animate-spin-slow {
   animation: spin-slow 20s linear infinite;
 }
 
-.animate-reverse-spin {
-  animation: reverse-spin 15s linear infinite;
+/* Custom Scrollbar for Industrial Look */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E4E7EC;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--cat-yellow);
+}
+
+/* Industrial Tag - High Contrast */
+.neon-industrial-tag {
+  @apply relative inline-block px-10 py-1 mx-4 rounded-xl transition-all duration-300;
+  background: var(--cat-yellow);
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0px #000;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #000;
+  transform: skewX(-10deg);
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@layer components {
+  .btn-premium-cat {
+    @apply relative bg-zinc-950 text-white p-5 rounded-2xl font-black uppercase tracking-widest italic transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-xl border-b-4 border-zinc-800 hover:border-[var(--cat-yellow)] active:border-b-0 active:translate-y-1;
+  }
+}
+
+/* ⚡ Industrial Neon Glow (Subtle & Soft) */
+@keyframes neon-glow-soft {
+  0%, 100% {
+    text-shadow: 0 0 8px #fff, 0 0 15px var(--primary), 0 0 20px var(--primary);
+    opacity: 1;
+    color: var(--primary);
+  }
+  50% {
+    text-shadow: 0 0 4px #fff, 0 0 8px var(--primary);
+    opacity: 0.9;
+    color: var(--primary);
+  }
+}
+
+.animate-neon-flicker {
+  animation: neon-glow-soft 3s ease-in-out infinite;
+}
+
+/* 💠 Decorated Industrial 'T' */
+.decorated-t {
+  position: relative;
+  display: inline-block;
+}
+
+.decorated-t::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0.12em;
+  width: 0.16em;
+  height: 0.07em;
+  background: transparent;
+  box-shadow: -0.22em 0 0 currentColor, 0.22em 0 0 currentColor;
+  opacity: 0.9;
 }

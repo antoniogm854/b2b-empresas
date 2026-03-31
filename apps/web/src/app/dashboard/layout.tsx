@@ -26,7 +26,7 @@ import {
 import { authService, UserProfile } from "@/lib/auth-service";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import ThemeToggle from "@/components/theme/ThemeToggle";
+
 
 export default function DashboardLayout({
   children,
@@ -38,19 +38,14 @@ export default function DashboardLayout({
   const [mounted, setMounted] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
   const router = useRouter();
   const pathname = usePathname();
 
   React.useEffect(() => {
     setMounted(true);
     
-    // Immediate check for PWA Welcome Mode
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'welcome') {
-      router.replace('/login?mode=welcome');
-      return;
-    }
+
 
     const loadData = async () => {
       try {
@@ -98,13 +93,7 @@ export default function DashboardLayout({
 
     loadData();
 
-    const handleBeforeInstall = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
 
   if (!mounted || checkingAuth) {
@@ -118,16 +107,7 @@ export default function DashboardLayout({
     );
   }
 
-  const handleInstallClick = async () => {
-    // ... (rest of the component)
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    }
-  };
+
 
   const handleLogout = async () => {
     await authService.signOut();
@@ -135,14 +115,11 @@ export default function DashboardLayout({
   };
 
   const menuItems = [
-    { icon: Home, label: "Vista General", href: "/dashboard" },
-    { icon: User, label: "Perfil DE EMPRESA", href: "/dashboard/profile" },
-    { icon: Palette, label: "Diseño de Pagina", href: "/dashboard/design" },
-    { icon: Package, label: "CATALOGO DIGITAL", href: "/dashboard/catalog" },
-    { icon: FileText, label: "Documentos Adjuntos", href: "/dashboard/documents" },
-    { icon: BarChart3, label: "Estadísticas", href: "/dashboard/analytics" },
-    { icon: Users, label: "Leads de Contactos - Ventas", href: "/dashboard/leads" },
-    { icon: MessageSquare, label: "Mensajes Clientes", href: "/dashboard/messages" },
+    { icon: Home, label: "Panel Principal", href: "/dashboard" },
+    { icon: User, label: "Mi Perfil", href: "/dashboard/profile" },
+    { icon: Palette, label: "Diseño Visual", href: "/dashboard/design" },
+    { icon: Package, label: "GESTIÓN DE PRODUCTOS", href: "/dashboard/catalog" },
+    { icon: BarChart3, label: "REPORTES ESTADÍSTICAS", href: "/dashboard/reports" },
     { icon: Settings, label: "Configuración", href: "/dashboard/settings" },
   ];
 
@@ -261,15 +238,7 @@ export default function DashboardLayout({
             })}
           </nav>
 
-          {deferredPrompt && (
-            <button 
-              onClick={handleInstallClick}
-              className="flex items-center p-4 mb-2 rounded-2xl bg-[#A2C367] text-black hover:bg-[#A2C367]/80 transition-all font-black uppercase text-[10px] tracking-widest border border-transparent shadow-lg shadow-[#A2C367]/20" 
-            >
-              {mounted && <Smartphone className="w-5 h-5 shrink-0" />}
-              {isSidebarOpen && <span className="ml-4">Instalar Aplicativo</span>}
-            </button>
-          )}
+
 
           <button 
             onClick={handleLogout}
@@ -288,7 +257,6 @@ export default function DashboardLayout({
           <div className="flex-1" />
 
           <div className="flex items-center space-x-6">
-            <ThemeToggle />
             
             <button className="relative p-2.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border)] hover:border-[#A2C367]/50 transition-all group overflow-hidden">
               <div className="absolute inset-0 bg-[#A2C367]/5 opacity-0 group-hover:opacity-100 transition-opacity" />

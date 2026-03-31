@@ -87,65 +87,24 @@ export default function LoginClient() {
     }
   };
 
+  if (!mounted) return null;
+
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-950">
-      {/* Background Layer */}
-      <div className="absolute inset-0 z-0">
-        {mounted && (
-          <Image
-            src="/b2b_industrial_bg_1774324220155.png"
-            alt="Fondo Industrial"
-            fill
-            className="object-cover opacity-40 scale-105 animate-slow-zoom"
-            priority
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-[var(--deep-section)]/80 to-slate-950 opacity-90" />
-        <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle, #4B6319 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.1}} />
-      </div>
-
-      {/* Floating Elements */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--primary)]/10 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent)]/10 rounded-full blur-[120px] animate-pulse delay-1000 pointer-events-none" />
-
-      {/* Logo Overlay */}
-      <div className="absolute top-10 left-10 z-20">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="p-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl group-hover:bg-white/10 transition-all shadow-2xl">
-            <Image 
-              src="/logo/logo-icon.png" 
-              alt="Logo Icon" 
-              width={48}
-              height={48}
-              className="object-contain"
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-2xl font-black uppercase tracking-tighter italic text-white leading-none">
-              B2B
-            </span>
-            <span className="text-2xl font-black uppercase tracking-tighter italic text-[var(--primary)] leading-none">
-              EMPRESAS
-            </span>
-          </div>
-        </Link>
-      </div>
-
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-lg px-6 animate-reveal">
-        <div className="bg-slate-900/40 backdrop-blur-3xl p-10 md:p-14 rounded-[3.5rem] border border-white/10 shadow-2xl shadow-black/50 space-y-12">
+    <div className="w-full">
+      {/* Login Card content with glass effect optimized for AuthLayout */}
+      <div className="bg-white/95 backdrop-blur-3xl p-8 md:p-12 rounded-[3rem] border-2 border-[var(--primary)]/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.1)] space-y-10 animate-reveal">
           
           <div className="space-y-4 text-center">
-            <div className="inline-block px-4 py-1.5 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-full mb-2">
+            <div className="inline-block px-4 py-1.5 bg-[var(--primary)]/5 border border-[var(--primary)]/10 rounded-full mb-2">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--primary)]">
                 Acceso Corporativo Verificado
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic text-white flex flex-col leading-none">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic text-[var(--strong-text)] flex flex-col leading-none">
               <span>{t('welcome_title')}</span>
               <span className="text-[var(--primary)]">{t('welcome_accent')}</span>
             </h1>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed max-w-xs mx-auto opacity-70">
+            <p className="text-[var(--panel-subtext)] text-xs font-bold uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
               {t('welcome_desc')}
             </p>
           </div>
@@ -167,13 +126,13 @@ export default function LoginClient() {
 
             {sessionUser ? (
               <div className="space-y-6">
-                <div className="p-6 bg-white/5 border border-[var(--primary)]/30 rounded-3xl text-center space-y-4">
-                  <div className="w-16 h-16 bg-[var(--primary)]/20 rounded-2xl flex items-center justify-center mx-auto text-[var(--primary)] border border-[var(--primary)]/30">
+                <div className="p-6 bg-slate-50 border-2 border-[var(--primary)]/20 rounded-[2rem] text-center space-y-4">
+                  <div className="w-16 h-16 bg-[var(--primary)]/10 rounded-2xl flex items-center justify-center mx-auto text-[var(--primary)] border border-[var(--primary)]/20">
                     <ShieldCheck size={32} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Sesión Activa Detectada</p>
-                    <p className="text-sm font-black text-white truncate px-4">{sessionUser.email}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--panel-subtext)] mb-1">Sesión Activa Detectada</p>
+                    <p className="text-sm font-black text-[var(--strong-text)] truncate px-4">{sessionUser.email}</p>
                   </div>
                 </div>
                 
@@ -203,7 +162,7 @@ export default function LoginClient() {
               <>
                 <div className="space-y-6">
                   <div className="space-y-3 group">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 group-focus-within:text-[var(--primary)] transition-colors">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--panel-subtext)] ml-1 group-focus-within:text-[var(--primary)] transition-colors">
                       {t('email_label')}
                     </label>
                     <div className="relative">
@@ -211,20 +170,20 @@ export default function LoginClient() {
                         type="email"
                         autoComplete="off"
                         placeholder={t('email_placeholder')}
-                        className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold text-white focus:border-[var(--primary)] focus:bg-white/10 transition-all outline-none disabled:opacity-50 text-sm shadow-inner"
+                        className="w-full bg-white border-2 border-slate-200 p-5 rounded-2xl font-bold text-[var(--strong-text)] focus:border-[var(--primary)] focus:bg-white transition-all outline-none disabled:opacity-50 text-sm shadow-sm"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         disabled={isLoading}
                         required
                       />
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-20">
-                        <ShieldCheck size={20} className="text-white" />
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-40">
+                        <ShieldCheck size={20} className="text-slate-400" />
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-3 group">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1 group-focus-within:text-[var(--primary)] transition-colors">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--panel-subtext)] ml-1 group-focus-within:text-[var(--primary)] transition-colors">
                       {t('password_label')}
                     </label>
                     <div className="relative">
@@ -232,14 +191,14 @@ export default function LoginClient() {
                         type="password"
                         autoComplete="new-password"
                         placeholder={t('password_placeholder')}
-                        className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold text-white focus:border-[var(--primary)] focus:bg-white/10 transition-all outline-none disabled:opacity-50 text-sm shadow-inner"
+                        className="w-full bg-white border-2 border-slate-200 p-5 rounded-2xl font-bold text-[var(--strong-text)] focus:border-[var(--primary)] focus:bg-white transition-all outline-none disabled:opacity-50 text-sm shadow-sm"
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         disabled={isLoading}
                         required
                       />
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-20">
-                        <Save size={20} className="text-white" />
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 opacity-40">
+                        <Save size={20} className="text-slate-400" />
                       </div>
                     </div>
                   </div>
@@ -291,12 +250,10 @@ export default function LoginClient() {
 
         {/* System ID Badge */}
         <div className="mt-8 text-center animate-fade-in delay-500">
-           <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white/30 italic">
+           <span className="text-[8px] font-black uppercase tracking-[0.5em] text-[var(--panel-subtext)] opacity-40 italic">
              LATAM INDUSTRIAL PLATFORM v2.05-PRO | IDENTITY SECURED
            </span>
-        </div>
       </div>
     </div>
   );
-
 }

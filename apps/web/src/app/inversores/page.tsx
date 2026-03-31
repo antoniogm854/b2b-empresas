@@ -1,4 +1,4 @@
-import MainLayout from "@/components/layout/MainLayout";
+import PublicLayout from "@/components/layout/PublicLayout";
 import { TrendingUp, PieChart, ArrowRight, CheckCircle2, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -14,7 +14,7 @@ export async function generateMetadata() {
 export default async function InversoresPage() {
   const t = await getTranslations("Inversores");
   return (
-    <MainLayout>
+    <PublicLayout>
        {/* Hero Premium Section */}
        <div className="bg-[var(--deep-section)] text-white py-32 md:py-48 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('/hero.webp')] opacity-10 mix-blend-overlay bg-cover bg-center scale-105"></div>
@@ -113,6 +113,6 @@ export default async function InversoresPage() {
              </div>
           </div>
        </div>
-    </MainLayout>
+    </PublicLayout>
   );
 }

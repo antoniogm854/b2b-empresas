@@ -162,6 +162,7 @@ export default function LayoutTechSpec({ tenant, products, settings }: LayoutPro
                <h5 className="font-black uppercase tracking-widest text-zinc-400 text-[9px]">Legal_ID</h5>
                <p className="font-bold uppercase leading-relaxed text-[10px]">
                   {tenant.company_name}<br/>
+                  {tenant.sku_cuie && `CID-CUIE: ${tenant.sku_cuie}`}<br/>
                   {tenant.ruc_rut_nit && `RUC: ${tenant.ruc_rut_nit}`}<br/>
                   {tenant.fiscal_address || tenant.address || 'LIMA, PERU'}
                </p>

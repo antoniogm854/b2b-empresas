@@ -16,7 +16,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
-import MainLayout from "@/components/layout/MainLayout";
+import PublicLayout from "@/components/layout/PublicLayout";
 
 export default function BuyerConsolePage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -45,7 +45,7 @@ export default function BuyerConsolePage() {
   ];
 
   return (
-    <MainLayout>
+    <PublicLayout>
       <div className="min-h-screen bg-slate-50 p-8 pt-32">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -199,6 +199,6 @@ export default function BuyerConsolePage() {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </PublicLayout>
   );
 }

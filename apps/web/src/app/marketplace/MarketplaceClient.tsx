@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { 
-  Search, 
-  Filter, 
   Package, 
   Building2, 
   Send, 
@@ -11,15 +10,18 @@ import {
   Loader2,
   ArrowRight
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { catalogService, CatalogMasterProduct } from "@/lib/catalog-service";
 import { transactionalService } from "@/lib/transactional-service";
 import { authService } from "@/lib/auth-service";
-import MainLayout from "@/components/layout/MainLayout";
+import PublicLayout from "@/components/layout/PublicLayout";
 import { useTranslations } from "next-intl";
+import SearchFilters from "@/components/catalog/SearchFilters";
 
 export default function MarketplaceClient() {
   const t = useTranslations("Marketplace");
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  
   const [searchResults, setSearchResults] = useState<CatalogMasterProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<CatalogMasterProduct | null>(null);
@@ -28,23 +30,39 @@ export default function MarketplaceClient() {
   const [rfqSent, setRfqSent] = useState(false);
   const [user, setUser] = useState<any>(null);
 
+  const [categories, setCategories] = useState<string[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
+
   useEffect(() => {
     authService.getCurrentUser().then(setUser);
+    // Cargar listas para filtros
+    catalogService.getUniqueCategories().then(setCategories);
+    catalogService.getUniqueBrands().then(setBrands);
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const results = await catalogService.searchMaster(searchQuery);
-      setSearchResults(results);
-      setSelectedProduct(null);
-    } catch (error) {
-      console.error("Error searching marketplace:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Efecto para búsqueda paramétrica al cambiar la URL
+  useEffect(() => {
+    const fetchResults = async () => {
+      setLoading(true);
+      try {
+        const filters = {
+          query: searchParams.get("query") || undefined,
+          category: searchParams.get("category") || undefined,
+          brand: searchParams.get("brand") || undefined,
+          minPrice: searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined,
+          maxPrice: searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined,
+        };
+        const results = await catalogService.searchParametric(filters);
+        setSearchResults(results as any);
+        setSelectedProduct(null);
+      } catch (error) {
+        console.error("Error in parametric search:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResults();
+  }, [searchParams]);
 
   const selectProduct = async (product: CatalogMasterProduct) => {
     setSelectedProduct(product);
@@ -78,147 +96,106 @@ export default function MarketplaceClient() {
   };
 
   return (
-    <MainLayout>
-      <div className="min-h-screen bg-slate-50 p-8 pt-32">
-        <div className="max-w-7xl mx-auto space-y-8">
+    <PublicLayout>
+      <div className="min-h-screen bg-[#FBFCFE] p-8 pt-32 transition-colors">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Header Section */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tightest">{t('title')}</h1>
-            <p className="text-slate-600 max-w-2xl mx-auto text-lg font-bold">
-              {t('subtitle')}
+            <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase tracking-tighter italic animate-reveal">
+              Marketplace <span className="text-[var(--cat-yellow-dark)] drop-shadow-sm">B2B</span>
+            </h1>
+            <p className="text-slate-400 max-w-2xl mx-auto text-lg font-bold uppercase tracking-widest animate-reveal [animation-delay:200ms]">
+               INFRAESTRUCTURA DE SUMINISTRO INDUSTRIAL <span className="text-[var(--cat-yellow-dark)] ml-2">CAT V1.03</span>
             </p>
           </div>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-3xl mx-auto relative">
-            <input
-              type="text"
-              placeholder={t('search_placeholder')}
-              className="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-blue-500 text-lg"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6" />
-            <button 
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition"
-            >
-              {t('search_btn')}
-            </button>
-          </form>
+          {/* New Search & Filter Component */}
+          <div className="max-w-4xl mx-auto animate-reveal [animation-delay:400ms]">
+            <SearchFilters categories={categories} brands={brands} />
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Results List */}
-            <div className="lg:col-span-1 space-y-4">
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                {t('results_title')} ({searchResults.length})
-              </h2>
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {loading && !selectedProduct && (
-                  <div className="flex justify-center p-8">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  </div>
-                )}
+          {/* Grid de Productos Industrial Premium */}
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-[var(--strong-text)] flex items-center gap-3 mb-8 uppercase italic tracking-tighter">
+              <Package className="w-6 h-6 text-[var(--primary)]" />
+              RESULTADOS DE BÚSQUEDA <span className="text-[var(--primary)]">[{searchResults.length}]</span>
+            </h2>
+            
+            {loading && searchResults.length === 0 ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="w-12 h-12 animate-spin text-slate-900" />
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {searchResults.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => selectProduct(product)}
-                    className={`w-full text-left p-4 rounded-xl transition border-2 ${
-                      selectedProduct?.id === product.id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-white bg-white hover:border-blue-200'
-                    }`}
-                  >
-                    <p className="font-bold text-slate-900">{product.product_name}</p>
-                    <p className="text-sm text-slate-500">{product.brand} - {product.model}</p>
-                  </button>
+                  <div key={product.id} className="bg-white rounded-3xl border-2 border-slate-100 flex flex-col group hover:border-[var(--cat-yellow)] hover:shadow-2xl transition-all relative overflow-hidden h-full shadow-sm">
+                    
+                    {/* Imagen y Marca */}
+                    <div className="w-full aspect-square bg-slate-50 relative overflow-hidden group/img border-b-2 border-slate-100">
+                      <span className="absolute top-4 left-4 text-[9px] font-black uppercase tracking-widest bg-slate-950 text-white px-4 py-2 rounded-xl z-20 shadow-lg">
+                        {product.brand || 'B2B CAT'}
+                      </span>
+                      {product.image_url_1 ? (
+                        <Image
+                          src={product.image_url_1}
+                          alt={product.product_name}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+                          className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                          <Package size={48} className="opacity-10 mb-2 text-slate-900" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 leading-none">SIN IMAGEN</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Detalles */}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 truncate">
+                        ID: {product.sku_cuim || product.id.substring(0,6)}
+                      </p>
+                      <h3 className="font-black text-sm text-slate-900 uppercase tracking-tighter leading-tight mb-3 line-clamp-2" title={product.product_name}>
+                        {product.product_name}
+                      </h3>
+                      <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-6 font-bold uppercase tracking-wide italic" title={product.description || ''}>
+                        {product.description || 'Ficha técnica no detallada.'}
+                      </p>
+                      
+                      {/* Botón Cotizar */}
+                      <div className="mt-auto pt-6 border-t-2 border-slate-50">
+                        <button 
+                          onClick={() => {
+                            selectProduct(product);
+                            handleMassRFQ();
+                          }}
+                          disabled={sendingRFQ}
+                          className="w-full bg-[var(--cat-yellow)] text-black py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:scale-105 active:scale-95 transition-all text-center flex items-center justify-center gap-3 group/btn shadow-cat border-b-4 border-[var(--cat-yellow-dark)] active:border-b-0"
+                        >
+                          {sendingRFQ && selectedProduct?.id === product.id ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Send className="w-5 h-5 group-hover/btn:-translate-y-1 group-hover/btn:translate-x-1 transition-transform" />
+                          )}
+                          COTIZAR ALL
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
-
-            {/* Product Details & Multi-Supplier View */}
-            <div className="lg:col-span-2">
-              {selectedProduct ? (
-                <div className="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 animate-in fade-in slide-in-from-bottom-4">
-                  <div className="flex justify-between items-start mb-8">
-                    <div className="space-y-2">
-                      <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                        {selectedProduct.category_id || 'Industrial'}
-                      </span>
-                      <h2 className="text-3xl font-bold text-slate-900">{selectedProduct.product_name}</h2>
-                      <p className="text-slate-500">{selectedProduct.brand} | {selectedProduct.model}</p>
-                    </div>
-                    
-                    <button
-                      onClick={handleMassRFQ}
-                      disabled={sendingRFQ || suppliers.length === 0}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-bold transition shadow-lg ${
-                        rfqSent
-                        ? 'bg-green-500 text-white'
-                        : 'bg-slate-900 text-white hover:bg-black disabled:bg-slate-300'
-                      }`}
-                    >
-                      {sendingRFQ ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : rfqSent ? (
-                        <CheckCircle className="w-5 h-5" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
-                      {rfqSent ? t('sent_btn') : t('send_all_btn')}
-                    </button>
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                      <Building2 className="w-5 h-5" />
-                      {t('offers_title')} ({suppliers.length})
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {suppliers.map((offer) => (
-                        <div key={offer.company_id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden">
-                              {offer.tenants?.logo_url ? (
-                                <img src={offer.tenants.logo_url} alt={offer.tenants.company_name} className="w-full h-full object-cover" />
-                              ) : (
-                                <Building2 className="w-6 h-6 text-slate-400" />
-                              )}
-                            </div>
-                            <div>
-                               <p className="font-bold text-slate-900">{offer.tenants?.company_name}</p>
-                               <p className="text-sm text-blue-600 font-medium">{offer.unit_price ? `USD ${offer.unit_price}` : t('price_on_request')}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                          </div>
-                        </div>
-                      ))}
-                      {suppliers.length === 0 && !loading && (
-                        <p className="col-span-2 text-center py-12 text-slate-400 italic">
-                          {t('no_suppliers')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center space-y-4 p-12 bg-white/50 border-2 border-dashed border-slate-200 rounded-3xl">
-                  <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
-                    <ArrowRight className="w-10 h-10 text-slate-300" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-800">{t('select_product')}</h3>
-                    <p className="text-slate-500">{t('select_desc')}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+            ) : (
+              <div className="text-center py-20 bg-[var(--card)] rounded-[2rem] border-2 border-dashed border-[var(--border)] max-w-2xl mx-auto">
+                <Package className="w-16 h-16 text-[var(--muted)] mx-auto mb-6 opacity-30" />
+                <h3 className="text-xl font-black text-[var(--strong-text)] uppercase tracking-tighter italic">No se encontraron resultados</h3>
+                <p className="text-[var(--muted-foreground)] mt-2 text-sm">Modifique los filtros de búsqueda para encontrar ofertas corporativas.</p>
+              </div>
+            )}
           </div>
+
         </div>
       </div>
-    </MainLayout>
+    </PublicLayout>
   );
 }

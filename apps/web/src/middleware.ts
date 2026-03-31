@@ -8,11 +8,11 @@ export function middleware(request: NextRequest) {
   // 🌍 Locale and Public Routes
   const isPublicRoute = /^\/($|login|register|sobre-nosotros|catalogo-digital|catalogo-maestro|planes|blog|contacto|privacidad|terminos|cookies|calidad|seguridad|confianza|sostenibilidad|inversores|marketing|socios)/.test(pathname);
   
-  if (isPublicRoute) {
-    const locale = request.cookies.get('NEXT_LOCALE')?.value || 'es';
-    response.cookies.set('NEXT_LOCALE', locale);
-    response.headers.set('X-NEXT-INTL-LOCALE', locale);
-  }
+  // 🌍 Global Locale Persistence
+  const locale = request.cookies.get('NEXT_LOCALE')?.value || 'es';
+  response.cookies.set('NEXT_LOCALE', locale);
+  response.headers.set('X-NEXT-INTL-LOCALE', locale);
+
 
   // 🔒 Protected Routes Guard (Dashboard / PWA Entry)
   if (request.nextUrl.searchParams.get('mode') === 'welcome' && pathname !== '/login') {

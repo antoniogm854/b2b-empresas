@@ -1,90 +1,76 @@
-# B2B EMPRESAS — Ecosistema Industrial v1.01
+# B2B EMPRESAS — Ecosistema Industrial Premium v6.0
 
-Plataforma SaaS multitenant para el sector industrial B2B de Latinoamérica.
+Plataforma Maestra de Gestión Industrial y Operaciones B2B para Latinoamérica.
 
 ---
 
-## 🚀 Características Principales
+## 🚀 Arquitectura Industrial Premium v6.0
 
-### Registro & Onboarding Interactivo (3 Pasos)
-1. **Paso 1 — Registro Inteligente**: Creación de cuenta, validación de RUC/ID y generación automática del **CUUP**. 
-   - **Smart Email Detection**: Si el email ya inició registro, el sistema lo detecta, inicia sesión automáticamente en segundo plano, y dirige al usuario directo al Paso 2 para continuar sin perder tiempo.
-2. **Paso 2 — Perfil Premium**: Extracción automática de datos desde SUNAT (Razón Social, Domicilio Fiscal, Actividad Económica, Representantes Legales).
-3. **Paso 3 — Catálogo**: Carga de productos con SKU-CUIM asignado automáticamente.
+### 🛡️ Identificación Digital Maestro (ID DNA)
+El sistema garantiza trazabilidad total mediante identificadores únicos e inmutables:
+- **CID-CUIE (Company Unique ID)**: Identificador autogenerado para el catálogo del proveedor (Formato: `CORP-XXXX-XXXX`).
+- **SKU-CUIM (Master ID)**: Identificador global del producto en el *Catálogo Maestro B2B* (Formato: `CMB-XXXXX`).
+- **SKU-MPN (Manufacturer Part Number)**: Código de fábrica del producto para precisión técnica.
+- **CUUP (User-Provider Code)**: Vinculado al RUC/ID legal de la empresa.
 
-### CUUP — Código Único de Usuario-Proveedor
-- **El CUUP = RUC/ID exacto** del proveedor. Regla definitiva, invariable.
-- **Inmutable**: protegido en código (`auth-service.ts`, `company-service.ts`) y en base de datos (triggers PostgreSQL).
-- **Único**: constraint `UNIQUE` en la tabla `tenants`.
-- Se asigna automáticamente al crear el tenant y no puede ser modificado jamás.
+### 📦 Ingreso Industrial Maestro (Wizard 4 Pasos)
+Flujo optimizado para la carga masiva y técnica de productos:
+1. **Paso 1: Identificación Técnica**: Nombre, Marca, Modelo, Serie y Activación de *Smart Specs*.
+2. **Paso 2: Clasificación B2B**: Jerarquía industrial (SKU-GG, SKU-GE) y asignación de SKU-CUIM.
+3. **Paso 3: Especificaciones Comerciales**: Precios, Unidades de Medida y Atributos Físicos.
+4. **Paso 4: Documentación Multimedia**: Imágenes, Fichas Técnicas (PDF) y Video Manuales.
 
-### Compliance Scoring (0–10 Puntos)
-Sistema de gamificación para certificar calidad B2B:
+---
+
+## 📊 Compliance Scoring & Certificación
+Sistema de puntuación (0–10) para la validación de proveedores:
 | Acción | Puntos |
 |---|---|
-| Completar Paso 1 (Registro) | +1 pt |
-| Completar Paso 2 (Perfil Premium) | +1 pt |
-| Cargar mínimo 20 productos | +1 pt |
-| Cargar más de 100 productos | +2 pt |
-| _Próximamente: más hitos_ | _hasta 10 pt_ |
-
-### Admin Console (`/admin-console`)
-- **Directorio Maestro**: lista completa de proveedores con su CUUP.
-- **Verificaciones**: aprobar/rechazar nuevas empresas.
-- **Recuperación de credenciales**: recuperación segura por email con ventana temporal (25s) y timer visual.
-
-### Acceso Corporativo (`/master`)
-- Puerta de entrada al ecosistema privado (Master y Admin).
-- Clave única de acceso con recuperación por sistema automatizado y timeout visual.
+| Perfil Legal Verificado (RUC) | +2 pts |
+| Catálogo con CID-CUIE Activo | +2 pts |
+| Más de 50 productos con Ficha Técnica | +3 pts |
+| Respuesta Activa WhatsApp | +3 pts |
 
 ---
 
-## 🛠️ Stack Tecnológico Optimizado
+## 🛠️ Stack Tecnológico de Alto Rendimiento
 | Capa | Tecnología |
 |---|---|
-| Frontend | Next.js 15, React 19, Lucide Icons |
-| Estilos | Vanilla CSS (design tokens) + Animaciones Avanzadas |
-| Backend / DB | Supabase (PostgreSQL, Auth, Storage, Edge Functions) |
-| i18n | next-intl (ES / PT / EN) con SSR routing |
-| Performance | Next.js Image Opt, AVIF/WebP nativo, Headers Cache de 1 año |
-| Seguridad | X-Frame-Options, Permissions-Policy, Supabase RLS |
+| **Estructura** | Next.js 15 (App Router), React 19 |
+| **Estilos** | CSS Puro (Industrial Design Tokens) |
+| **Backend** | Supabase (PostGIS, RLS, Storage) |
+| **Internationalization** | next-intl (ES / EN / PT) SSR |
+| **Performance** | WebP/AVIF Nativo, ISR (Incremental Static Regeneration) |
 
 ---
 
-## ⚡ Inicio Rápido
-
-```bash
-npm install
-npm run dev
-```
-
-> **Nota DB**: Para sincronizar las últimas reglas inmutables de negocios (CUUP=RUC), ejecuta el script `supabase_v3_sync.sql` (versión 3.1) en el SQL Editor de Supabase.
-
----
-
-## 📁 Estructura Principal Optimizada (Auditada)
+## 📂 Directorio Maestro (Auditado v6.0)
 
 ```
 src/
 ├── app/
-│   ├── admin-console/    # Panel central master
-│   ├── dashboard/        # Panel del proveedor B2B
-│   ├── login/            # Acceso B2B
-│   ├── master/           # Acceso corporativo privado
-│   ├── register/         # Alias para landing onboarding
-│   └── cdb2b/            # Onboarding digital industrial
+│   ├── [slug]/           # Vitrina Digital del Proveedor (Showcase)
+│   ├── dashboard/        # Centro de Control del Proveedor
+│   ├── master/           # Puerta de Enlace Corporativa
+│   ├── admin-console/    # Gestión Maestro de B2B Empresas
+│   └── marketplace/      # Catálogo Global B2B
 ├── components/
-│   └── cdb2b/onboarding/ # Archivos core del asistente de registro (Wizard, Steps)
+│   ├── dashboard/AddProductModal.tsx # Wizard Maestro v1.04
+│   └── shared/           # Componentes Globales Dinámicos
 └── lib/
-    ├── auth-service.ts   # Autenticación + pre-check de detección de usuarios
-    ├── admin-service.ts  # Servicios para credenciales de admin
-    ├── company-service.ts# Reglas de negocio y CRUD tenants
-    ├── catalog-service.ts# Lógica de carga de productos SKU
-    └── sunat-mock.ts     # Mock oficial de la API SUNAT/RUC
+    ├── catalog-service.ts# Orquestación de SKU-CUIM y Smart Specs
+    ├── auth-service.ts   # Seguridad Perimetral y Gestión de CUUP
+    └── settings-service.ts# Configuración de Identidad de Plataforma
 ```
-
-*Archivos obsoletos (`/admin/ads`, rutas temporales) y configuraciones lentas han sido removidas durante la fase de auditoría.*
 
 ---
 
-© 2026 B2B Empresas. Todos los derechos reservados.
+## ⚡ Ejecución en Local
+
+1. Instalar dependencias: `npm install`
+2. Iniciar plataforma: `npm run dev`
+3. Sincronizar DB: Ejecutar `migration_cid_cuie.sql` en el SQL Editor de Supabase.
+
+---
+
+© 2026 B2B Empresas — Infraestructura Industrial LATAM.

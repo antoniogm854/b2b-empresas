@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin-console/', '/dashboard/'],
+      disallow: ['/admin-console/', '/dashboard/', '/master/', '/login/', '/register/'],
     },
     sitemap: 'https://www.b2bempresas.com/sitemap.xml',
   }

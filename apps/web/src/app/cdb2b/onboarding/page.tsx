@@ -1,5 +1,5 @@
 import OnboardingWizard from "@/components/cdb2b/onboarding/OnboardingWizard";
-import ThemeToggle from "@/components/theme/ThemeToggle";
+import AuthLayout from "@/components/layout/AuthLayout";
 
 export const metadata = {
   title: "Onboarding | CATALOGO DIGITAL B2B",
@@ -8,13 +8,10 @@ export const metadata = {
 
 export default function OnboardingPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)]/30 transition-colors duration-300 industrial-bg">
-      <div className="fixed top-8 right-8 z-50">
-        <ThemeToggle />
-      </div>
-      <div className="max-w-4xl mx-auto px-4 py-12 md:py-24 relative z-10">
+    <AuthLayout>
+      <div className="max-w-4xl mx-auto py-12 md:py-24">
         <OnboardingWizard />
       </div>
-    </div>
+    </AuthLayout>
   );
 }

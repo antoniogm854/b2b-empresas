@@ -9,6 +9,12 @@ export async function generateMetadata() {
   };
 }
 
+import AuthLayout from "@/components/layout/AuthLayout";
+
 export default function LoginPage() {
-  return <LoginClient />;
+  return (
+    <AuthLayout>
+      <LoginClient />
+    </AuthLayout>
+  );
 }

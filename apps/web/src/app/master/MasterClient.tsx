@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import MainLayout from "@/components/layout/MainLayout";
 import { Lock, ShieldCheck, ChevronRight, LayoutDashboard, Settings, UserCheck, KeyRound, Mail, Eye, EyeOff, X, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -137,6 +136,12 @@ export default function MasterClient() {
     if (password === MASTER_KEY) {
       setIsUnlocked(true);
       setError("");
+      // Autorización Global Unificada
+      sessionStorage.setItem('admin_master_auth', 'true');
+      // Redirección directa para extinguir el bucle
+      setTimeout(() => {
+        window.location.href = '/admin-console';
+      }, 800);
     } else {
       setError(t('error_invalid_key'));
     }
@@ -145,7 +150,7 @@ export default function MasterClient() {
   if (!mounted) return null;
 
   return (
-    <MainLayout>
+    <>
       <div className="min-h-screen bg-[#050B18] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-20">
           <Settings size={300} className="absolute -top-20 -left-20 text-white/5 animate-spin-slow blur-sm" />
@@ -199,57 +204,18 @@ export default function MasterClient() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-5xl animate-fade-in-up">
-            <div className="text-center mb-12 space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-black text-[10px] uppercase tracking-widest border border-[var(--primary)]/20">
-                <UserCheck size={14} /> {t('verified_badge')}
-              </div>
-              <h2 className="text-4xl md:text-7xl font-black text-[var(--strong-text)] uppercase tracking-tighter italic leading-none drop-shadow-2xl">
-                <span className="block text-white mb-2">{t('red')}</span>
-                <span className="text-gold-maestra">{t('maestra').slice(0, 4)}<span className="brand-t-detail text-gold-maestra">{t('maestra').slice(4, 5)}</span>{t('maestra').slice(5)}</span>
-              </h2>
-              <p className="text-white/40 font-black uppercase tracking-[0.3em] text-[10px] pt-8">{t('strategy')}</p>
+          <div className="w-full max-w-md animate-fade-in flex flex-col items-center text-center space-y-6">
+            <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-3xl flex items-center justify-center text-[var(--primary)] animate-pulse shadow-xl shadow-[var(--primary)]/20">
+              <ShieldCheck size={40} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <Link href="/login?mode=welcome&next=/dashboard" className="group">
-                <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--primary)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--primary)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-[var(--primary)]/20">
-                      <LayoutDashboard size={32} />
-                    </div>
-                    <h3 className="text-2xl font-black text-[var(--strong-text)] uppercase mb-4 tracking-tight">{t('login_title')}</h3>
-                    <p className="text-[var(--muted-foreground)] font-medium mb-8 leading-relaxed">{t('login_desc')}</p>
-                    <div className="mt-auto flex items-center text-[var(--primary)] font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
-                      {t('login_btn')} <ChevronRight size={16} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              <Link href="/login?mode=welcome&next=/admin-console" className="group">
-                <div className="bg-[var(--card)] border border-[var(--border)] p-10 rounded-[3rem] hover:border-[var(--accent)] hover:shadow-2xl transition-all h-full relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 w-40 h-40 bg-[var(--accent)]/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-16 h-16 bg-[var(--deep-section)] rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-black/20">
-                      <Settings size={32} />
-                    </div>
-                    <h3 className="text-2xl font-black text-[var(--strong-text)] uppercase mb-4 tracking-tight">{t('admin_title')}</h3>
-                    <p className="text-[var(--muted-foreground)] font-medium mb-8 leading-relaxed">{t('admin_desc')}</p>
-                    <div className="mt-auto flex items-center text-[var(--accent)] font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
-                      {t('admin_btn')} <ChevronRight size={16} />
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="mt-16 text-center">
-              <button onClick={() => setIsUnlocked(false)} className="text-[10px] font-black uppercase tracking-widest text-[var(--muted-foreground)] hover:text-red-500 transition-colors">
-                {t('logout')}
-              </button>
+            <h2 className="text-2xl font-black text-white uppercase tracking-widest">{t('verified_badge') || 'Acceso Verificado'}</h2>
+            <p className="text-sm font-bold text-[var(--muted-foreground)]">Redirigiendo al Control Maestro...</p>
+            <div className="w-48 h-1 bg-[var(--border)] rounded-full overflow-hidden mt-6">
+               <div className="h-full bg-[var(--primary)] animate-pulse w-full"></div>
             </div>
           </div>
         )}
       </div>
-    </MainLayout>
+    </>
   );
 }

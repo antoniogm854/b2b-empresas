@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, ShoppingCart, Info, Share2, Star } from "lucide-react";
+import { X, ShoppingCart, Info, Share2, Star, Package } from "lucide-react";
 
 interface QuickViewProps {
   product: any;
@@ -38,10 +38,22 @@ export default function ProductQuickView({ product, onClose, onAction, actionLab
 
         <div className="p-8 space-y-10">
           {/* Header Image Area */}
-          <div className="w-full h-80 bg-muted rounded-[3rem] overflow-hidden flex items-center justify-center relative group">
-            <div className="font-black text-muted-foreground text-2xl uppercase opacity-20 group-hover:opacity-40 transition-opacity">
-              IMAGEN MAESTRA
-            </div>
+          <div className="w-full h-80 bg-muted rounded-[3rem] overflow-hidden flex items-center justify-center relative group/img border border-muted shadow-inner">
+            {product.image_url || (product.images && product.images.length > 0) || product.image_url_1 ? (
+              <img 
+                src={product.image_url || (product.images && product.images.length > 0 ? product.images[0] : product.image_url_1)} 
+                alt="Product" 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-10 relative">
+                <div className="absolute inset-0 bg-[#A2C367]/5 blur-3xl rounded-full" />
+                <Package size={80} className="text-[#A2C367] opacity-10 mb-6 relative z-10" />
+                <div className="font-black text-[#A2C367]/40 text-3xl uppercase tracking-widest opacity-40 group-hover/img:opacity-60 transition-opacity italic relative z-10 scale-110">
+                  IMAGEN EN DESARROLLO
+                </div>
+              </div>
+            )}
             <div className="absolute bottom-6 right-6 flex space-x-2">
               <button className="p-3 bg-background rounded-xl shadow-lg hover:scale-110 transition-transform">
                 <Share2 size={18} />

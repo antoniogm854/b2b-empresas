@@ -1,374 +1,426 @@
-"use client";
-
-import { useState, useEffect } from "react";
+// ✅ SERVER COMPONENT — Renderizado en servidor, indexable por Google.
+// ISR: Revalida datos del catálogo cada hora sin rebuild completo.
 import Image from "next/image";
 import Link from "next/link";
-import { ShieldCheck, ArrowRight, CheckCircle2, Factory, TrendingUp, Search, Layers, Briefcase, BarChart, Cpu, Target, Users, Zap, ChevronRight } from "lucide-react";
-import { 
-  showcaseService, 
-  FeaturedProduct 
-} from "@/lib/showcase-service";
-import MainLayout from "@/components/layout/MainLayout";
+import {
+  ShieldCheck, ArrowRight, CheckCircle2, Factory,
+  Layers, Briefcase, Cpu, Target, Zap,
+  MessageSquare, Share2, MousePointer2, Smartphone,
+} from "lucide-react";
+import { showcaseService, FeaturedProduct } from "@/lib/showcase-service";
+import PublicLayout from "@/components/layout/PublicLayout";
 import { formatCurrency } from "@/lib/currency-utils";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import HomeProductGrid from "./_components/HomeProductGrid";
 
-export default function Home() {
-  const [featured, setFeatured] = useState<FeaturedProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const t = useTranslations("Index");
+// ISR: revalidar cada hora — balance entre frescura y performance
+export const revalidate = 3600;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export default async function Home() {
+  const t = await getTranslations("Index");
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const productsData = await showcaseService.getFeaturedProducts(6); 
-        setFeatured(productsData);
-      } catch (e) {
-        console.error("Error fetching data:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+  // Datos obtenidos en SERVIDOR — invisible para el usuario, rápido para Google
+  let featured: FeaturedProduct[] = [];
+  try {
+    featured = await showcaseService.getFeaturedProducts(6);
+  } catch (e) {
+    console.error("Error fetching featured products:", e);
+  }
 
   return (
-    <MainLayout>
-      <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-[var(--accent)] selection:text-[var(--strong-text)]">
-        
-        {/* SEO Industrial Infrastructure */}
+    <PublicLayout>
+      <div className="flex flex-col min-h-screen bg-transparent text-slate-900 selection:bg-[var(--cat-yellow)] selection:text-black">
+
+        {/* ── SEO: Organization + WebSite Schema ── */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "b2bempresas.com",
-              "url": "https://b2bempresas.com",
-              "logo": "https://b2bempresas.com/logo/logo-full.png",
-              "description": "SOMOS UNA EMPRESA ESPECIALISTAS EN SOLUCIONES INTEGRALES PARA EL ECOSISTEMA CORPORATIVO B2B",
-            })
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "B2B Empresas",
+                "url": "https://www.b2bempresas.com",
+                "logo": "https://www.b2bempresas.com/logo/logo-full.png",
+                "description": "Infraestructura Digital B2B de alta precisión para el Sector Industrial de Latinoamérica.",
+                "areaServed": ["PE", "CL", "CO", "MX", "AR", "BR"],
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "contactType": "customer support",
+                  "availableLanguage": ["Spanish", "Portuguese", "English"],
+                  "url": "https://wa.me/51990670153"
+                },
+                "sameAs": [
+                  "https://www.linkedin.com/company/b2bempresas",
+                  "https://www.facebook.com/b2bempresas"
+                ]
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "B2B Empresas",
+                "url": "https://www.b2bempresas.com",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://www.b2bempresas.com/marketplace?query={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            ])
           }}
         />
 
-        {/* Hero Section v1.01 */}
-        <section className="relative min-h-[95vh] flex items-start overflow-hidden bg-transparent pt-16 pb-24 border-b border-[var(--border)]/10">
-          {/* Fondo Texturizado Sutil */}
-          <div className="absolute inset-0 z-0 opacity-20">
-            {mounted && (
-              <Image 
-                src="/hero.webp" 
-                alt="Industrial Background" 
-                fill 
-                className="grayscale object-cover object-bottom"
-                priority
-                fetchPriority="high"
-                suppressHydrationWarning
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--deep-section)]/80 via-transparent to-[var(--deep-section)]"></div>
-          </div>
+        {/* ── Hero Section v6.0 ── */}
+        <section className="relative min-h-[95vh] flex items-center overflow-hidden bg-transparent pt-4 pb-32">
 
-          <div className="container mx-auto px-6 relative z-10 flex flex-col items-center md:items-start text-center md:text-left mt-10 md:mt-12">
-            <div className="max-w-[6xl] lg:w-[90%] space-y-10">
-              
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-[var(--border)] glass text-[var(--primary)] animate-fade-in mx-auto md:mx-0 shadow-sm">
-                <Zap size={16} fill="currentColor" />
-                <span className="text-xs sm:text-sm font-black uppercase tracking-widest italic">
-                  {t('badge')}
+          <div className="container mx-auto px-6 relative z-10">
+            <div className="max-w-4xl space-y-10 text-left">
+
+              {/* ── Badge de Gestión (Reposicionado y Compacto) ── */}
+              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm text-slate-400 animate-reveal shadow-sm mb-1">
+                <Zap size={16} fill="currentColor" className="text-[var(--cat-yellow-dark)] animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">
+                  GESTIÓN - DESARROLLO - SOLUCIONES EMPRESARIALES
                 </span>
               </div>
-              
-               <h1 className="text-[3.2rem] sm:text-7xl md:text-[6rem] lg:text-[8rem] xl:text-[9.5rem] 2xl:text-[11rem] font-black text-[var(--strong-text)] leading-[0.7] tracking-tighter uppercase italic animate-fade-in-up [animation-delay:200ms]">
-                <span className="block drop-shadow-2xl">La Red</span>
-                <span className="text-[var(--accent)] underline decoration-8 decoration-[var(--accent)]/30 underline-offset-[-10px] block drop-shadow-2xl">
-                  Maestra
-                </span>
-                <span className="block drop-shadow-2xl text-[0.85em] mt-2">
-                  {t('title').split(' ').slice(3).join(' ')}
-                </span>
-                <span className="absolute top-0 right-0 text-[10px] opacity-10 font-bold tracking-widest hidden lg:block">v1.01.2026-PREMIUM-DEVOPS-SYNC</span>
-              </h1>
 
-              <div className="flex flex-col items-center md:items-start gap-8 animate-fade-in-up delay-300">
-                <p className="text-sm md:text-base lg:text-lg text-[var(--foreground)] opacity-90 font-bold max-w-4xl leading-[1.1] tracking-wide">
-                  {t('hero_desc')}
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-6 pt-6 w-full sm:w-auto">
-                  <Link 
-                    href="#soluciones" 
-                    className="group bg-[var(--accent)] text-[var(--strong-text)] px-8 py-5 rounded-2xl hover:scale-105 hover:bg-white transition-all flex items-center justify-center gap-4 text-center shadow-[0_20px_40px_-10px_rgba(162,195,103,0.3)] border border-[var(--accent)]/50" 
-                  >
-                    <span className="text-lg font-black uppercase tracking-tight">{t('cta')}</span>
-                    {mounted && <ArrowRight size={24} className="group-hover:translate-x-1 duration-300" />}
-                  </Link>
+              <div className="space-y-0">
+                <h1 className="text-7xl md:text-9xl lg:text-[11.5rem] font-black leading-[0.8] tracking-tightest uppercase italic animate-reveal [animation-delay:200ms] flex flex-col items-start overflow-visible -mt-1">
+                  <span className="text-slate-950 block">LA RED</span>
+                  <span className="text-[#4B6319] block animate-neon-flicker relative pb-4">
+                    MAES<span className="decorated-t">T</span>RA
+                  </span>
+                  <span className="text-slate-950 block text-5xl md:text-7xl lg:text-[7rem] -mt-2">
+                    PARA SU EMPRESA
+                  </span>
+                </h1>
+              </div>
+
+              <p className="text-lg md:text-xl text-[var(--panel-subtext)] font-bold max-w-2xl leading-relaxed animate-reveal [animation-delay:400ms]">
+                {t("hero_desc")}
+              </p>
+
+              {/* WhatsApp Alert Integration v6.0 */}
+              <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl inline-flex items-center gap-4 animate-reveal [animation-delay:500ms]">
+                <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-black">
+                  <MessageSquare size={20} fill="currentColor" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Nueva v6.0</p>
+                  <p className="text-xs font-bold text-zinc-600">Alertas WhatsApp: Sabrás cuándo te visitan en tiempo real.</p>
                 </div>
               </div>
 
+              <div className="flex flex-col sm:flex-row gap-6 pt-8 animate-reveal [animation-delay:600ms]">
+                <Link
+                  href="#soluciones"
+                  className="bg-white border-4 border-slate-900 px-24 py-7 rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm hover:bg-[var(--cat-yellow)] hover:text-black hover:border-[var(--cat-yellow-dark)] transition-all flex items-center justify-center shadow-2xl active:scale-95 md:min-w-[450px]"
+                >
+                  SABER MAS DE NOSOTROS - B2B
+                </Link>
+              </div>
             </div>
           </div>
-          
-          <div className="absolute right-0 bottom-0 w-2/3 h-2/3 bg-[var(--primary)]/20 blur-[150px] rounded-full mix-blend-screen pointer-events-none"></div>
+
+          <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-[var(--primary)]/10 to-transparent pointer-events-none" />
         </section>
 
-        {/* C. SOLUCIONES */}
-        <section id="soluciones" className="py-24 bg-transparent relative">
+        {/* ── SOLUCIONES CORPORATIVAS B2B ── */}
+        <section id="soluciones" className="py-24 bg-transparent relative overflow-hidden">
           <div className="container mx-auto px-6">
-            <div className="text-center md:text-left max-w-4xl mx-auto md:mx-0 mb-16">
-              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase">
-                {t('solutions_title').split(' ').slice(0,1).join(' ')} <span className="text-[var(--primary)]">{t('solutions_title').split(' ').slice(1).join(' ')}</span>
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-[var(--strong-text)] uppercase italic">
+                {t("solutions_title") || "SOLUCIONES CORPORATIVAS B2B"}
               </h2>
-              <div className="h-1.5 w-20 bg-[var(--accent)] mx-auto md:mx-0 mb-8 rounded-full" />
-              <p className="text-lg text-[var(--muted-foreground)] font-medium">
-                {t('solutions_desc')}
+              <div className="w-20 h-2 bg-[var(--primary)] mb-6" />
+              <p className="text-lg text-[var(--panel-subtext)] font-bold italic opacity-70">
+                {t("solutions_desc")}
               </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {[
-                {
-                  title: "Inteligencia Comercial",
-                  desc: "Mapeo y segmentación de oportunidades en mercados corporativos, cruzando demanda de compradores y capacidad de proveedores.",
-                  icon: <BarChart size={28} />
-                },
-                {
-                  title: "Plataforma SaaS Multi-tenant",
-                  desc: "Despliegue automático de Catálogos Digitales PWA (Progressive Web Apps) para cada proveedor bajo nuestro paraguas tecnológico.",
-                  icon: <Cpu size={28} />
-                },
-                {
-                  title: "Alianzas Estratégicas",
-                  desc: "Conexión vertical entre fabricantes, importadores y el usuario final corporativo evitando intermediarios ineficientes.",
-                  icon: <Target size={28} />
-                }
-              ].map((feature, i) => (
-                <div key={i} className="group p-10 rounded-3xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--primary)]/30 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col">
-                  <div className="w-16 h-16 bg-[var(--muted)] text-[var(--primary)] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[var(--primary)] group-hover:text-white transition-all duration-300" suppressHydrationWarning>
-                    {mounted && feature.icon}
+                { title: "INTELIGENCIA COMERCIAL", desc: "Mapeo y segmentación de oportunidades en mercados corporativos.", icon: Layers },
+                { title: "PLATAFORMA SAAS INDUSTRIAL", desc: "Despliegue automático de Catálogos Digitales PWA para cada proveedor.", icon: Cpu },
+                { title: "ALIANZAS ESTRATÉGICAS", desc: "Conexión vertical entre fabricantes, importadores y el usuario final.", icon: Target },
+              ].map((item, i) => (
+                <div key={i} className="bg-white p-12 rounded-[3.5rem] border-2 border-slate-100 hover:border-[var(--cat-yellow)] transition-all group shadow-xl">
+                  <div className="w-20 h-20 bg-slate-50 border-2 border-slate-50 rounded-3xl flex items-center justify-center text-slate-400 mb-10 group-hover:bg-[var(--cat-yellow)] group-hover:text-black group-hover:border-black transition-all">
+                    <item.icon size={36} />
                   </div>
-                  <h3 className="text-xl font-black mb-4 tracking-tight uppercase text-[var(--strong-text)]">{feature.title}</h3>
-                  <p className="text-[var(--muted-foreground)] leading-relaxed font-medium text-sm flex-grow">{feature.desc}</p>
-                  <div className="mt-8 pt-6 border-t border-[var(--border)]">
-                    <Link href={i === 0 ? "/marketing" : i === 1 ? "/socios" : "/socios"} className="text-[var(--primary)] text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all">
-                       {t('know_more')} <ArrowRight size={14} />
-                    </Link>
-                  </div>
+                  <h3 className="text-xl font-black mb-4 uppercase tracking-tighter italic text-slate-900">{item.title}</h3>
+                  <p className="text-sm text-slate-400 font-bold leading-relaxed mb-10 uppercase tracking-wide italic">{item.desc}</p>
+                  <Link href="/register" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 flex items-center gap-3 group-hover:gap-5 transition-all">
+                    {t("know_more")} <ArrowRight size={16} className="text-[var(--cat-yellow-dark)]" />
+                  </Link>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* D. RECURSOS */}
-        <section id="recursos" className="py-24 bg-[var(--card)]/30 backdrop-blur-sm relative border-y border-[var(--border)]/10">
+        {/* ── RECURSOS ESTRATÉGICOS ── */}
+        <section id="recursos" className="py-24 bg-transparent relative overflow-hidden">
           <div className="container mx-auto px-6">
-            <div className="text-center max-w-4xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase">
-                {t('resources_title').split(' ').slice(0,1).join(' ')} <span className="text-[var(--primary)]">{t('resources_title').split(' ').slice(1).join(' ')}</span>
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter text-[var(--strong-text)] uppercase italic">
+                {t("resources_title") || "RECURSOS ESTRATÉGICOS"}
               </h2>
-              <div className="h-1.5 w-20 bg-[var(--accent)] mx-auto mb-8 rounded-full" />
-              <p className="text-lg text-[var(--muted-foreground)] font-medium">
-                {t('resources_desc')}
+              <div className="w-20 h-2 bg-[var(--primary)] mx-auto mb-6" />
+              <p className="text-sm text-[var(--panel-subtext)] font-bold opacity-60">
+                {t("resources_desc")}
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-[var(--background)] rounded-3xl p-10 border border-[var(--border)] flex gap-6 group hover:shadow-xl transition-all">
-                <div className="bg-[var(--card)] p-4 rounded-2xl shadow-sm h-fit group-hover:bg-[var(--primary)] group-hover:text-white transition-colors">
-                  <Briefcase className="text-[var(--primary)] group-hover:text-white" size={32} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black mb-2 uppercase text-[var(--strong-text)]">Entorno Digital de Precisión</h3>
-                  <p className="text-sm font-medium text-[var(--muted-foreground)] leading-relaxed mb-4">Infraestructura escalable que soporta integraciones masivas de catálogos, certificaciones de producto, bases de datos de proveedores evaluados e históricos de precios mayoristas corporativos.</p>
-                  <Link href="/security" className="text-[var(--primary)] text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    SEGURIDAD DE INFORMACIÓN <ArrowRight size={12} />
-                  </Link>
-                </div>
-              </div>
-              <div className="glass rounded-3xl p-10 border border-[var(--border)] flex gap-6 group hover:shadow-xl transition-all">
-                <div className="bg-[var(--card)] p-4 rounded-2xl shadow-sm h-fit group-hover:bg-[var(--primary)] group-hover:text-white transition-colors">
-                  <Layers className="text-[var(--primary)] group-hover:text-white" size={32} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black mb-2 uppercase text-[var(--strong-text)]">Logística y Operaciones B2B</h3>
-                  <p className="text-sm font-medium text-[var(--muted-foreground)] leading-relaxed mb-4">Documentación de procedimientos, plantillas de licitaciones estandarizadas y guías de importación directa a nivel Latinoamérica para reducir fricción en las compras internacionales.</p>
-                  <Link href="/quality" className="text-[var(--primary)] text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    POLÍTICAS DE CALIDAD <ArrowRight size={12} />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* E. SECTORES */}
-        <section id="sectores" className="py-24 bg-[var(--background)] relative">
-          <div className="container mx-auto px-6">
-            <div className="text-center md:text-left max-w-4xl mx-auto md:mx-0 mb-16">
-              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase">
-                {t('sectors_title').split(' ').slice(0,1).join(' ')} <span className="text-[var(--primary)]">{t('sectors_title').split(' ').slice(1).join(' ')}</span>
-              </h2>
-              <div className="h-1.5 w-20 bg-[var(--accent)] mx-auto md:mx-0 mb-8 rounded-full" />
-              <p className="text-lg text-[var(--muted-foreground)] font-medium">
-                {t('sectors_desc')}
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {['Minería', 'Construcción', 'Agroindustria', 'Energía y Gas', 'Metalmecánica', 'Logística', 'Servicios IT B2B', 'Manufactura'].map((sector, i) => (
-                <div key={i} className="group glass p-6 rounded-2xl shadow-sm hover:shadow-xl hover:bg-[var(--primary)] transition-all duration-300 border border-[var(--border)]">
-                  <h3 className="text-sm font-black uppercase text-center text-[var(--foreground)] group-hover:text-[var(--primary-foreground)] transition-colors">{sector}</h3>
+              {[
+                { title: "ENTORNO DIGITAL DE PRECISIÓN", desc: "Infraestructura escalable que soporta integraciones masivas de catálogos.", sub: "SEGURIDAD DE INFORMACIÓN", icon: ShieldCheck },
+                { title: "LOGÍSTICA Y OPERACIONES B2B", desc: "Documentación de procedimientos, plantillas de licitaciones y guías.", sub: "POLÍTICAS DE CALIDAD", icon: Factory },
+              ].map((item, i) => (
+                <div key={i} className="bg-white p-12 rounded-[3.5rem] border-2 border-zinc-100 flex gap-8 items-center shadow-sm hover:shadow-xl transition-all">
+                  <div className="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center text-[var(--primary)] shrink-0">
+                    <item.icon size={32} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black uppercase tracking-tighter text-[var(--strong-text)] mb-3">{item.title}</h3>
+                    <p className="text-sm text-[var(--panel-subtext)] font-medium leading-relaxed mb-4 opacity-70">{item.desc}</p>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)] flex items-center gap-2 cursor-pointer">
+                      {item.sub} <ArrowRight size={12} />
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* F. IDENTIDAD */}
-        <section id="identidad_section" className="py-24 bg-[var(--card)] relative">
-          <div className="container mx-auto px-6 text-center">
-             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase">
-                {t('identity_title')} <span className="text-[var(--primary)]">{t('identity_subtitle').split(' ').slice(1).join(' ')}</span>
-              </h2>
-              <div className="h-1.5 w-20 bg-[var(--accent)] mx-auto mb-12 rounded-full" />
-              <div className="bg-[var(--deep-section)] text-white p-12 rounded-3xl max-w-5xl mx-auto shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10 bg-[url('/hero.webp')] bg-cover mix-blend-overlay"></div>
-                <div className="relative z-10">
-                  <Users size={48} className="text-[var(--accent)] mx-auto mb-6" />
-                  <p className="text-xl md:text-2xl font-black uppercase tracking-tight leading-relaxed mb-8 text-white">
-                    Confiabilidad, Precisión e Innovación Continua.
-                  </p>
-                  <p className="text-white/80 font-medium max-w-2xl mx-auto mb-10">
-                    Nacimos ante la necesidad de modernizar las cadenas de abastecimiento pesado. Somos más que un buscador, somos la columna vertebral tecnológica del aprovisionamiento empresarial en Latinoamérica garantizando transparencia, control de calidad y negociaciones sin intermediarios.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-6">
-                    <Link href="/confianza" className="px-6 py-3 border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-[var(--deep-section)] transition-all">
-                      CONFIANZA
-                    </Link>
-                    <Link href="/sostenibilidad" className="px-6 py-3 border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-[var(--deep-section)] transition-all">
-                      SOSTENIBILIDAD
-                    </Link>
-                    <Link href="/inversores" className="px-6 py-3 border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-[var(--deep-section)] transition-all">
-                      INVERSORES
-                    </Link>
-                  </div>
-                </div>
-              </div>
-          </div>
-        </section>
-
-        {/* G. BUSCADOR PRODUCTOS INDUSTRIALES B2B & H. CATALOGO MAESTRO B2B */}
-        <section id="catalogo-maestro" className="py-32 bg-[var(--background)] relative border-t border-[var(--border)]">
+        {/* ── CÓMO FUNCIONA ── */}
+        <section id="como-funciona" className="py-32 bg-transparent relative overflow-hidden">
           <div className="container mx-auto px-6">
-            
-            {/* Buscador */}
-            <div className="bg-[var(--card)] p-8 md:p-12 rounded-[2rem] shadow-xl border border-[var(--border)] -mt-48 relative z-20 mb-20 max-w-5xl mx-auto text-center">
-              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[var(--strong-text)] mb-4">
-                {t('catalog_title')}
+            <div className="text-center max-w-3xl mx-auto mb-24">
+              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase italic">
+                En solo <span className="text-[var(--primary)]">3 pasos</span>
               </h2>
-              <p className="text-sm text-[var(--muted-foreground)] font-medium mb-8">Explora millones de suministros vinculados directamente al Catálogo Maestro B2B (CMb2b).</p>
-              
-              <div className="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" size={24} />
-                  <input 
-                    type="text" 
-                    placeholder={t('search_placeholder')}
-                    className="w-full bg-[var(--background)] border-2 border-[var(--border)] text-lg sm:text-xl py-6 pl-16 pr-6 rounded-2xl focus:outline-none focus:border-[var(--primary)] focus:bg-[var(--card)] text-[var(--foreground)] transition-colors"
-                  />
-                </div>
-                <button className="bg-[var(--primary)] text-white px-10 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[var(--deep-section)] transition-colors shadow-lg shadow-[var(--primary)]/20 whitespace-nowrap">
-                  {t('search_btn')}
-                </button>
-              </div>
+              <p className="text-lg text-[var(--panel-subtext)] font-bold italic">
+                La plataforma más rápida y sencilla para digitalizar tu oferta industrial.
+              </p>
             </div>
 
-            {/* Catálogo Maestro B2B info */}
-            <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">
-              <div className="max-w-3xl">
-                <div className="flex flex-col">
-                  <h2 className="text-4xl md:text-5xl font-black tracking-tight uppercase mb-4 text-[var(--strong-text)]">
-                    Catálogo Maestro <span className="text-[var(--primary)]">B2B</span>
-                  </h2>
-                  <p className="text-[var(--muted-foreground)] font-medium text-lg leading-relaxed">
-                    Estandarizamos los datos de cada producto industrial a través del Código Único de Identificación Maestro <strong className="text-[var(--strong-text)]">(SKU-CUIM)</strong>. 
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Productos Cards del CMb2b */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-              {loading ? (
-                Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="h-[480px] bg-[var(--card)] animate-pulse rounded-3xl" />
-                ))
-              ) : featured.length > 0 ? (
-                featured.map((product: FeaturedProduct) => (
-                  <div key={product.id} className="group bg-[var(--card)] rounded-3xl border border-[var(--border)] overflow-hidden hover:border-[var(--accent)] hover:shadow-2xl transition-all duration-500 flex flex-col h-full relative">
-                    {/* Badge CMb2b */}
-                    <div className="absolute top-4 right-4 z-10 bg-[var(--primary)] text-[10px] text-white font-black px-3 py-1 rounded shadow-md uppercase tracking-widest">
-                      CMb2b
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-20 relative">
+              <div className="hidden md:block absolute top-[45%] left-0 w-full h-1 bg-[var(--cat-yellow)]/20 z-0" />
+              {[
+                { step: "01", title: "Crea tu Catálogo", desc: "Regístrate con tu RUC y sube las fotos de tus productos. Nosotros generamos tu vitrina profesional al instante.", Icon: MousePointer2 },
+                { step: "02", title: "Comparte el Link", desc: "Envía tu link único por WhatsApp, correo o redes sociales. Sin que tus clientes descarguen nada.", Icon: Share2 },
+                { step: "03", title: "Recibe la Alerta", desc: "Cada vez que un cliente abra tu catálogo, te avisaremos inmediatamente vía WhatsApp para que cierres la venta.", Icon: MessageSquare },
+              ].map((item, i) => (
+                <div key={i} className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-32 h-32 rounded-[3.5rem] bg-white border-4 border-slate-100 shadow-2xl flex items-center justify-center text-slate-800 mb-10 group-hover:scale-110 group-hover:border-[var(--cat-yellow)] transition-all duration-500 relative">
+                    <div className="absolute -top-6 -left-6 w-14 h-14 bg-[var(--cat-yellow)] text-black border-4 border-white rounded-2xl flex items-center justify-center font-black italic shadow-xl text-xl">
+                      {item.step}
                     </div>
-                    
-                    <div className="aspect-[4/3] bg-[var(--muted)] relative overflow-hidden flex-shrink-0">
-                      {mounted && (
-                        <Image 
-                          src={product.image_url || "/hero.webp"} 
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-700 mix-blend-multiply"
-                        />
-                      )}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                         <span className="bg-white/90 backdrop-blur-sm text-[var(--primary)] text-[9px] font-black px-3 py-1.5 rounded-md uppercase tracking-widest shadow-sm flex items-center gap-1.5">
-                           <ShieldCheck size={12} className="text-[var(--accent)]" /> Verificado
-                         </span>
-                      </div>
-                    </div>
-                    
-                    <div className="p-8 flex flex-col flex-grow bg-[var(--card)]">
-                      <div className="flex justify-between items-start mb-4">
-                        <span className="text-[9px] font-black tracking-widest uppercase text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded">SKU-CUIM: AUTO{product.id.substring(0,6)}</span>
-                      </div>
-                      
-                      <h3 className="text-xl font-black tracking-tight leading-snug group-hover:text-[var(--primary)] transition-colors uppercase mb-6 text-[var(--strong-text)] flex-grow">
-                        {product.name}
-                      </h3>
-                      
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-[var(--border)]">
-                        <p className="text-xl font-black text-[var(--strong-text)]">
-                          {formatCurrency(product.price)}
-                        </p>
-                        <button className="text-[var(--primary)] text-sm font-black uppercase hover:underline flex items-center gap-1 group/btn">
-                           Ver Ficha Técnica <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                        </button>
-                      </div>
-                    </div>
+                    <item.Icon size={48} />
                   </div>
-                ))
-              ) : (
-                <div className="col-span-full py-24 bg-[var(--card)] border-2 border-dashed border-[var(--border)] rounded-3xl text-center flex flex-col items-center justify-center gap-4">
-                  <div className="w-16 h-16 bg-[var(--muted)] rounded-full flex items-center justify-center text-[var(--muted-foreground)] shadow-sm" suppressHydrationWarning>
-                    {mounted && <TrendingUp size={32} />}
-                  </div>
-                  <p className="font-bold text-[var(--muted-foreground)] uppercase tracking-widest text-sm">{t('catalog_empty')}</p>
+                  <h3 className="text-2xl font-black mb-4 uppercase tracking-tighter text-slate-900 italic">{item.title}</h3>
+                  <p className="text-[12px] text-slate-400 font-bold leading-relaxed max-w-[280px] mx-auto uppercase tracking-widest italic">{item.desc}</p>
                 </div>
-              )}
+              ))}
             </div>
-
-            {/* Fin Catálogo Maestro B2B info */}
-
           </div>
         </section>
 
-        {/* Global Floating Actions */}
+        {/* ── SECTORES INDUSTRIALES ── */}
+        <section id="sectores" className="py-24 bg-transparent relative overflow-hidden">
+          <div className="container mx-auto px-6">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-[var(--strong-text)] uppercase italic">
+                {t("sectors_title") || "SECTORES INDUSTRIALES"}
+              </h2>
+              <div className="w-20 h-2 bg-[var(--primary)] mx-auto mb-6" />
+              <p className="text-sm text-[var(--panel-subtext)] font-bold opacity-60 italic">
+                {t("sectors_desc")}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {["MINERÍA", "CONSTRUCCIÓN", "AGROINDUSTRIA", "ENERGÍA Y GAS", "METALMECÁNICA", "LOGÍSTICA", "SERVICIOS IT B2B", "MANUFACTURA"].map((sector, i) => (
+                <div key={i} className="bg-white border border-zinc-200 py-6 px-4 rounded-2xl text-center font-black text-xs tracking-widest text-zinc-400 hover:text-[var(--primary)] hover:border-[var(--primary)] hover:shadow-lg transition-all cursor-pointer uppercase">
+                  {sector}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── IDENTIDAD ── */}
+        <section id="identidad" className="py-24 bg-transparent relative overflow-hidden">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-[var(--strong-text)] uppercase italic">
+                {t("identity_title") || "IDENTIDAD"}{" "}
+                <span className="text-[var(--primary)]">{t("identity_subtitle") || "INDUSTRIAL"}</span>
+              </h2>
+              <div className="w-20 h-2 bg-[var(--primary)] mx-auto" />
+            </div>
+
+            <div className="max-w-5xl mx-auto bg-[#556B2F] rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 opacity-10 grayscale">
+                <Image src="/hero.webp" alt="Fondo identidad industrial B2B" fill className="object-cover" sizes="100vw" />
+              </div>
+              <div className="relative z-10 space-y-8">
+                <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter italic">
+                  CONFIABILIDAD, PRECISIÓN E INNOVACIÓN CONTINUA.
+                </h3>
+                <p className="text-white/80 text-lg font-medium leading-relaxed max-w-3xl mx-auto">
+                  {t("identity_desc")}
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 pt-4">
+                  {["CONFIANZA", "SOSTENIBILIDAD", "INVERSORES"].map((btn, i) => (
+                    <Link key={i} href={`/${btn.toLowerCase()}`} className="px-8 py-3 rounded-full border border-white/30 text-white font-black text-xs tracking-widest hover:bg-white hover:text-[#556B2F] transition-all">
+                      {btn}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── BENEFICIOS ── */}
+        <section className="py-24 bg-transparent border-y-2 border-slate-50/10">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+              {[
+                { title: "Catálogo Propio", desc: "Identidad visual premium que transmite confianza industrial.", icon: Briefcase },
+                { title: "Integración WhatsApp", desc: "Comunicación directa sin intermediarios ni comisiones.", icon: Smartphone },
+                { title: "Alerta Instantánea", desc: "Sabe exactamente cuándo tienes un prospecto caliente.", icon: Zap },
+              ].map((benefit, i) => (
+                <div key={i} className="flex gap-8 items-start group">
+                  <div className="p-6 bg-slate-50 rounded-3xl text-slate-300 border-2 border-slate-50 shrink-0 shadow-inner group-hover:bg-[var(--cat-yellow)] group-hover:text-black group-hover:border-black transition-all duration-300">
+                    <benefit.icon size={28} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 mb-2 italic">{benefit.title}</h4>
+                    <p className="text-[11px] text-slate-400 font-black uppercase tracking-widest italic">{benefit.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+
+        {/* ── VALIDACIÓN SUNAT ── */}
+        <section className="py-32 bg-transparent text-foreground relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-[var(--cat-yellow)]" />
+          <div className="container mx-auto px-6">
+            <div className="bg-white/5 border border-white/10 p-12 md:p-24 rounded-[5rem] flex flex-col md:flex-row items-center gap-20 backdrop-blur-3xl shadow-4xl">
+              <div className="w-56 h-56 bg-white p-8 rounded-[3.5rem] shrink-0 rotate-3 shadow-4xl flex items-center justify-center border-8 border-slate-900">
+                <Image src="/logo/logo-icon.png" alt="Verificación SUNAT — B2B Empresas" width={140} height={140} className="object-contain grayscale contrast-125" />
+              </div>
+              <div className="space-y-8 text-center md:text-left">
+                <div className="inline-block px-6 py-2 bg-[var(--cat-yellow)] text-black rounded-full shadow-lg">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">SISTEMA DE VERIFICACIÓN CAT</span>
+                </div>
+                <h3 className="text-4xl md:text-7xl font-black uppercase tracking-tighter italic leading-none">
+                  Identidad <br /> <span className="text-[var(--cat-yellow)]">SUNAT</span> Verificada
+                </h3>
+                <p className="text-lg md:text-xl text-slate-400 font-bold leading-relaxed max-w-2xl italic">
+                  Solo empresas con RUC activo pueden operar. Esto garantiza una red exclusiva de negocios formales, eliminando el spam industrial.
+                </p>
+                <div className="flex flex-wrap gap-8 justify-center md:justify-start pt-4">
+                  <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                    <ShieldCheck size={20} className="text-[var(--cat-yellow)]" /> CONSULTA RUC
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-slate-500">
+                    <ShieldCheck size={20} className="text-[var(--cat-yellow)]" /> ANTI-FRAUDE industrial
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── TESTIMONIOS ── */}
+        <section className="py-32 bg-transparent">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-24">
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-slate-900">
+                Socios <span className="text-[var(--cat-yellow-dark)]">Activos</span>
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {[
+                { quote: "Gracias a la alerta instantánea de WhatsApp, puedo llamar al cliente justo cuando está viendo mi ficha técnica. He cerrado 30% más ventas este mes.", author: "Gerente Comercial - Suministros SAC", rating: 5 },
+                { quote: "Tener mi propio catálogo digital con validación SUNAT nos dio la formalidad que necesitábamos para venderle a las grandes mineras.", author: "Director Operativo - Maquinarias del Sur", rating: 5 },
+                { quote: "La plataforma es increíblemente fácil de usar. Subí 100 productos en una tarde y ya tengo mi vitrina funcionando.", author: "Fundador - TechParts CAT", rating: 5 },
+              ].map((testimony, i) => (
+                <div key={i} className="bg-white p-12 rounded-[4rem] border-2 border-slate-100 space-y-8 shadow-2xl relative">
+                  <div className="flex gap-1 text-[var(--cat-yellow-dark)]">
+                    {Array(testimony.rating).fill(0).map((_, j) => (
+                      <CheckCircle2 key={j} size={20} fill="currentColor" />
+                    ))}
+                  </div>
+                  <p className="text-xl font-bold italic text-slate-900 leading-relaxed uppercase tracking-tight">"{testimony.quote}"</p>
+                  <div className="pt-6 border-t-2 border-slate-50">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{testimony.author}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CATÁLOGO MAESTRO B2B ── */}
+        <section id="catalogo" className="py-24 bg-transparent relative overflow-hidden">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto text-center space-y-12">
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-[var(--strong-text)]">
+                  {t("catalog_title") || "CATÁLOGO MAESTRO B2B"}
+                </h2>
+                <p className="text-lg text-[var(--panel-subtext)] font-bold max-w-2xl mx-auto opacity-70">
+                  Explora millones de suministros vinculados directamente al Catálogo Maestro B2B (CMb2b).
+                </p>
+              </div>
+
+              {/* Client Component: búsqueda interactiva + grilla */}
+              <HomeProductGrid
+                featured={featured}
+                searchPlaceholder={t("search_placeholder") || "Buscar SKU-CUIM, Código, Nombre..."}
+                searchBtn={t("search_btn") || "BUSCAR PRODUCTO"}
+                catalogEmpty={t("catalog_empty") || "EL CATÁLOGO MAESTRO SE ENCUENTRA EN ACTUALIZACIÓN."}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA FINAL ── */}
+        <section className="py-32 bg-transparent relative overflow-hidden">
+          <div className="container mx-auto px-6 text-center">
+            <div className="max-w-5xl mx-auto bg-slate-900 p-12 md:p-24 rounded-[5rem] space-y-12 relative overflow-hidden shadow-4xl">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--cat-yellow)]/10 blur-[150px] -mr-48 -mt-48" />
+              <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter italic text-white leading-none">
+                ¿Listo para <br />
+                <span className="text-[var(--cat-yellow)]">Liderar?</span>
+              </h2>
+              <p className="text-xl text-slate-400 font-bold uppercase tracking-widest italic leading-relaxed">
+                ÚNETE A LA RED DE PROVEEDORES <br /> MÁS CONFIABLE DE LATINOAMÉRICA.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-8 pt-4">
+                <Link href="/register" className="bg-[var(--cat-yellow)] text-black px-12 py-7 rounded-[2rem] font-black uppercase text-xl tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-cat border-b-8 border-[var(--cat-yellow-dark)] active:border-b-0">
+                  Comenzar Gratis
+                </Link>
+                <Link href="https://wa.me/51990670153" className="bg-white/10 text-white border border-white/20 backdrop-blur-md px-12 py-7 rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-4 hover:bg-white hover:text-black transition-all">
+                  <MessageSquare size={24} /> Contacto Directo
+                </Link>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 italic">
+                REGISTRO RUC | SIN TARJETAS | 100% SEGURO
+              </p>
+            </div>
+          </div>
+        </section>
+
       </div>
-    </MainLayout>
+    </PublicLayout>
   );
 }

@@ -5,6 +5,7 @@ export interface FeaturedProduct {
   name: string;
   description: string;
   price: number;
+  sku: string;
   image_url: string;
   tenant_id: string;
   tenant_name: string;
@@ -26,7 +27,7 @@ export const showcaseService = {
         custom_description, 
         unit_price, 
         tenant_id,
-        catalog_master (image_url_1),
+        catalog_master (image_url_1, sku_cuim),
         tenants!tenant_id (company_name)
       `)
       .eq('is_active', true)
@@ -43,6 +44,7 @@ export const showcaseService = {
       name: item.custom_name || 'Producto sin nombre',
       description: item.custom_description || '',
       price: item.unit_price || 0,
+      sku: item.catalog_master?.sku_cuim || 'N/A',
       image_url: item.catalog_master?.image_url_1 || '/hero.webp',
       tenant_id: item.tenant_id,
       tenant_name: item.tenants?.company_name || 'Proveedor'

@@ -22,6 +22,8 @@ const config: Config = {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
+        "cat-yellow": "var(--cat-yellow)",
+        "cat-black": "var(--cat-black)",
       },
       animation: {
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
