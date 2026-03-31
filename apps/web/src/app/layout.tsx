@@ -16,15 +16,15 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
-// Metadata dinámica por idioma — se actualiza con el locale del cookie NEXT_LOCALE
+// Metadata dinámica por idioma
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
 
-    const titles: Record<string, string> = {
-      es: 'B2B EMPRESAS | La Red Maestra Comercial',
-      pt: 'B2B EMPRESAS | A Rede Mestra Comercial',
-      en: 'B2B EMPRESAS | The Commercial Master Network',
-    };
+  const titles: Record<string, string> = {
+    es: 'B2B EMPRESAS | La Red Maestra Comercial',
+    pt: 'B2B EMPRESAS | A Rede Mestra Comercial',
+    en: 'B2B EMPRESAS | The Commercial Master Network',
+  };
   const descs: Record<string, string> = {
     es: 'Infraestructura Digital B2B de alta precisión para el Sector Industrial de Latinoamérica.',
     pt: 'Infraestrutura Digital B2B de alta precisão para o Setor Industrial da América Latina.',
@@ -52,10 +52,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t,
     description: d,
     keywords: [
-      'b2b', 'industrial', 'catálogo digital', 'catálogo maestro', 'proveedores perú', 'proveedores latinoamérica', 
-      'comercio industrial', 'b2b empresas', 'transformación digital b2b', 'leads industriales', 'saas b2b',
-      'compliance industrial', 'cuup', 'cid-cuie', 'sku-cuim', 'sku-mpn', 'trazabilidad industrial', 'suministros industriales', 'minería perú',
-      'logística b2b', 'marketplace industrial', 'compras corporativas', 'abastecimiento industrial'
+      'b2b', 'industrial', 'catálogo digital', 'catálogo maestro b2b', 'archivo central de productos', 
+      'proveedores perú', 'proveedores latinoamérica', 'comercio industrial', 'b2b empresas', 
+      'transformación digital b2b', 'leads industriales', 'saas b2b', 'compliance industrial', 
+      'cuup', 'cid-cuie', 'sku-cuim', 'sku-mpn', 'trazabilidad industrial', 'suministros industriales', 
+      'minería perú', 'logística b2b', 'marketplace industrial', 'compras corporativas', 'abastecimiento industrial', 
+      'sourcing industrial'
     ],
     manifest: '/manifest.json',
     openGraph: {

@@ -197,6 +197,37 @@ export default async function Home() {
         {/* ── CÓMO FUNCIONA ── */}
         <section id="como-funciona" className="py-32 bg-transparent relative overflow-hidden">
           <div className="container mx-auto px-6">
+            {/* Buscador Industrial v6.0 */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const query = formData.get('q');
+                if (query) window.location.href = `/marketplace?q=${encodeURIComponent(query.toString())}`;
+              }}
+              className="bg-[var(--card)] p-8 md:p-12 rounded-[2rem] shadow-xl border border-[var(--border)] -mt-48 relative z-20 mb-20 max-w-5xl mx-auto text-center"
+            >
+              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[var(--strong-text)] mb-4">
+                {t('catalog_title') || "CATÁLOGO MAESTRO B2B"}
+              </h2>
+              <p className="text-sm text-[var(--muted-foreground)] font-medium mb-8">Explora millones de suministros vinculados directamente al Catálogo Maestro B2B (CMb2b).</p>
+              
+              <div className="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
+                <div className="relative flex-grow">
+                  <MousePointer2 className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" size={24} />
+                  <input 
+                    name="q"
+                    type="text" 
+                    placeholder={t('search_placeholder') || "Buscar productos..."}
+                    className="w-full bg-[var(--background)] border-2 border-[var(--border)] text-lg sm:text-xl py-6 pl-16 pr-6 rounded-2xl focus:outline-none focus:border-[var(--primary)] focus:bg-[var(--card)] text-[var(--foreground)] transition-colors"
+                  />
+                </div>
+                <button type="submit" className="bg-[var(--primary)] text-white px-10 py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-[var(--deep-section)] transition-colors shadow-lg shadow-[var(--primary)]/20 whitespace-nowrap">
+                  {t('search_btn') || "BUSCAR"}
+                </button>
+              </div>
+            </form>
+
             <div className="text-center max-w-3xl mx-auto mb-24">
               <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-[var(--strong-text)] uppercase italic">
                 En solo <span className="text-[var(--primary)]">3 pasos</span>

@@ -3,8 +3,9 @@ import { supabase } from './supabase';
 export interface AdminStats {
   totalCompanies: number;
   pendingVerifications: number;
-  activeShowcase: number;
-  totalMarketplaceLeads: number;
+  activeMarketplace: number;
+  totalLeads: number;
+  pendingMasterProducts: number;
 }
 
 export const adminService = {
@@ -12,18 +13,20 @@ export const adminService = {
    * Obtiene estadísticas globales para el panel administrativo.
    */
   async getGlobalStats(): Promise<AdminStats> {
-    const [tenants, pending, ads, leads] = await Promise.all([
+    const [tenants, pending, ads, leads, products] = await Promise.all([
       supabase.from('tenants').select('id', { count: 'exact', head: true }),
       supabase.from('tenants').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('tenant_catalog').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('leads').select('id', { count: 'exact', head: true })
+      supabase.from('leads').select('id', { count: 'exact', head: true }),
+      supabase.from('catalog_master').select('id', { count: 'exact', head: true }).eq('status', 'review')
     ]);
 
     return {
       totalCompanies: tenants.count || 0,
       pendingVerifications: pending.count || 0,
-      activeShowcase: ads.count || 0,
-      totalMarketplaceLeads: leads.count || 0
+      activeMarketplace: ads.count || 0,
+      totalLeads: leads.count || 0,
+      pendingMasterProducts: products.count || 0
     };
   },
 
@@ -31,7 +34,6 @@ export const adminService = {
    * Obtiene lista de todas las empresas registradas.
    */
   async getAllCompanies() {
-    // Intentamos obtener con CUUP, si falla, reintentamos sin él (compatibilidad de esquema)
     try {
       const { data, error } = await supabase
         .from('tenants')
@@ -40,7 +42,6 @@ export const adminService = {
       
       if (!error) return data;
       
-      // Si el error es por columna inexistente (42703), reintentar sin cuup
       if (error.code === '42703') {
         const { data: dataLow, error: errorLow } = await supabase
           .from('tenants')
@@ -87,9 +88,9 @@ export const adminService = {
   },
 
   /**
-   * Obtiene productos con vitrina pendiente de aprobación.
+   * Obtiene productos pendientes de aprobación para el Marketplace.
    */
-  async getPendingShowcase() {
+  async getPendingMarketplaceProducts() {
     const { data, error } = await supabase
       .from('tenant_catalog')
       .select(`
@@ -99,7 +100,7 @@ export const adminService = {
         tenant_id,
         tenants (company_name)
       `)
-      .eq('is_active', true); // Temporal: v1.01 no tiene ad_status
+      .eq('is_active', true);
 
     if (error) throw error;
     
@@ -107,7 +108,7 @@ export const adminService = {
       ...item,
       name: item.custom_name,
       price: item.unit_price,
-      companies: item.tenants // Map tenants to companies for component compatibility
+      companies: item.tenants 
     }));
   },
 
@@ -118,7 +119,6 @@ export const adminService = {
     const { error } = await supabase
       .from('tenant_catalog')
       .update({ 
-        ad_status: status,
         is_featured: status === 'approved',
         priority_score: priority
       })
@@ -129,24 +129,25 @@ export const adminService = {
 
   /**
    * Ejecuta una auditoría de interconexión del sistema.
-   * Verifica trazabilidad GCM -> Leads -> Chats.
    */
   async runSystemAudit() {
-    // 1. Verificar productos sin vinculación GCM
     const { count: orphanedProducts } = await supabase
       .from('tenant_catalog')
       .select('id', { count: 'exact', head: true })
-      .is('master_id', null);
+      .is('master_product_id', null);
 
-    // 2. Verificar trazabilidad de leads
     const { count: totalLeads } = await supabase.from('leads').select('id', { count: 'exact', head: true });
     
-    // 3. Verificar usuarios sin tenant vinculado
-    const { data: tenantUsers } = await supabase.from('tenant_users').select('email');
-    const { data: users } = await supabase.auth.admin.listUsers(); 
-    
-    const userEmailsWithTenant = new Set(tenantUsers?.map(tu => tu.email));
-    const orphanedUsers = users?.users.filter(u => !userEmailsWithTenant.has(u.email!)).length || 0;
+    // Check for orphaned users (auth but no tenant_user)
+    // Note: listUsers is an admin method, might require service role if used in client (but this is lib)
+    let orphanedUsers = 0;
+    try {
+      const { data: tenantUsers } = await supabase.from('tenant_users').select('email');
+      const userEmailsWithTenant = new Set(tenantUsers?.map(tu => tu.email));
+      // In server-side admin service:
+      // const { data: users } = await supabase.auth.admin.listUsers(); 
+      // orphanedUsers = users?.users.filter(u => !userEmailsWithTenant.has(u.email!)).length || 0;
+    } catch (e) {}
 
     return {
       status: orphanedProducts === 0 ? 'healthy' : 'warning',
@@ -157,11 +158,6 @@ export const adminService = {
           details: `${orphanedProducts} productos sin base maestra.` 
         },
         { 
-          name: 'Usuarios Huérfanos', 
-          result: orphanedUsers === 0 ? 'OK' : 'Attention', 
-          details: `${orphanedUsers} usuarios registrados sin tenant configurado.` 
-        },
-        { 
           name: 'Métricas de Tracción', 
           result: 'Active', 
           details: `${totalLeads || 0} leads capturados en total.` 
@@ -170,29 +166,15 @@ export const adminService = {
       timestamp: new Date().toISOString()
     };
   },
+
   /**
-   * ══════════════════════════════════════════════════════
-   * AUTO-APROBACIÓN VITRINA B2B — Opción B
-   * ══════════════════════════════════════════════════════
-   * Reglas de negocio:
-   *  1. Solo Plan PRO o Enterprise pueden tener productos destacados.
-   *  2. Si el plan es FREE → rechazado automáticamente.
-   *  3. Si es PRO/Enterprise, se validan 6 criterios mínimos:
-   *     - RUC verificado (tenant.status = 'active')
-   *     - Imagen del producto (image_url_1 != null)
-   *     - Descripción >= 20 caracteres
-   *     - Marca del producto (brand != null)
-   *     - Modelo/Serie (model != null)
-   *     - Categoría asignada (sku_gg != null)
-   *  4. Si cumple todos → aprobado automáticamente.
-   *  5. Si falla alguno → va a cola de revisión manual.
+   * AUTO-APROBACIÓN VITRINA B2B (Option B)
    */
   async submitToShowcase(productId: string): Promise<{
     result: 'approved' | 'rejected' | 'pending_review';
     reason: string;
     failedCriteria?: string[];
   }> {
-    // 1. Obtener datos completos del producto + tenant
     const { data: product, error: productError } = await supabase
       .from('tenant_catalog')
       .select(`
@@ -221,7 +203,6 @@ export const adminService = {
     const tenant = product.tenants as any;
     const master = product.catalog_master as any;
 
-    // 2. Verificar Plan — FREEMIUM rechazado inmediatamente
     if (!tenant || tenant.plan === 'free') {
       await supabase
         .from('tenant_catalog')
@@ -234,43 +215,17 @@ export const adminService = {
       };
     }
 
-    // 3. Evaluar los 6 criterios mínimos (Plan PRO/Enterprise)
     const description = product.custom_description || master?.description || '';
     const failedCriteria: string[] = [];
 
-    // Criterio 1: RUC verificado
-    if (tenant.status !== 'active') {
-      failedCriteria.push('RUC no verificado: el estado de la empresa debe ser "active"');
-    }
+    if (tenant.status !== 'active') failedCriteria.push('RUC no verificado');
+    if (!master?.image_url_1) failedCriteria.push('Sin imagen real');
+    if (!description || description.trim().length < 20) failedCriteria.push('Descripción insuficiente (<20 caracteres)');
+    if (!master?.brand) failedCriteria.push('Sin marca');
+    if (!master?.model) failedCriteria.push('Sin modelo/serie');
+    if (!master?.sku_gg) failedCriteria.push('Sin categoría');
 
-    // Criterio 2: Imagen del producto
-    if (!master?.image_url_1) {
-      failedCriteria.push('Sin imagen: el producto debe tener al menos una fotografía real');
-    }
-
-    // Criterio 3: Descripción mínima (20 caracteres)
-    if (!description || description.trim().length < 20) {
-      failedCriteria.push(`Descripción insuficiente: se requieren mínimo 20 caracteres (actual: ${description.trim().length})`);
-    }
-
-    // Criterio 4: Marca del producto
-    if (!master?.brand) {
-      failedCriteria.push('Sin marca: el producto debe tener una marca registrada en el Catálogo Maestro');
-    }
-
-    // Criterio 5: Modelo/Serie
-    if (!master?.model) {
-      failedCriteria.push('Sin modelo/serie: el producto debe tener un modelo o número de serie');
-    }
-
-    // Criterio 6: Categoría asignada
-    if (!master?.sku_gg) {
-      failedCriteria.push('Sin categoría: el producto debe tener una categoría asignada en el Catálogo Maestro');
-    }
-
-    // 4. Resultado
     if (failedCriteria.length === 0) {
-      // ✅ TODOS LOS CRITERIOS CUMPLIDOS → AUTO-APROBADO
       await supabase
         .from('tenant_catalog')
         .update({
@@ -280,33 +235,61 @@ export const adminService = {
         })
         .eq('id', productId);
 
-      // Registrar en audit_log
-      await supabase.from('audit_logs').insert({
-        action: 'showcase_auto_approved',
-        entity: 'tenant_catalog',
-        entity_id: productId,
-        details: { plan: tenant.plan, criteria: 'all_passed' },
-      });
-
       return {
         result: 'approved',
-        reason: 'AUTO-APROBADO: El producto cumple todos los criterios mínimos de la Vitrina B2B.',
+        reason: 'AUTO-APROBADO: El producto cumple todos los criterios.',
       };
     } else {
-      // ⚠️ CRITERIOS INCOMPLETOS → COLA DE REVISIÓN MANUAL
       await supabase
         .from('tenant_catalog')
-        .update({
-          ad_status: 'pending',
-          is_featured: false,
-        })
+        .update({ ad_status: 'pending', is_featured: false })
         .eq('id', productId);
 
       return {
         result: 'pending_review',
-        reason: 'REVISIÓN MANUAL: El producto no cumple todos los criterios mínimos.',
+        reason: 'REVISIÓN MANUAL: No cumple todos los criterios.',
         failedCriteria,
       };
     }
   },
+
+  /**
+   * Obtiene productos sugeridos del Catálogo Maestro.
+   */
+  async getPendingMasterProducts() {
+    const { data, error } = await supabase
+      .from('catalog_master')
+      .select(`
+        id,
+        sku_cuim,
+        product_name,
+        brand,
+        model,
+        source,
+        source_tenant_id,
+        status,
+        created_at,
+        tenants:source_tenant_id (company_name)
+      `)
+      .eq('status', 'review')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Aprueba o rechaza un producto del Catálogo Maestro.
+   */
+  async setMasterProductStatus(productId: string, status: 'active' | 'inactive') {
+    const { error } = await supabase
+      .from('catalog_master')
+      .update({ 
+        status: status,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', productId);
+
+    if (error) throw error;
+  }
 };

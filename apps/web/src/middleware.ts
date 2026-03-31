@@ -5,8 +5,11 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   let response = NextResponse.next();
   
-  // 🌍 Locale and Public Routes
-  const isPublicRoute = /^\/($|login|register|sobre-nosotros|catalogo-digital|catalogo-maestro|planes|blog|contacto|privacidad|terminos|cookies|calidad|seguridad|confianza|sostenibilidad|inversores|marketing|socios)/.test(pathname);
+  const segments = pathname.split('/').filter(Boolean);
+  const baseSegment = (segments[0]?.length === 2 && /^[a-z]{2}$/i.test(segments[0])) ? segments[1] : segments[0];
+  const publicPaths = ['login', 'register', 'master', 'admin-console', 'sobre-nosotros', 'catalogo-digital', 'catalogo-maestro', 'planes', 'blog', 'contacto', 'privacidad', 'terminos', 'cookies', 'calidad', 'seguridad', 'confianza', 'sostenibilidad', 'inversores', 'marketing', 'socios'];
+  
+  const isPublicRoute = !baseSegment || publicPaths.includes(baseSegment.toLowerCase());
   
   // 🌍 Global Locale Persistence
   const locale = request.cookies.get('NEXT_LOCALE')?.value || 'es';
@@ -15,7 +18,7 @@ export function middleware(request: NextRequest) {
 
 
   // 🔒 Protected Routes Guard (Dashboard / PWA Entry)
-  if (request.nextUrl.searchParams.get('mode') === 'welcome' && pathname !== '/login') {
+  if (request.nextUrl.searchParams.get('mode') === 'welcome' && pathname !== '/login' && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     // Preserve search params for LoginClient to handle logout

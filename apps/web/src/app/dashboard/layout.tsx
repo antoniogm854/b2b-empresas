@@ -21,12 +21,12 @@ import {
   ChevronRight,
   LayoutDashboard,
   Download,
-  Smartphone
+  Smartphone,
+  RefreshCw
 } from "lucide-react";
 import { authService, UserProfile } from "@/lib/auth-service";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
 
 export default function DashboardLayout({
   children,
@@ -38,14 +38,41 @@ export default function DashboardLayout({
   const [mounted, setMounted] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [showEmergencyReload, setShowEmergencyReload] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   const router = useRouter();
   const pathname = usePathname();
 
+  const handleForceReload = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+      window.location.reload();
+    } catch (e) {
+      window.location.href = window.location.href;
+    }
+  };
+
+  const handleBeforeInstall = (e: any) => {
+    e.preventDefault();
+    setDeferredPrompt(e);
+  };
+
   React.useEffect(() => {
     setMounted(true);
     
-
+    const emergencyTimer = setTimeout(() => {
+      setShowEmergencyReload(true);
+    }, 7000);
 
     const loadData = async () => {
       try {
@@ -56,8 +83,6 @@ export default function DashboardLayout({
         }
         setUser(user);
         
-        // Cargar datos del Tenant para el Header dinámico
-        // 1. Verificación de Rol Maestro (Superadmin)
         const internalRole = await authService.getInternalRole(user.email!);
         const isMaster = internalRole === 'superadmin';
         
@@ -73,19 +98,15 @@ export default function DashboardLayout({
             _is_master: isMaster
           });
         } else if (isMaster) {
-          // Si es superadmin pero no tiene tenant vinculado, cargar el Tenant Patrón (ID: 000...0)
           const { data: masterTenant } = await supabase
             .from('tenants')
             .select('*')
             .eq('id', '00000000-0000-0000-0000-000000000000')
             .maybeSingle();
-          
-          if (masterTenant) {
-            setTenant({ ...masterTenant, _is_master: true });
-          }
+          if (masterTenant) setTenant({ ...masterTenant, _is_master: true });
         }
       } catch (err) {
-        console.error("Error cargando datos en layout:", err);
+        console.error("Error loading dashboard layout data:", err);
       } finally {
         setCheckingAuth(false);
       }
@@ -93,21 +114,36 @@ export default function DashboardLayout({
 
     loadData();
 
-
-  }, []);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      clearTimeout(emergencyTimer);
+    };
+  }, [router]);
 
   if (!mounted || checkingAuth) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-16 h-16 border-4 border-[#A2C367] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#A2C367] font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Iniciando Centro de Control...</p>
+      <div className="min-h-screen bg-black flex items-center justify-center p-6 transition-all duration-700">
+        <div className="flex flex-col items-center gap-8 max-w-sm text-center">
+          <div className="w-16 h-16 border-4 border-[#A2C367] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_#A2C367/20]" />
+          <div className="space-y-4">
+            <p className="text-[#A2C367] font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Iniciando Centro de Control...</p>
+            {showEmergencyReload && (
+              <div className="animate-reveal space-y-4 pt-4 border-t border-white/10">
+                <p className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest leading-relaxed">¿Demasiado tiempo cargando? Intente una recarga forzada.</p>
+                <button 
+                  onClick={handleForceReload}
+                  className="bg-white/5 border border-[#A2C367]/30 text-[#A2C367] px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#A2C367] hover:text-black transition-all flex items-center gap-2 mx-auto shadow-lg shadow-[#A2C367]/10"
+                >
+                  <RefreshCw size={14} className="animate-spin-slow" /> Limpiar Caché y Forzar Recarga
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   }
-
-
 
   const handleLogout = async () => {
     await authService.signOut();
@@ -125,59 +161,30 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)]/30 font-sans industrial-bg transition-colors duration-300">
-      {/* Capa de Reflejos Industriales */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#4B6319]/20 blur-[150px] rounded-full" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#A2C367]/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* Fondo Industrial B2B para Perfil - Cobertura Total */}
       {pathname === '/dashboard/profile' && (
-        <div 
-          className="fixed inset-0 pointer-events-none opacity-[0.15] z-[1]"
-          style={{ 
-            backgroundImage: 'url("/b2b_profile_bg.png")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
+        <div className="fixed inset-0 pointer-events-none opacity-[0.15] z-[1]" style={{ backgroundImage: 'url("/b2b_profile_bg.png")', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} />
       )}
 
-      {/* Sidebar */}
-      <aside 
-        className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 border-r border-[var(--border)] overflow-hidden ${
-          isSidebarOpen ? "w-72" : "w-24"
-        } glass shadow-2xl shadow-black/10`}
-      >
+      <aside className={`fixed top-0 left-0 z-50 h-screen transition-all duration-500 border-r border-[var(--border)] overflow-hidden ${isSidebarOpen ? "w-72" : "w-24"} glass shadow-2xl shadow-black/10`}>
         <div className="flex flex-col h-full px-5 py-8">
           <div className="flex items-center justify-between mb-12 px-2">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-10 h-10 transition-transform group-hover:scale-110 flex-shrink-0">
-                <Image 
-                  src="/logo/logo-icon.png" 
-                  alt="Logo Icon" 
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                  priority
-                />
+                <Image src="/logo/logo-icon.png" alt="Logo Icon" width={40} height={40} className="object-contain" priority />
               </div>
               {isSidebarOpen && (
                 <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 ml-1 animate-fade-in">
-                  <span className="text-xl font-black uppercase tracking-tighter italic text-[var(--strong-text)] leading-none">
-                    B2B
-                  </span>
-                  <span className="text-xl font-black uppercase tracking-tighter italic text-[var(--primary)] leading-none">
-                    EMPRESAS
-                  </span>
+                  <span className="text-xl font-black uppercase tracking-tighter italic text-[var(--strong-text)] leading-none">B2B</span>
+                  <span className="text-xl font-black uppercase tracking-tighter italic text-[var(--primary)] leading-none">EMPRESAS</span>
                 </div>
               )}
             </Link>
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-xl bg-[var(--muted)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm"
-            >
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-xl bg-[var(--muted)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
               {mounted && (isSidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />)}
             </button>
           </div>
@@ -185,9 +192,7 @@ export default function DashboardLayout({
           <nav className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar relative z-10">
             {tenant?._is_master && (
               <div className="mb-6 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-center animate-pulse">
-                  Modo Maestro: Gestión de Patrón
-                </p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-center animate-pulse">Modo Maestro: Gestión de Patrón</p>
               </div>
             )}
             
@@ -197,18 +202,8 @@ export default function DashboardLayout({
               
               if (isCatalogDigital && isSidebarOpen) {
                 return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all group border-2 ${
-                      isActive 
-                        ? "bg-[#A2C367]/20 border-[#A2C367] shadow-[0_0_20px_rgba(162,195,103,0.15)]" 
-                        : "border-[var(--panel-border)] bg-[var(--panel-bg)] hover:bg-[var(--muted)] hover:border-[var(--border)]"
-                    }`}
-                  >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg transition-all ${
-                      isActive ? "bg-[#A2C367] text-black" : "bg-[var(--panel-bg)] text-[#A2C367] group-hover:bg-[#A2C367] group-hover:text-black"
-                    }`}>
+                  <Link key={item.label} href={item.href} className={`flex items-center gap-4 p-4 rounded-2xl transition-all group border-2 ${isActive ? "bg-[#A2C367]/20 border-[#A2C367] shadow-[0_0_20px_rgba(162,195,103,0.15)]" : "border-[var(--panel-border)] bg-[var(--panel-bg)] hover:bg-[var(--muted)] hover:border-[var(--border)]"}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg transition-all ${isActive ? "bg-[#A2C367] text-black" : "bg-[var(--panel-bg)] text-[#A2C367] group-hover:bg-[#A2C367] group-hover:text-black"}`}>
                       {mounted && <item.icon size={22} />}
                     </div>
                     <div className="text-left">
@@ -220,52 +215,31 @@ export default function DashboardLayout({
               }
 
               return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all group relative ${
-                    isActive 
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)] font-black shadow-[0_0_20px_rgba(75,99,25,0.3)]" 
-                      : "text-[var(--muted-foreground)] hover:text-[var(--strong-text)] hover:bg-[var(--muted)]"
-                  }`}
-                >
+                <Link key={item.label} href={item.href} className={`flex items-center space-x-4 px-4 py-4 rounded-xl transition-all group relative ${isActive ? "bg-[var(--primary)] text-[var(--primary-foreground)] font-black shadow-[0_0_20px_rgba(75,99,25,0.3)]" : "text-[var(--muted-foreground)] hover:text-[var(--strong-text)] hover:bg-[var(--muted)]"}`}>
                   {mounted && <item.icon className={`w-5 h-5 shrink-0 ${isActive ? "text-black" : "group-hover:text-[#A2C367] group-hover:scale-110 transition-all"}`} />}
-                  {isSidebarOpen && (
-                    <span className="font-black text-[11px] uppercase tracking-widest truncate">{item.label}</span>
-                  )}
+                  {isSidebarOpen && <span className="font-black text-[11px] uppercase tracking-widest truncate">{item.label}</span>}
                 </Link>
               );
             })}
           </nav>
 
-
-
-          <button 
-            onClick={handleLogout}
-            className="flex items-center p-4 rounded-2xl text-[var(--muted-foreground)] hover:bg-red-50 hover:text-red-600 transition-all font-black uppercase text-[10px] tracking-widest mt-auto border border-transparent hover:border-red-100" 
-          >
+          <button onClick={handleLogout} className="flex items-center p-4 rounded-2xl text-[var(--muted-foreground)] hover:bg-red-50 hover:text-red-600 transition-all font-black uppercase text-[10px] tracking-widest mt-auto border border-transparent hover:border-red-100"> 
             {mounted && <LogOut className="w-5 h-5 shrink-0" />}
             {isSidebarOpen && <span className="ml-4">Cerrar Sesión</span>}
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className={`transition-all duration-500 pt-20 relative z-10 ${isSidebarOpen ? "pl-72" : "pl-24"}`}>
-        {/* Top Header */}
         <header className={`fixed top-0 right-0 z-40 flex items-center justify-between px-8 glass border-b border-[var(--border)] transition-all duration-500 h-20 ${isSidebarOpen ? "left-72" : "left-24"}`}>
           <div className="flex-1" />
-
           <div className="flex items-center space-x-6">
-            
             <button className="relative p-2.5 rounded-xl bg-[var(--muted)]/50 border border-[var(--border)] hover:border-[#A2C367]/50 transition-all group overflow-hidden">
               <div className="absolute inset-0 bg-[#A2C367]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               {mounted && <Bell size={18} className="text-[#A2C367] relative z-10" />}
               <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-[#A2C367] rounded-full border border-[var(--background)] z-20 shadow-[0_0_8px_#A2C367]"></span>
             </button>
-            
             <div className="h-6 w-px bg-[#1A1A1A] mx-2"></div>
-
             <div className="flex items-center space-x-4 cursor-pointer group">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-black text-[var(--strong-text)] leading-none uppercase tracking-tighter italic group-hover:text-[var(--primary)] transition-colors">
@@ -276,35 +250,19 @@ export default function DashboardLayout({
                 </p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-[var(--muted)] border-2 border-[var(--border)] group-hover:border-[#A2C367] transition-all flex items-center justify-center font-black text-[#A2C367] shadow-xl uppercase text-base italic overflow-hidden relative">
-                 {tenant?.logo_url ? (
-                   <Image 
-                     src={tenant.logo_url} 
-                     alt="Empresa" 
-                     fill 
-                     className="object-cover"
-                   />
-                 ) : (
+                 {tenant?.logo_url ? <Image src={tenant.logo_url} alt="Empresa" fill className="object-cover" /> : (
                    <>
                      <div className="absolute inset-0 bg-gradient-to-tr from-[#A2C367]/10 to-transparent" />
-                     <span className="relative z-10">
-                       {(tenant?.company_name || "RP").substring(0, 2).toUpperCase()}
-                     </span>
+                     <span className="relative z-10">{(tenant?.company_name || "RP").substring(0, 2).toUpperCase()}</span>
                    </>
                  )}
                </div>
             </div>
           </div>
         </header>
-
-        {/* Page Content */}
-        <div className="p-8 lg:p-12 animate-fade-in max-w-7xl mx-auto relative z-10">
-          {children}
-        </div>
-        
-        {/* Watermark Logo */}
+        <div className="p-8 lg:p-12 animate-fade-in max-w-7xl mx-auto relative z-10">{children}</div>
         <div className="watermark-logo" />
       </main>
-
     </div>
   );
 }

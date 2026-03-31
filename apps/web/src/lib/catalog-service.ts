@@ -39,6 +39,7 @@ export interface CatalogMasterProduct {
   sku_mpn?: string;
   sku_gg?: string;
   sku_ge?: string;
+  category_id?: string;
   product_name: string;
   description?: string;
   unit_measure?: string;
@@ -59,11 +60,28 @@ export interface CatalogMasterProduct {
   datasheet_url_1?: string;
   datasheet_url_2?: string;
   datasheet_url_3?: string;
+  slug?: string;
   status: 'active' | 'review' | 'inactive';
 }
 
 export const catalogService = {
-  // Obtener conteo de productos de un tenant
+  // ─── GENERADORES INDUSTRIALES (Digital DNA) ───────────────────────────────
+  
+  generateCUIM(categoryPrefix: string = 'SUM'): string {
+    const years = new Date().getFullYear().toString().substring(2);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `SKU-CUIM-${categoryPrefix}-${years}${random}`;
+  },
+
+  generateCUIE(ruc: string | undefined): string {
+    const cleanRuc = ruc || '00000000000';
+    const random = Math.floor(100 + Math.random() * 899);
+    const seq = Math.floor(1000 + Math.random() * 8999);
+    return `CUIE-CUIM-${cleanRuc}-${random}${seq}`;
+  },
+
+  // ─── GESTIÓN DE TENANTS ──────────────────────────────────────────────────
+
   async getTenantProductCount(tenantId: string) {
     const { count, error } = await supabase
       .from('tenant_catalog')
@@ -74,10 +92,8 @@ export const catalogService = {
     return count || 0;
   },
 
-  // Verificar si un tenant puede agregar más productos (Límite 20 en Free)
   async canAddProduct(tenantId: string, currentPlan: string = 'free') {
     if (currentPlan !== 'free') return { allowed: true };
-    
     const count = await this.getTenantProductCount(tenantId);
     return {
       allowed: count < 20,
@@ -86,7 +102,6 @@ export const catalogService = {
     };
   },
 
-  // Obtener productos de un tenant específico
   async getTenantProducts(tenantId: string) {
     const { data, error } = await supabase
       .from('tenant_catalog')
@@ -99,8 +114,8 @@ export const catalogService = {
     return data as any[];
   },
 
-  // Buscar en el Catálogo Maestro (catalog_master)
-  // Usa full-text search si hay query, de lo contrario devuelve todos
+  // ─── BÚSQUEDA Y FILTRADO ─────────────────────────────────────────────────
+
   async searchMaster(query: string) {
     let q = supabase
       .from('catalog_master')
@@ -108,7 +123,6 @@ export const catalogService = {
       .eq('status', 'active');
 
     if (query && query.trim().length > 0) {
-      // Intentar full-text search primero; si falla, usar ilike
       try {
         const { data, error } = await supabase
           .from('catalog_master')
@@ -118,9 +132,8 @@ export const catalogService = {
           .limit(30);
 
         if (!error && data && data.length > 0) return data as any[];
-      } catch (_) { /* fall through to ilike */ }
+      } catch (_) {}
 
-      // Fallback: búsqueda por ilike en nombre y marca
       q = q.or(
         `product_name.ilike.%${query}%,brand.ilike.%${query}%,sku_gg.ilike.%${query}%,sku_cuim.ilike.%${query}%`
       );
@@ -131,7 +144,6 @@ export const catalogService = {
     return data as any[];
   },
 
-  // Búsqueda Paramétrica de Alto Rendimiento (v6.0)
   async searchParametric(filters: {
     query?: string;
     category?: string;
@@ -151,28 +163,18 @@ export const catalogService = {
         )
       `);
 
-    if (filters.query) {
-      q = q.ilike('product_name', `%${filters.query}%`);
-    }
-    if (filters.category) {
-      q = q.eq('category_id', filters.category);
-    }
-    if (filters.brand) {
-      q = q.eq('brand', filters.brand);
-    }
-    // Nota: El filtrado por precio se realiza sobre tenant_catalog en una subconsulta o post-filtro
-    // Para v6.0 optimizaremos con una vista o consulta RPC si el volumen crece.
+    if (filters.query) q = q.ilike('product_name', `%${filters.query}%`);
+    if (filters.category) q = q.eq('category_id', filters.category);
+    if (filters.brand) q = q.eq('brand', filters.brand);
     
     const { data, error } = await q.limit(filters.limit || 50);
-
     if (error) throw error;
 
-    // Post-filtrado de precios si es necesario
     let results = data;
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       results = data.filter(item => {
         const prices = item.tenant_catalog?.map((tc: any) => tc.unit_price) || [];
-        if (prices.length === 0) return true; // Si no hay precio, lo incluimos (a convenir)
+        if (prices.length === 0) return true;
         const min = Math.min(...prices);
         const max = Math.max(...prices);
         if (filters.minPrice && max < filters.minPrice) return false;
@@ -180,208 +182,244 @@ export const catalogService = {
         return true;
       });
     }
-
     return results;
   },
 
-  // Obtener categorías únicas para filtros
   async getUniqueCategories() {
     const { data, error } = await supabase
       .from('catalog_master')
       .select('category_id')
       .not('category_id', 'is', null);
-    
     if (error) throw error;
     return Array.from(new Set(data.map(i => i.category_id))) as string[];
   },
 
-  // Obtener marcas únicas para filtros
   async getUniqueBrands() {
     const { data, error } = await supabase
       .from('catalog_master')
       .select('brand')
       .not('brand', 'is', null);
-    
     if (error) throw error;
     return Array.from(new Set(data.map(i => i.brand))) as string[];
   },
 
-  // Vincular un producto del Maestro al catálogo del tenant
+  // ─── DEDUPLICACIÓN Y FUSIÓN (v6.1.8) ───────────────────────────────────────
+
+  async findExistingProduct(tenantId: string, params: { sku?: string, name?: string, category?: string }) {
+    if (params.sku) {
+      const { data: bySKU } = await supabase
+        .from('tenant_catalog')
+        .select('*, master_product_id(*)')
+        .eq('tenant_id', tenantId)
+        .eq('sku_cuie', params.sku)
+        .maybeSingle();
+      if (bySKU) return bySKU;
+    }
+
+    if (params.name) {
+      const { data: byName } = await supabase
+        .from('tenant_catalog')
+        .select('*, master_product_id(*)')
+        .eq('tenant_id', tenantId)
+        .ilike('custom_name', params.name)
+        .maybeSingle();
+
+      if (byName) {
+        const currentCategory = byName.metadata?.category || byName.master_product_id?.sku_gg;
+        if (!params.category || currentCategory === params.category) {
+          return byName;
+        }
+      }
+    }
+
+    if (params.name) {
+      const { data: byMaster } = await supabase
+        .from('catalog_master')
+        .select('*')
+        .ilike('product_name', params.name)
+        .eq('sku_gg', params.category)
+        .maybeSingle();
+      if (byMaster) return { isMaster: true, ...byMaster };
+    }
+    return null;
+  },
+
+  mergeProductData(existing: any, newData: any) {
+    const merged = { ...existing };
+    if (!merged.custom_description && (newData.observations || newData.description)) {
+      merged.custom_description = newData.observations || newData.description;
+    }
+    if (!merged.unit_price && newData.price) merged.unit_price = parseFloat(newData.price);
+    if (newData.stock) merged.stock_quantity = (merged.stock_quantity || 0) + parseInt(newData.stock);
+    if (newData.dispatch) merged.dispatch_time = newData.dispatch;
+    if (newData.location) merged.location = newData.location;
+
+    if (newData.images) {
+      merged.images = Array.from(new Set([...(merged.images || []), ...newData.images]));
+    }
+    if (newData.files) {
+      merged.documents = Array.from(new Set([...(merged.documents || []), ...newData.files]));
+    }
+    return merged;
+  },
+
+  // ─── ESCRITURA Y VINCULACIÓN ─────────────────────────────────────────────
+
   async linkMasterProduct(tenantId: string, masterProduct: CatalogMasterProduct, customData?: any) {
-    // 1. Verificar plan y límites
     const { data: tenant } = await supabase.from('tenants').select('plan').eq('id', tenantId).single();
     const limitCheck = await this.canAddProduct(tenantId, tenant?.plan || 'free');
-    
     if (!limitCheck.allowed) {
-      throw new Error(`Límite alcanzado: Tu plan actual permite un máximo de ${limitCheck.limit} productos. Actualiza a Catálogo Digital PRO.`);
+      throw new Error(`Límite alcanzado: Tu plan actual permite un máximo de ${limitCheck.limit} productos.`);
     }
 
     const { data: linkData, error: linkError } = await supabase
       .from('tenant_catalog')
-      .insert([
-        {
-          tenant_id: tenantId,
-          master_product_id: masterProduct.id,
-          custom_name: customData?.custom_name || masterProduct.product_name,
-          custom_description: customData?.custom_description || `Producto vinculado desde Catálogo Maestro. Marca: ${masterProduct.brand || 'N/A'} - Modelo: ${masterProduct.model || 'N/A'}`,
-          unit_price: customData?.unit_price || 0,
-          stock_available: true,
-          is_active: true,
-          sku_cuie: customData?.sku_cuie
-        }
-      ])
-      .select()
-      .single();
+      .insert([{
+        tenant_id: tenantId,
+        master_product_id: masterProduct.id,
+        custom_name: customData?.custom_name || masterProduct.product_name,
+        custom_description: customData?.custom_description || `Vinculado desde Maestro. Marca: ${masterProduct.brand || 'N/A'}`,
+        unit_price: customData?.unit_price || 0,
+        stock_available: true,
+        is_active: true,
+        sku_cuie: customData?.sku_cuie
+      }])
+      .select().single();
 
     if (linkError) throw linkError;
     return linkData as Product;
   },
 
-  // Obtener un producto por ID
-  async getProductById(id: string) {
-    const { data, error } = await supabase
-      .from('tenant_catalog')
-      .select('*')
-      .eq('id', id)
-      .single();
+  async createProduct(tenantId: string, p: any) {
+    // 1. Deduplicación
+    const existing = await this.findExistingProduct(tenantId, { 
+      sku: p.skuCUIE || p.skuMPN, 
+      name: p.name, 
+      category: p.category 
+    });
 
-    if (error) throw error;
-    return data as Product;
-  },
-
-  // Actualizar un producto
-  async updateProduct(id: string, updates: Partial<Product>) {
-    const { data, error } = await supabase
-      .from('tenant_catalog')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as Product;
-  },
-
-  // Crear productos en masa (Onboarding / Importación)
-  // Sigue el flujo: 1. Crear en catalog_master -> 2. Crear en tenant_catalog
-  async bulkCreateProducts(tenantId: string, products: any[]) {
-    // 🛡️ Verificar plan y límites (v6.0)
-    const { data: tenant } = await supabase.from('tenants').select('plan').eq('id', tenantId).single();
-    const currentCount = await this.getTenantProductCount(tenantId);
-    
-    if ((tenant?.plan === 'free' || !tenant?.plan) && (currentCount + products.length) > 20) {
-      throw new Error(`Límite excedido: No puedes tener más de 20 productos en el plan Free. Estás intentando subir ${products.length} para un total de ${currentCount + products.length}.`);
+    if (existing && !existing.isMaster) {
+      const mergedData = this.mergeProductData(existing, p);
+      return await this.updateProduct(existing.id, mergedData);
     }
 
-    // 1. Preparar inserción en catalog_master (con slug y normalización de marca)
-    const masterInserts = products.map((p) => {
+    // 2. Maestro Check / Create
+    let masterId = existing?.isMaster ? existing.id : null;
+
+    if (!masterId) {
       const normalizedBrand = normalizeBrand(p.brand) ?? p.brand;
+      const generatedCUIM = this.generateCUIM(p.category?.substring(0, 3).toUpperCase());
       const slug = generateSlug(p.name, normalizedBrand, p.model);
-      
-      // Auto-generación de SKU-CUIM si no existe (Digital DNA)
-      const autoCUIM = p.skuCUIM || `CMB-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-      
-      return {
-        product_name: p.name,
-        description:  p.description,
-        brand:        normalizedBrand,
-        model:        p.model,
-        sku_mpn:      p.skuMPN,
-        unit_measure: p.unit,
-        sku_cuim:     autoCUIM,
-        sku_gg:       p.skuGG,
-        sku_ge:       p.skuGE,
-        code_serial:  p.serial,
-        color:        p.color,
-        size:         p.size,
-        material:     p.material,
-        origin:       p.origin,
-        observations: p.observations,
-        presentation: p.presentation,
-        is_certified: p.isCertified === true || p.isCertified === 'true',
-        image_url_1:  p.images?.[0] || p.imageUrl,
-        image_url_2:  p.images?.[1],
-        image_url_3:  p.images?.[2],
-        datasheet_url_1: p.documents?.[0],
-        datasheet_url_2: p.documents?.[1],
-        datasheet_url_3: p.documents?.[2],
-        slug,
-        source:           'manual',
-        source_tenant_id: tenantId,
-        status:           'review'
-      };
-    });
 
-    const { data: masterData, error: masterError } = await supabase
-      .from('catalog_master')
-      .upsert(masterInserts, { onConflict: 'sku_cuim' })
-      .select('id, sku_cuim');
+      const { data: masterData, error: masterError } = await supabase
+        .from('catalog_master')
+        .insert([{
+          sku_cuim: p.skuCUIM || generatedCUIM,
+          code_serial: p.skuMPN || p.mpn,
+          sku_gg: p.skuGG || p.category,
+          sku_ge: p.skuGE || p.subCategory,
+          product_name: p.name,
+          description: p.observations || p.description,
+          brand: normalizedBrand,
+          model: p.model,
+          unit_measure: p.unit,
+          color: p.color,
+          size: p.size,
+          material: p.material,
+          origin: p.origin,
+          observations: p.observations,
+          presentation: p.presentation,
+          is_certified: p.isCertified === 'SI' || p.isCertified === true,
+          source: 'suggested',
+          source_tenant_id: tenantId,
+          status: 'review',
+          slug,
+          image_url_1: p.imageUrl || (p.images && p.images[0]),
+          image_url_2: p.images && p.images[1],
+          image_url_3: p.images && p.images[2],
+          datasheet_url_1: p.files && p.files[0],
+          datasheet_url_2: p.files && p.files[1],
+          datasheet_url_3: p.files && p.files[2]
+        }])
+        .select('id').single();
 
-    if (masterError) throw masterError;
+      if (masterError) throw masterError;
+      masterId = masterData?.id;
+    }
 
-    // 2. Preparar inserción en tenant_catalog vinculando los IDs creados
-    const tenantInserts = products.map((p, index) => {
-      const masterProduct = masterData?.find(m => m.sku_cuim === masterInserts[index].sku_cuim);
-      
-      // Auto-generación de CID-CUIE (Company Unique ID)
-      const autoCUIE = p.skuCUIE || `CORP-${tenantId.substring(0, 4).toUpperCase()}-${Math.floor(Date.now() / 1000).toString().slice(-4)}`;
-      
-      return {
-        tenant_id: tenantId,
-        master_product_id: masterProduct?.id,
-        sku_cuie: autoCUIE,
-        custom_name: p.name,
-        custom_description: p.description,
-        unit_price: parseFloat(p.price) || 0,
-        stock_available: (parseInt(p.stock) || 0) > 0,
-        stock_quantity: parseInt(p.stock) || 0,
-        dispatch_time: p.dispatch,
-        location: p.location,
-        is_active: true
-      };
-    });
+    // 3. Tenant Catalog Create
+    const rucMatch = tenantId.match(/\d{11}/);
+    const generatedCUIE = this.generateCUIE(rucMatch ? rucMatch[0] : '20602060650');
 
     const { data: tenantData, error: tenantError } = await supabase
       .from('tenant_catalog')
-      .upsert(tenantInserts, { onConflict: 'sku_cuie', ignoreDuplicates: false })
-      .select();
+      .insert([{
+        tenant_id: tenantId,
+        master_product_id: masterId,
+        sku_cuie: p.skuCUIE || generatedCUIE,
+        custom_name: p.name,
+        custom_description: p.observations || p.description,
+        unit_price: parseFloat(p.price) || 0,
+        currency: p.currency || 'USD',
+        stock_available: (parseInt(p.stock) > 0) || p.stock_available === true,
+        stock_quantity: parseInt(p.stock) || 0,
+        dispatch_time: p.dispatch,
+        location: p.location,
+        imported_from_web: p.imported_from_web || false,
+        import_source_url: p.import_source_url || null,
+        is_active: true
+      }])
+      .select().single();
 
     if (tenantError) throw tenantError;
-    return tenantData;
+    return tenantData as Product;
   },
 
-  // Actualizar un producto del Maestro (Admin Console)
-  // Incluye normalización automática de marca y regeneración de slug
-  async updateMasterProduct(id: string, updates: any) {
-    const dataToUpdate = { ...updates };
-    
-    // Si se actualizan campos clave, normalizamos
-    if (dataToUpdate.brand) {
-      dataToUpdate.brand = normalizeBrand(dataToUpdate.brand) ?? dataToUpdate.brand;
+  async bulkCreateProducts(tenantId: string, products: any[]) {
+    // 🛡️ Plan limits
+    const { data: tenant } = await supabase.from('tenants').select('plan').eq('id', tenantId).single();
+    const currentCount = await this.getTenantProductCount(tenantId);
+    if ((tenant?.plan === 'free' || !tenant?.plan) && (currentCount + products.length) > 20) {
+      throw new Error(`Límite excedido: Plan Free solo permite 20 productos.`);
     }
 
-    const { data, error } = await supabase
-      .from('catalog_master')
-      .update(dataToUpdate)
-      .eq('id', id)
-      .select()
-      .single();
+    const results = [];
+    for (const p of products) {
+      try {
+        const res = await this.createProduct(tenantId, p);
+        results.push(res);
+      } catch (e) {
+        console.error(`Error en bulk product:`, e);
+      }
+    }
+    return results;
+  },
 
+  async getProductById(id: string) {
+    const { data, error } = await supabase.from('tenant_catalog').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data as Product;
+  },
+
+  async updateProduct(id: string, updates: Partial<Product>) {
+    const cleanUpdates = { ...updates };
+    if (typeof cleanUpdates.master_product_id === 'object') delete cleanUpdates.master_product_id;
+    const { data, error } = await supabase.from('tenant_catalog').update(cleanUpdates).eq('id', id).select().single();
+    if (error) throw error;
+    return data as Product;
+  },
+
+  async updateMasterProduct(id: string, updates: any) {
+    const dataToUpdate = { ...updates };
+    if (dataToUpdate.brand) dataToUpdate.brand = normalizeBrand(dataToUpdate.brand) ?? dataToUpdate.brand;
+    const { data, error } = await supabase.from('catalog_master').update(dataToUpdate).eq('id', id).select().single();
     if (error) throw error;
     return data;
   },
 
-  // Obtener plantillas técnicas inteligentes (v1.04)
   async getSpecsTemplates() {
-    const { data, error } = await supabase
-      .from('specs_templates')
-      .select('category, template')
-      .order('category', { ascending: true });
-    
-    if (error) {
-      console.warn("Specs Templates not found or table missing. Skipping dynamic specs.");
-      return [];
-    }
+    const { data, error } = await supabase.from('specs_templates').select('category, template').order('category', { ascending: true });
+    if (error) return [];
     return data;
   }
 };

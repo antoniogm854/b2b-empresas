@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Lock, ShieldCheck, ChevronRight, LayoutDashboard, Settings, UserCheck, KeyRound, Mail, Eye, EyeOff, X, AlertTriangle } from "lucide-react";
+import { Lock, ShieldCheck, ChevronRight, LayoutDashboard, Settings, UserCheck, KeyRound, Mail, Eye, EyeOff, X, AlertTriangle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 // ─── MASTER CREDENTIALS (single source of truth) ─────────────────────────────
 const MASTER_KEY = "B2BMaster2024";
@@ -123,17 +124,31 @@ function RecoveryModal({ onClose }: { onClose: () => void }) {
 
 export default function MasterClient() {
   const t = useTranslations("Master");
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
   const [showRecovery, setShowRecovery] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true); 
+  }, []);
+
+  // Handle Redirection properly
+  useEffect(() => {
+    if (isUnlocked) {
+      const timer = setTimeout(() => {
+        router.push('/admin-console');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isUnlocked, router]);
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === MASTER_KEY) {
+      sessionStorage.setItem('admin_master_auth', 'true');
       setIsUnlocked(true);
       setError("");
       // Autorización Global Unificada
@@ -188,7 +203,6 @@ export default function MasterClient() {
                   </button>
                 </form>
 
-                {/* ── Recovery Link ── */}
                 <button
                   onClick={() => setShowRecovery(true)}
                   className="flex items-center gap-2 text-[10px] font-black text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors uppercase tracking-widest"
@@ -204,14 +218,29 @@ export default function MasterClient() {
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-md animate-fade-in flex flex-col items-center text-center space-y-6">
-            <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-3xl flex items-center justify-center text-[var(--primary)] animate-pulse shadow-xl shadow-[var(--primary)]/20">
-              <ShieldCheck size={40} />
-            </div>
-            <h2 className="text-2xl font-black text-white uppercase tracking-widest">{t('verified_badge') || 'Acceso Verificado'}</h2>
-            <p className="text-sm font-bold text-[var(--muted-foreground)]">Redirigiendo al Control Maestro...</p>
-            <div className="w-48 h-1 bg-[var(--border)] rounded-full overflow-hidden mt-6">
-               <div className="h-full bg-[var(--primary)] animate-pulse w-full"></div>
+          <div className="w-full max-w-lg mx-auto bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] shadow-2xl animate-fade-in">
+            <div className="text-center space-y-6">
+              <div className="flex flex-col items-center">
+                <ShieldCheck size={80} className="text-[var(--primary)] animate-pulse mb-6" />
+                <h2 className="text-3xl font-black text-white uppercase tracking-tighter italic">Acceso Verificado</h2>
+                <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-xs mt-4">Redirigiendo a Consola de Mando...</p>
+              </div>
+              
+              <div className="pt-8 space-y-4">
+                <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                  <div className="bg-[var(--primary)] h-full animate-progress-fast"></div>
+                </div>
+                
+                <div className="flex justify-center pt-4">
+                  <button 
+                    onClick={() => router.push('/admin-console')}
+                    className="flex items-center gap-2 text-[10px] font-black text-[var(--primary)] hover:text-white transition-all uppercase tracking-widest bg-white/5 px-6 py-3 rounded-full border border-[var(--primary)]/20 hover:border-[var(--primary)]/50"
+                  >
+                    <span>Click aquí si no eres redirigido</span>
+                    <ExternalLink size={12} />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

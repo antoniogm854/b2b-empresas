@@ -1,10 +1,12 @@
-"use client";
+"use client"; 
 
 import { useState, useEffect } from "react";
-import { Zap } from "lucide-react";
+import { Zap, Lock, XCircle } from "lucide-react";
+import Link from 'next/link';
+import { useTranslations } from "next-intl";
+
 import { adminService, AdminStats } from "@/lib/admin-service";
 import { settingsService, SiteSettings } from "@/lib/settings-service";
-import { useTranslations } from "next-intl";
 
 import { AdminLoginGate } from "./_components/AdminLoginGate";
 import { AdminRecoveryModal } from "./_components/AdminRecoveryModal";
@@ -31,6 +33,7 @@ export default function AdminConsole() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [pendingCompanies, setPendingCompanies] = useState<any[]>([]);
   const [pendingShowcase, setPendingShowcase] = useState<any[]>([]);
+  const [pendingProducts, setPendingProducts] = useState<any[]>([]);
   const [auditResults, setAuditResults] = useState<any>(null);
   const [allCompanies, setAllCompanies] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -59,22 +62,35 @@ export default function AdminConsole() {
     const check = setInterval(() => {
       if (Date.now() - lastActivity > 3 * 60 * 1000) handleLogout();
     }, 10000);
-    return () => { events.forEach((ev) => document.removeEventListener(ev, reset)); clearInterval(check); };
+    return () => { 
+      events.forEach((ev) => document.removeEventListener(ev, reset)); 
+      clearInterval(check); 
+    };
   }, [isAuthorized, lastActivity]);
 
   const loadAdminData = async () => {
     setIsLoading(true);
     try {
-      const [s, companies, all, showcase, audit, settings] = await Promise.all([
+      const [s, companies, all, audit, settings, products] = await Promise.all([
         adminService.getGlobalStats(),
-        adminService.getPendingCompanies() as Promise<any[]>,
+        adminService.getPendingCompanies(),
         adminService.getAllCompanies(),
-        adminService.getPendingShowcase() as Promise<any[]>,
         adminService.runSystemAudit(),
         settingsService.getSettings(),
+        adminService.getPendingMasterProducts()
       ]);
-      setStats(s); setPendingCompanies(companies); setAllCompanies(all);
-      setPendingShowcase(showcase); setAuditResults(audit); setSiteSettings(settings);
+      setStats(s);
+      setPendingCompanies(companies as any[]);
+      setAllCompanies(all);
+      setAuditResults(audit);
+      setSiteSettings(settings);
+      setPendingProducts(products as any[]);
+      
+      // Feature: Get showcase products for TabShowcase if needed
+      // adminService.getPendingMarketplaceProducts() is usually what populates showcase
+      const showcase = await adminService.getPendingMarketplaceProducts();
+      setPendingShowcase(showcase);
+
     } catch (e) {
       console.error("Error loading admin data:", e);
     } finally {
@@ -100,16 +116,32 @@ export default function AdminConsole() {
   };
 
   const handleVerify = async (id: string, status: boolean) => {
-    try { await adminService.setTenantStatus(id, status ? "active" : "suspended"); await loadAdminData(); } catch {}
+    try { 
+      await adminService.setTenantStatus(id, status ? "active" : "suspended"); 
+      await loadAdminData(); 
+    } catch {}
   };
 
   const handleShowcaseAction = async (id: string, action: "approved" | "rejected") => {
-    try { await adminService.updateShowcaseStatus(id, action, action === "approved" ? 10 : 0); await loadAdminData(); } catch {}
+    try { 
+      await adminService.updateShowcaseStatus(id, action, action === "approved" ? 10 : 0); 
+      await loadAdminData(); 
+    } catch {}
+  };
+
+  const handleMasterProductAction = async (id: string, status: 'active' | 'inactive') => {
+    try {
+      await adminService.setMasterProductStatus(id, status);
+      await loadAdminData();
+    } catch (error) {}
   };
 
   const runAudit = async () => {
     setIsLoading(true);
-    try { const audit = await adminService.runSystemAudit(); setAuditResults(audit); } catch {}
+    try { 
+      const audit = await adminService.runSystemAudit(); 
+      setAuditResults(audit); 
+    } catch {}
     finally { setIsLoading(false); }
   };
 
@@ -127,7 +159,6 @@ export default function AdminConsole() {
     }
   };
 
-  // ─── Pantalla de Login ────────────────────────────────────────────────────
   if (!isAuthorized) {
     return (
       <>
@@ -144,7 +175,6 @@ export default function AdminConsole() {
     );
   }
 
-  // ─── Pantalla de Carga ────────────────────────────────────────────────────
   if (isLoading && !stats) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -156,18 +186,17 @@ export default function AdminConsole() {
     );
   }
 
-  // ─── Consola Principal ────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-6">
+    <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-6 transition-all duration-500">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout} />
 
           <div className="lg:col-span-9 space-y-8">
-            <div className="bg-white rounded-[4rem] border-2 border-primary/5 shadow-2xl overflow-hidden min-h-[600px] animate-fade-in-up">
+            <div className="bg-white rounded-[4rem] border-2 border-primary/5 shadow-2xl overflow-hidden min-h-[600px] animate-reveal">
 
-              {activeTab === "overview" && <TabOverview stats={stats} />}
+              {activeTab === "overview" && <TabOverview stats={stats!} />}
 
               {activeTab === "verifications" && (
                 <TabVerifications pendingCompanies={pendingCompanies} onVerify={handleVerify} />
@@ -179,7 +208,12 @@ export default function AdminConsole() {
                 <TabShowcase pendingShowcase={pendingShowcase} onAction={handleShowcaseAction} />
               )}
 
-              {activeTab === "catalog" && <TabCatalogMaster />}
+              {activeTab === "catalog" && (
+                <TabCatalogMaster 
+                  pendingProducts={pendingProducts} 
+                  onAction={handleMasterProductAction} 
+                />
+              )}
 
               {activeTab === "diagnostics" && (
                 <TabDiagnostics auditResults={auditResults} isLoading={isLoading} onRunAudit={runAudit} />
@@ -196,7 +230,6 @@ export default function AdminConsole() {
 
             </div>
           </div>
-
         </div>
       </div>
     </div>
